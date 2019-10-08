@@ -1,0 +1,11 @@
+<h1 class="mat-display-1">Storage devices</h1>
+<mat-divider></mat-divider>
+
+<mat-nav-list>
+  <mat-list-item *ngFor="let device of devices" [routerLink]="['/partitions/', device.path]">
+    <!--<a matLine routerLink="/partitions/{{device.path | enocdeURIComponent}}">{{device.name}}</a>-->
+      <mat-icon mat-list-icon>storage</mat-icon>
+      <p mat-line>{{device.vendor}} {{device.model}}</p>
+      <p mat-line>{{device.path}} </p>
+  </mat-list-item>
+</mat-nav-list>

@@ -1,0 +1,17 @@
+<h2 class="mat-h2">Path: {{path}}</h2>
+<mat-spinner *ngIf="loading"></mat-spinner>
+
+<mat-action-list dense *ngIf="!loading">
+  <mat-list-item *ngFor="let folder of folders" (dblclick)="chdir(folder)">
+    <mat-icon mat-list-icon>folder</mat-icon>
+    <h4 mat-line>{{folder}}</h4>
+  </mat-list-item>
+</mat-action-list>
+
+<mat-list dense *ngIf="!loading">
+    <mat-list-item *ngFor="let file of files">
+        <mat-icon mat-list-icon>note</mat-icon>
+        <h4 mat-line>{{file.name}}</h4>
+        <p mat-line> {{file.size}} </p>
+      </mat-list-item>
+</mat-list>

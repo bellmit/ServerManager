@@ -1,0 +1,30 @@
+<mat-toolbar color="primary">
+  <mat-toolbar-row>
+      <span class="right-spacer"></span>
+
+      <button mat-button routerLink="/fileExplorer" routerLinkActive="true">
+        <mat-icon>folder_open</mat-icon>
+        <span>Filemanager</span>
+      </button>
+    <button mat-button routerLink="/settings" routerLinkActive="true">
+      <mat-icon>settings</mat-icon>
+      <span>System settings</span>
+    </button>
+
+    <span class="right-spacer"></span>
+
+    <button [matMenuTriggerFor]="usbDevList" mat-icon-button *ngIf="usbDevices.length > 0">
+      <mat-icon>usb</mat-icon>
+    </button>
+    <mat-menu #usbDevList="matMenu">
+      <ng-container>
+          <button mat-menu-item *ngFor="let dev of usbDevices" [disabled]="dev.working" class="iconRight">
+              <span>Eject {{dev.name}}</span>
+              <mat-icon *ngIf="!dev.working">eject</mat-icon>
+              <mat-spinner *ngIf="dev.working" [diameter]="24"></mat-spinner>
+          </button>
+        </ng-container>
+    </mat-menu>
+  </mat-toolbar-row>
+</mat-toolbar>
+<router-outlet></router-outlet>

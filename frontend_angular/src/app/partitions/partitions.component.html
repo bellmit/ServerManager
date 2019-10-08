@@ -1,0 +1,19 @@
+<h1 class="mat-display-1">Partitions of {{devicePath}}</h1>
+<mat-divider></mat-divider>
+
+<mat-list>
+  <mat-list-item *ngFor="let partition of partitions">
+      <mat-icon mat-list-icon>storage</mat-icon>
+      <p mat-line>{{partition.path}} </p>
+      <p *ngIf="partition.mountPoint" mat-line>Mounted on: {{partition.mountPoint}}</p>
+
+      <button mat-button *ngIf="partition.mountPoint">
+          <mat-icon>eject</mat-icon>
+          Unmount
+      </button>
+      <button mat-button *ngIf="!partition.mountPoint">
+          <mat-icon>input</mat-icon>
+          Mount
+      </button>
+  </mat-list-item>
+</mat-list>

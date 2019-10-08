@@ -1,0 +1,12 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+  	"build": "tsc",
+  	"run": "node _build/main.js"
+  },
+  "author": "Amir Czwink",
+  "license": "AGPL-3.0"
+}

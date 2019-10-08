@@ -1,0 +1,22 @@
+{
+  "name": "servermanager_frontend",
+  "version": "1.0.0-dev",
+  "description": "",
+  "main": "dist/app.js",
+  "scripts": {
+    "build": "tsc && npx webpack"
+  },
+  "keywords": [],
+  "author": "Amir Czwink",
+  "license": "AGPL-3.0-or-later",
+  "dependencies": {
+    "acfrontend": "*"
+  },
+  "devDependencies": {
+    "source-map-loader": "^0.2.4",
+    "ts-loader": "^6.1.0",
+    "typescript": "^3.6.3",
+    "webpack": "^4.39.3",
+    "webpack-cli": "^3.3.8"
+  }
+}

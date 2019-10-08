@@ -1,0 +1,18 @@
+.right-spacer {
+    flex: 1 1 auto;
+  }
+
+button.iconRight.mat-menu-item
+{
+  .mat-icon
+  {
+    margin-left: 16px;
+    margin-right: 0;
+  }
+
+  .mat-spinner
+  {
+    margin-left: 16px;
+    display: inline;
+  }
+}
