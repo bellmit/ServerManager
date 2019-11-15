@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc && npx webpack"
+    "build": "tsc && npx webpack",
+    "deploy": "ln -s ../index.htm dist/ && ln -s ../node_modules/acfrontend/dist/acfrontend.js dist/ && ln -s ../node_modules/acfrontend/dist/clean_light.css dist/"
   },
   "keywords": [],
   "author": "Amir Czwink",

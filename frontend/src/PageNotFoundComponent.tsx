@@ -15,33 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import fs from "fs";
-import Path from "path";
+import {Component, JSX_CreateElement, RenderNode} from "acfrontend";
 
-export class FileSystemManager
+export class PageNotFoundComponent extends Component
 {
-    //Public methods
-    public ReadDirectory(path: string)
+    protected Render(): RenderNode
     {
-        const entries = fs.readdirSync(path);
-
-        const directories = [];
-        const files = [];        
-        for(var i = 0; i < entries.length; i++)
-        {
-            const entry = entries[i];
-            const stats = fs.statSync(Path.join(path, entry));
-            
-            if(stats.isDirectory())
-            {
-                directories.push(entry);
-            }
-            else
-            {
-                files.push({ name: entry, size: stats.size });
-            }
-        }
-
-        return { directories, files };
+        return <h1>404</h1>;
     }
 }

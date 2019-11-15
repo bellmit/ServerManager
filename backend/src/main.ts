@@ -1,18 +1,24 @@
+/**
+ * ServerManager
+ * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * 
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Affero General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * */
 import express from "express";
 import cors from "cors";
 
-import { CommandExecutor } from "./services/CommandExecutor";
-import { DeviceInfo, StorageDevicesManager } from "./services/StorageDevicesManager";
-import { Injector } from "./Injector";
-import { FileSystemManager } from "./services/FileSystemManager";
-
-const port = 8080;
-
-//register services
-const commandExecutor = new CommandExecutor();
-Injector.Register("CommandExecutor", commandExecutor);
-Injector.Register("FileSystemManager", new FileSystemManager);
-Injector.Register("StorageDevicesManager", new StorageDevicesManager(commandExecutor));
+const port = 8081;
 
 
 //setup app
@@ -23,42 +29,10 @@ var corsOptions = {
     origin: 'http://localhost',
     optionsSuccessStatus: 200
 }
-app.use(cors());
-
-const intialDevices: DeviceInfo[] = [];
-const state = {
-    "devices": intialDevices,
-};
-
-//register routes
-app.get("/listDir/:path", (req, res) => {
-    const path = req.params.path;
-    const mgr = Injector.Resolve<FileSystemManager>("FileSystemManager");
-    res.json(mgr.ReadDirectory(path));
-});
-
-app.get("/partitions/:devicePath", (req, res) => {
-    let dev = state.devices.find( dev => dev.path == req.params.devicePath);
-    if(dev !== undefined)
-        res.json(dev.partitions);
-    else
-        res.json({});
-});
-
-app.get("/storageDevices", (req, res) => {
-    res.json(state.devices);
-});
-
-
-//initialize app and then run
-async function Initialize()
-{
-    state.devices = await Injector.Resolve<StorageDevicesManager>("StorageDevicesManager").QueryDevices();
-}
+app.use(cors(corsOptions));
 
 async function Run()
 {
-    await Initialize();
     app.listen(port, () => {
         console.log("Server is running...");
     });

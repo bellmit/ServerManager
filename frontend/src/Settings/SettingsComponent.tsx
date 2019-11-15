@@ -15,33 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import fs from "fs";
-import Path from "path";
+import {Component, Injectable, RenderNode, VirtualFragment, JSX_CreateElement, MatIcon, Anchor} from "acfrontend";
 
-export class FileSystemManager
+@Injectable
+export class SettingsComponent extends Component
 {
-    //Public methods
-    public ReadDirectory(path: string)
+    //Protected methods
+    protected Render(): RenderNode
     {
-        const entries = fs.readdirSync(path);
-
-        const directories = [];
-        const files = [];        
-        for(var i = 0; i < entries.length; i++)
-        {
-            const entry = entries[i];
-            const stats = fs.statSync(Path.join(path, entry));
-            
-            if(stats.isDirectory())
-            {
-                directories.push(entry);
-            }
-            else
-            {
-                files.push({ name: entry, size: stats.size });
-            }
-        }
-
-        return { directories, files };
+        return <VirtualFragment>
+            <h1>Settings</h1>
+            <div class="row">
+                <Anchor>
+                    <MatIcon>system_update_alt</MatIcon>
+                    Package manager
+                </Anchor>
+            </div>
+        </VirtualFragment>;
     }
 }

@@ -15,33 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import fs from "fs";
-import Path from "path";
+import {Component, RenderNode, Anchor, VirtualFragment, JSX_CreateElement, RouterComponent} from "acfrontend";
 
-export class FileSystemManager
+export class RootComponent extends Component
 {
-    //Public methods
-    public ReadDirectory(path: string)
+    protected Render(): RenderNode
     {
-        const entries = fs.readdirSync(path);
-
-        const directories = [];
-        const files = [];        
-        for(var i = 0; i < entries.length; i++)
-        {
-            const entry = entries[i];
-            const stats = fs.statSync(Path.join(path, entry));
-            
-            if(stats.isDirectory())
-            {
-                directories.push(entry);
-            }
-            else
-            {
-                files.push({ name: entry, size: stats.size });
-            }
-        }
-
-        return { directories, files };
+        return (
+            <VirtualFragment>
+                <nav>
+                    <ul>
+                        <li><Anchor route="/settings">Settings</Anchor></li>
+                    </ul>
+                </nav>
+                <RouterComponent/>
+            </VirtualFragment>
+        );
     }
 }

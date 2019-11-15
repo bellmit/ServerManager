@@ -1,0 +1,13 @@
+DEBUG DEPLOYMENT ONLY!!!
+
+1. ln -s $PATH_TO_FRONT_END$/dist /var/www/html/servermanager_frontend
+
+2. ln -s $PATH_TO_FRONT_END$/apache/servermanager_frontend.conf /etc/apache2/sites-available/
+
+3. a2ensite servermanager_frontend.conf
+
+4. Add "Listen 8080" under "Listen 80" to /etc/apache2/ports.conf and save
+
+5. systemctl reload apache2
+
+6. sudo adduser www-data $YOUR_USER$
