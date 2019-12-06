@@ -15,12 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {App} from "acfrontend";
+import {App, Injector} from "acfrontend";
 import { RootComponent } from "./RootComponent";
 import { routes } from "./routing";
+import { WebSocketService } from "./WebSocketService";
 
 const app = new App({
     mountPoint: document.body,
     rootComponentClass: RootComponent,
     routes: routes
 });
+
+const webSocketService = new WebSocketService();
+Injector.Register(WebSocketService, webSocketService);

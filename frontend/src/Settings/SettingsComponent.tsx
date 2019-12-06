@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, Injectable, RenderNode, VirtualFragment, JSX_CreateElement, MatIcon, Anchor} from "acfrontend";
+import {Component, Injectable, RenderNode, JSX_CreateElement, MatIcon, Anchor} from "acfrontend";
 
 @Injectable
 export class SettingsComponent extends Component
@@ -23,14 +23,22 @@ export class SettingsComponent extends Component
     //Protected methods
     protected Render(): RenderNode
     {
-        return <VirtualFragment>
+        return <fragment>
             <h1>Settings</h1>
+
+            <h2>Core</h2>
             <div class="row">
-                <Anchor>
-                    <MatIcon>system_update_alt</MatIcon>
-                    Package manager
-                </Anchor>
+                <MatIcon>system_update_alt</MatIcon>
+                <Anchor route="/modules">Modules</Anchor>
+                <Anchor route="/systemupdate">System update</Anchor>
             </div>
-        </VirtualFragment>;
+            <hr />
+            
+            <h2>Network services</h2>
+            <div class="row">
+            <MatIcon>folder_shared</MatIcon>
+                <Anchor route="smb">SMB</Anchor>
+            </div>
+        </fragment>;
     }
 }

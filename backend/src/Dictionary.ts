@@ -15,22 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent} from "acfrontend";
-
-export class RootComponent extends Component
+export interface Dictionary<T>
 {
-    protected Render(): RenderNode
-    {
-        return (
-            <fragment>
-                <nav>
-                    <ul>
-                    <li><Anchor route="/filemanager">Filemanager</Anchor></li>
-                        <li><Anchor route="/settings">System settings</Anchor></li>
-                    </ul>
-                </nav>
-                <RouterComponent/>
-            </fragment>
-        );
-    }
+    [key: string]: T;
 }

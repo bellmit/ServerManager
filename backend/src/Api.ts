@@ -15,22 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent} from "acfrontend";
-
-export class RootComponent extends Component
+export interface ApiCall
 {
-    protected Render(): RenderNode
+    calledRoute: string;
+    senderConnectionId: string;
+}
+
+export interface ApiEndpointMetadata
+{
+    methodName: string;
+}
+
+export function ApiEndpoint()
+{
+    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
     {
-        return (
-            <fragment>
-                <nav>
-                    <ul>
-                    <li><Anchor route="/filemanager">Filemanager</Anchor></li>
-                        <li><Anchor route="/settings">System settings</Anchor></li>
-                    </ul>
-                </nav>
-                <RouterComponent/>
-            </fragment>
-        );
-    }
+        if(!("__routesSetup" in targetClass))
+            targetClass.__routesSetup = [];
+        const metadata: ApiEndpointMetadata = {
+            methodName: methodName
+        };
+        targetClass.__routesSetup.push(metadata);
+    };
 }

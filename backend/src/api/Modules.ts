@@ -15,22 +15,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent} from "acfrontend";
+import { Injectable } from "../Injector";
+import { ApiEndpoint, ApiCall } from "../Api";
+import { ConnectionManager } from "../services/ConnectionManager";
 
-export class RootComponent extends Component
+@Injectable
+class PackageApi
 {
-    protected Render(): RenderNode
+    constructor(private connectionManager: ConnectionManager)
     {
-        return (
-            <fragment>
-                <nav>
-                    <ul>
-                    <li><Anchor route="/filemanager">Filemanager</Anchor></li>
-                        <li><Anchor route="/settings">System settings</Anchor></li>
-                    </ul>
-                </nav>
-                <RouterComponent/>
-            </fragment>
-        );
+    }
+
+    //Api Endpoints
+    @ApiEndpoint()
+    public ListAllModules(call: ApiCall)
+    {
+        const modules = [
+            {
+                name: "samba",
+                installed: false
+            }
+        ];
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, modules);
     }
 }
+
+export default PackageApi;

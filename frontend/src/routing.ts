@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Routes } from "acfrontend";
+import { routes as modulesRoutes } from "./Modules/routing";
 import { routes as settingsRoutes } from "./Settings/routing";
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
 
 export const routes : Routes = [
+    { path: "modules", children: modulesRoutes },
     { path: "settings", children: settingsRoutes },
     { path: "*", component: PageNotFoundComponent},
 ];
