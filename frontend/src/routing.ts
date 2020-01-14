@@ -18,10 +18,12 @@
 import { Routes } from "acfrontend";
 import { routes as modulesRoutes } from "./Modules/routing";
 import { routes as settingsRoutes } from "./Settings/routing";
+import { routes as systemUpdateRoutes } from "./SystemUpdate/routing";
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
 
 export const routes : Routes = [
     { path: "modules", children: modulesRoutes },
     { path: "settings", children: settingsRoutes },
+    { path: "systemupdate", children: systemUpdateRoutes },
     { path: "*", component: PageNotFoundComponent},
 ];

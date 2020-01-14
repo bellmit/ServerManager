@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "run": "node _build/main.js"
+    "run": "node dist/main.js"
   },
   "author": "Amir Czwink",
   "license": "AGPL-3.0",

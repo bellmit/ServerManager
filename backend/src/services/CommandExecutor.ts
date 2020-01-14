@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { exec } from 'child_process';
+import { exec, spawn } from 'child_process';
+import { Injectable } from '../Injector';
 
 interface CommandExecutionResult
 {
@@ -23,10 +24,24 @@ interface CommandExecutionResult
     stderr: string;
 }
 
+@Injectable
 export class CommandExecutor
 {
     //Public methods
-    ExecuteCommand(command: string): Promise<CommandExecutionResult>
+    public ExecuteAsyncCommand(command: string, onStdOutData: (data: string) => void, onStdErrData: (data: string) => void): Promise<number>
+    {
+        return new Promise<number>( (resolve, reject) => {
+            const childProcess = spawn(command, [], {
+                shell: true
+            });
+            childProcess.stdout.on("data", onStdOutData);
+            childProcess.stderr.on("data", onStdErrData);
+
+            childProcess.on("close", (code) => resolve(code));
+        });
+    }
+
+    public ExecuteCommand(command: string): Promise<CommandExecutionResult>
     {
         return new Promise<CommandExecutionResult>( (resolve, reject) => {
             exec(command, (error, stdout, stderr) => {

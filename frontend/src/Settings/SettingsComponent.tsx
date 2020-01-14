@@ -16,10 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import {Component, Injectable, RenderNode, JSX_CreateElement, MatIcon, Anchor} from "acfrontend";
+import { ModuleService } from "../Services/ModuleService";
 
 @Injectable
 export class SettingsComponent extends Component
 {
+    constructor(private moduleService: ModuleService)
+    {
+        super();
+
+        this.moduleService.modules.Subscribe( () => this.Update() );
+    }
+    
     //Protected methods
     protected Render(): RenderNode
     {
@@ -36,9 +44,19 @@ export class SettingsComponent extends Component
             
             <h2>Network services</h2>
             <div class="row">
-            <MatIcon>folder_shared</MatIcon>
-                <Anchor route="smb">SMB</Anchor>
+                {this.RenderSMBNode()}
             </div>
         </fragment>;
+    }
+
+    //Private methods
+    private RenderSMBNode()
+    {
+        if(!this.moduleService.IsModuleInstalled("samba"))
+            return null;
+        return <div>
+            <MatIcon>folder_shared</MatIcon>
+            <Anchor route="smb">SMB</Anchor>
+        </div>;
     }
 }

@@ -18,26 +18,29 @@
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
+import { ModuleManager } from "../services/ModuleManager";
 
 @Injectable
-class PackageApi
+class ModulesApi
 {
-    constructor(private connectionManager: ConnectionManager)
+    constructor(private connectionManager: ConnectionManager, private moduleManager: ModuleManager)
     {
     }
 
     //Api Endpoints
-    @ApiEndpoint()
-    public ListAllModules(call: ApiCall)
+    @ApiEndpoint({ route: "Install" })
+    public Install(call: ApiCall, moduleName: string)
     {
-        const modules = [
-            {
-                name: "samba",
-                installed: false
-            }
-        ];
-        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, modules);
+        const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
+        if(moduleNameMapped != null)
+            this.moduleManager.Install(moduleNameMapped);
+    }
+
+    @ApiEndpoint({ route: "List" })
+    public async ListAllModules(call: ApiCall)
+    {
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules());
     }
 }
 
-export default PackageApi;
+export default ModulesApi;

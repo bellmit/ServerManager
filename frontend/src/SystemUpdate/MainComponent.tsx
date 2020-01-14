@@ -15,33 +15,29 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export interface ApiCall
-{
-    calledRoute: string;
-    senderConnectionId: string;
-}
+import { Injectable, Component, RenderNode, JSX_CreateElement } from "acfrontend";
+import { UpdateService } from "./UpdateService";
 
-interface ApiEndPointAttributes
+@Injectable
+export class MainComponent extends Component
 {
-    route: string;
-}
-
-export interface ApiEndpointMetadata
-{
-    methodName: string;
-    attributes: ApiEndPointAttributes;
-}
-
-export function ApiEndpoint(attributes: ApiEndPointAttributes)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    constructor(private updateService: UpdateService)
     {
-        if(!("__routesSetup" in targetClass))
-            targetClass.__routesSetup = [];
-        const metadata: ApiEndpointMetadata = {
-            methodName: methodName,
-            attributes: attributes
-        };
-        targetClass.__routesSetup.push(metadata);
-    };
+        super();
+    }
+
+    //Protected methods
+    protected Render(): RenderNode
+    {
+        return <fragment>
+            <h1>System Update</h1>
+            <button onclick={this.OnCheckForUpdatesClicked.bind(this)}>Check for updates</button>
+        </fragment>;
+    }
+
+    //Event handlers
+    private OnCheckForUpdatesClicked()
+    {
+        this.updateService.CheckForUpdates();
+    }
 }

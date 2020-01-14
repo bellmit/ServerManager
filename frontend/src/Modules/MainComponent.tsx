@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Injectable, Component, RenderNode, JSX_CreateElement } from "acfrontend";
-import { ModuleService } from "./ModuleService";
+import { ModuleService } from "../Services/ModuleService";
 
 @Injectable
 export class MainComponent extends Component
@@ -25,8 +25,8 @@ export class MainComponent extends Component
     {
         super();
 
-        this.modules = [];
         this.moduleService.modules.Subscribe( (newModules: Module[]) => this.modules = newModules );
+        this.modules = this.moduleService.modules.Get();
     }
 
     //Protected methods
@@ -58,7 +58,7 @@ export class MainComponent extends Component
     //Event handlers
     private OnInstallModule(module: Module)
     {
-        throw new Error("Method not implemented.");
+        this.moduleService.Install(module.name);
     }
 
     private OnUninstallModule(module: Module)

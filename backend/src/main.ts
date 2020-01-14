@@ -63,7 +63,7 @@ async function SetupApiRoutes()
         for (let index = 0; index < instance.__routesSetup.length; index++)
         {
             const routeSetup: ApiEndpointMetadata = instance.__routesSetup[index];
-            const route = "/" + name;
+            const route = "/" + name + "/" + routeSetup.attributes.route;
 
             connectionManager.RegisterEndpoint(route, instance[routeSetup.methodName].bind(instance));
         }

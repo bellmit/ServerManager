@@ -15,33 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export interface ApiCall
-{
-    calledRoute: string;
-    senderConnectionId: string;
-}
+import { ApiService, ApiListener } from "../Api";
+import { WebSocketService } from "../WebSocketService";
 
-interface ApiEndPointAttributes
-{
-    route: string;
-}
+const MSG_SYSTEMUPDATE = "/SystemUpdate/";
+const MSG_SYSTEMUPDATE_CHECK = MSG_SYSTEMUPDATE + "Check";
 
-export interface ApiEndpointMetadata
+@ApiService
+export class UpdateService
 {
-    methodName: string;
-    attributes: ApiEndPointAttributes;
-}
-
-export function ApiEndpoint(attributes: ApiEndPointAttributes)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    constructor(private webSocketService: WebSocketService)
     {
-        if(!("__routesSetup" in targetClass))
-            targetClass.__routesSetup = [];
-        const metadata: ApiEndpointMetadata = {
-            methodName: methodName,
-            attributes: attributes
-        };
-        targetClass.__routesSetup.push(metadata);
-    };
+    }
+
+    //Public methods
+    public CheckForUpdates()
+    {
+        this.webSocketService.SendMessage(MSG_SYSTEMUPDATE_CHECK);
+    }
+
+    //Api Listeners
+    @ApiListener({ route: MSG_SYSTEMUPDATE_CHECK })
+    private OnReceiveCheckProcessTracer()
+    {
+    }
 }

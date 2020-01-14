@@ -15,35 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Observable } from "acfrontend";
-import { ApiService, ApiListener } from "../Api";
-import { WebSocketService } from "../WebSocketService";
+import { Routes } from "acfrontend";
+import { MainComponent } from "./MainComponent";
 
-const MSG_MODULES = "/Modules";
-
-@ApiService
-export class ModuleService
-{
-    constructor(private webSocketService: WebSocketService)
-    {
-        this._modules = new Observable<Module[]>([]);
-
-        this.webSocketService.SendMessage(MSG_MODULES);
-    }
-
-    //Properties
-    public get modules()
-    {
-        return this._modules;
-    }
-
-    //Private members
-    private _modules: Observable<Module[]>;
-
-    //Api Listeners
-    @ApiListener({ route: MSG_MODULES })
-    private OnReceivePackageList(modules: Module[])
-    {
-        this._modules.Set(modules);
-    }
-}
+export const routes : Routes = [
+    { path: "", component: MainComponent},
+];

@@ -23,6 +23,7 @@ import { ApiCall } from "../Api";
 interface JsonMessage
 {
     route: string;
+    data: any;
 }
 
 @Injectable
@@ -83,7 +84,7 @@ export class ConnectionManager
         if(jsonMessage.route in this.callbacks)
         {
             const apiCall: ApiCall = { calledRoute: jsonMessage.route, senderConnectionId: connectionId };
-            this.callbacks[jsonMessage.route](apiCall);
+            this.callbacks[jsonMessage.route](apiCall, jsonMessage.data);
         }
     }
 }

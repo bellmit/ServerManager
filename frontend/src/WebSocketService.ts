@@ -45,15 +45,15 @@ export class WebSocketService
         this.apiListeners[route] = handler;
     }
 
-    public SendMessage(route: string)
+    public SendMessage(route: string, data: any = undefined)
     {
         if(this.webSocketConnection.readyState == 1)
         {
-            this.webSocketConnection.send(JSON.stringify({ route: route }));
+            this.webSocketConnection.send(JSON.stringify({ route: route, data: data }));
         }
         else
         {
-            this.onOpen.Subscribe(this.SendMessage.bind(this, route));
+            this.onOpen.Subscribe(this.SendMessage.bind(this, route, data));
         }
     }
 

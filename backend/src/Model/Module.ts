@@ -15,33 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export interface ApiCall
-{
-    calledRoute: string;
-    senderConnectionId: string;
-}
 
-interface ApiEndPointAttributes
-{
-    route: string;
-}
+export type ModuleName = "openvpn" | "samba";
 
-export interface ApiEndpointMetadata
+export interface Module
 {
-    methodName: string;
-    attributes: ApiEndPointAttributes;
-}
-
-export function ApiEndpoint(attributes: ApiEndPointAttributes)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
-    {
-        if(!("__routesSetup" in targetClass))
-            targetClass.__routesSetup = [];
-        const metadata: ApiEndpointMetadata = {
-            methodName: methodName,
-            attributes: attributes
-        };
-        targetClass.__routesSetup.push(metadata);
-    };
+    name: ModuleName;
+    installed: boolean;
 }

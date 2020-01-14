@@ -15,33 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-export interface ApiCall
-{
-    calledRoute: string;
-    senderConnectionId: string;
-}
+import { Injectable } from "../Injector";
+import { ApiEndpoint, ApiCall } from "../Api";
+import { ConnectionManager } from "../services/ConnectionManager";
+import { CommandExecutor } from "../services/CommandExecutor";
 
-interface ApiEndPointAttributes
+@Injectable
+class SystemUpdateApi
 {
-    route: string;
-}
-
-export interface ApiEndpointMetadata
-{
-    methodName: string;
-    attributes: ApiEndPointAttributes;
-}
-
-export function ApiEndpoint(attributes: ApiEndPointAttributes)
-{
-    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    constructor(private connectionManager: ConnectionManager, private commandExecutor: CommandExecutor)
     {
-        if(!("__routesSetup" in targetClass))
-            targetClass.__routesSetup = [];
-        const metadata: ApiEndpointMetadata = {
-            methodName: methodName,
-            attributes: attributes
-        };
-        targetClass.__routesSetup.push(metadata);
-    };
+    }
+
+    @ApiEndpoint({ route: "Check" })
+    public async CheckForUpdates(call: ApiCall)
+    {
+        this.commandExecutor.ExecuteAsyncCommand("apt-get update");
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, )
+    }
 }
+
+export default SystemUpdateApi;
