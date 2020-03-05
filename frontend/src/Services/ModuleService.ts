@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,22 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Observable } from "acfrontend";
-import { ApiService, ApiListener } from "../Api";
-import { WebSocketService } from "../WebSocketService";
+import { Injectable } from "acfrontend";
+
+import { Module, ModuleName, Messages } from "srvmgr-api";
+
+import { WebSocketService } from "./WebSocketService";
+import { ApiProperty } from "../API/ApiProperty";
 
 const MSG_MODULES = "/Modules/";
 const MSG_MODULES_INSTALL = MSG_MODULES + "Install";
-const MSG_MODULES_LIST = MSG_MODULES + "List";
 
-@ApiService
+@Injectable
 export class ModuleService
 {
     constructor(private webSocketService: WebSocketService)
     {
-        this._modules = new Observable<Module[]>([]);
-
-        this.webSocketService.SendMessage(MSG_MODULES_LIST);
+        this._modules = new ApiProperty<Module[]>(Messages.MODULES_LIST);
     }
 
     //Properties
@@ -45,18 +45,12 @@ export class ModuleService
         this.webSocketService.SendMessage(MSG_MODULES_INSTALL, moduleName);
     }
 
-    public IsModuleInstalled(moduleName: ModuleName)
+    public async IsModuleInstalled(moduleName: ModuleName)
     {
-        return this.modules.Get().find( mod => (mod.name == moduleName) && mod.installed ) !== undefined;
+        const modules = await this.modules.Get();
+        return modules.find( mod => (mod.name == moduleName) && mod.installed ) !== undefined;
     }
 
     //Private members
-    private _modules: Observable<Module[]>;
-
-    //Api Listeners
-    @ApiListener({ route: MSG_MODULES_LIST })
-    private OnReceivePackageList(modules: Module[])
-    {
-        this._modules.Set(modules);
-    }
+    private _modules: ApiProperty<Module[]>;
 }

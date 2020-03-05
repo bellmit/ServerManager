@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Instantiatable, Injectable, Injector } from "acfrontend";
-import { WebSocketService } from "./WebSocketService";
+import { WebSocketService } from "../Services/WebSocketService";
 
 export interface ApiListenerProperties
 {

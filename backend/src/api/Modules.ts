@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,6 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { Messages } from "srvmgr-api";
+
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
@@ -36,7 +38,7 @@ class ModulesApi
             this.moduleManager.Install(moduleNameMapped);
     }
 
-    @ApiEndpoint({ route: "List" })
+    @ApiEndpoint({ route: Messages.MODULES_LIST })
     public async ListAllModules(call: ApiCall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules());

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ import * as websocket from "websocket";
 import { Injector } from "./Injector";
 import { ConnectionManager } from "./services/ConnectionManager";
 import { ApiEndpointMetadata } from "./Api";
+import { BackupManager } from "./services/BackupManager";
 
 const port = 8081;
 
@@ -41,9 +42,7 @@ async function LoadApiCalls()
             const filePath = path + fileName;
             const apiClass: any = (await import(filePath)).default;
 
-            const name = fileName.substr(0, fileName.length - 3);
-
-            apiCalls.push({ apiClass: apiClass, name: name });
+            apiCalls.push( apiClass );
         }
     }
         
@@ -57,13 +56,13 @@ async function SetupApiRoutes()
     const apiDefs = await LoadApiCalls();
     for (let index = 0; index < apiDefs.length; index++)
     {
-        const {apiClass, name} = apiDefs[index];
+        const apiClass = apiDefs[index];
 
         const instance = Injector.Resolve<any>(apiClass);
         for (let index = 0; index < instance.__routesSetup.length; index++)
         {
             const routeSetup: ApiEndpointMetadata = instance.__routesSetup[index];
-            const route = "/" + name + "/" + routeSetup.attributes.route;
+            const route = routeSetup.attributes.route;
 
             connectionManager.RegisterEndpoint(route, instance[routeSetup.methodName].bind(instance));
         }
@@ -91,10 +90,16 @@ async function SetupServer()
     });
 }
 
+function SetupBackup()
+{    const bkpManager = Injector.Resolve<BackupManager>(BackupManager);
+    bkpManager.Schedule();
+}
+
 async function Init()
 {
     await SetupApiRoutes();
     await SetupServer();
+    SetupBackup();
 }
 
 

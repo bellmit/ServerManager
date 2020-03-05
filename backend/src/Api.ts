@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,6 +19,11 @@ export interface ApiCall
 {
     calledRoute: string;
     senderConnectionId: string;
+}
+
+export interface ApiRequest extends ApiCall
+{
+    responseMsg: string;
 }
 
 interface ApiEndPointAttributes

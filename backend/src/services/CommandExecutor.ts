@@ -24,21 +24,22 @@ interface CommandExecutionResult
     stderr: string;
 }
 
+interface CommandOptions
+{
+    workingDirectory?: string;
+}
+
 @Injectable
 export class CommandExecutor
 {
     //Public methods
-    public ExecuteAsyncCommand(command: string, onStdOutData: (data: string) => void, onStdErrData: (data: string) => void): Promise<number>
+    public ExecuteAsyncCommand(command: string, options: CommandOptions = {})
     {
-        return new Promise<number>( (resolve, reject) => {
-            const childProcess = spawn(command, [], {
-                shell: true
-            });
-            childProcess.stdout.on("data", onStdOutData);
-            childProcess.stderr.on("data", onStdErrData);
-
-            childProcess.on("close", (code) => resolve(code));
+        const childProcess = spawn(command, [], {
+            cwd: options.workingDirectory,
+            shell: true
         });
+        return childProcess;
     }
 
     public ExecuteCommand(command: string): Promise<CommandExecutionResult>
@@ -49,6 +50,15 @@ export class CommandExecutor
                     reject(error);
                 resolve({stdout, stderr});
             });
+        });
+    }
+
+    public ExecuteWaitableAsyncCommand(command: string, options: CommandOptions = {})
+    {
+        return new Promise<number>( (resolve, reject) => {
+            const childProcess = this.ExecuteAsyncCommand(command, options);
+            childProcess.on("close", (code, _) => resolve(code));
+            childProcess.on("error", reject);
         });
     }
 }

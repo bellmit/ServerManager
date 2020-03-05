@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,48 +15,49 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, Injectable, RenderNode, JSX_CreateElement, MatIcon, Anchor} from "acfrontend";
-import { ModuleService } from "../Services/ModuleService";
+import {Component, Injectable, RenderNode, JSX_CreateElement, MatIcon, Anchor, ProgressSpinner} from "acfrontend";
+import { ModuleService } from "../../Services/ModuleService";
+import { PluginManager } from "../../Services/PluginManager";
 
 @Injectable
 export class SettingsComponent extends Component
 {
-    constructor(private moduleService: ModuleService)
+    constructor(private moduleService: ModuleService, private pluginManager: PluginManager)
     {
         super();
-
-        this.moduleService.modules.Subscribe( () => this.Update() );
     }
     
     //Protected methods
     protected Render(): RenderNode
     {
+        if(this.moduleService.modules.WaitingForValue())
+            return <ProgressSpinner />;
+
         return <fragment>
             <h1>Settings</h1>
 
             <h2>Core</h2>
-            <div class="row">
-                <MatIcon>system_update_alt</MatIcon>
-                <Anchor route="/modules">Modules</Anchor>
-                <Anchor route="/systemupdate">System update</Anchor>
+            <div class="evenlySpacedRow">
+                {this.RenderButtons("settings/core")}
             </div>
             <hr />
             
             <h2>Network services</h2>
-            <div class="row">
-                {this.RenderSMBNode()}
+            <div class="evenlySpacedRow">
+                {this.RenderButtons("settings/network")}
             </div>
         </fragment>;
     }
 
     //Private methods
-    private RenderSMBNode()
+    private RenderButtons(sectionName: string)
     {
-        if(!this.moduleService.IsModuleInstalled("samba"))
-            return null;
-        return <div>
-            <MatIcon>folder_shared</MatIcon>
-            <Anchor route="smb">SMB</Anchor>
-        </div>;
+        return this.pluginManager.GetPluginsFor(sectionName).map(plugin => <div>{plugin.icon}<Anchor route={plugin.baseRoute}>{plugin.title}</Anchor></div>);
+    }
+
+    //Event handlers
+    public OnInitiated()
+    {
+        this.moduleService.modules.Subscribe( () => this.Update() );
     }
 }

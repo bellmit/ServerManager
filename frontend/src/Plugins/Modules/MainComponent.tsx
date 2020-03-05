@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,8 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement } from "acfrontend";
-import { ModuleService } from "../Services/ModuleService";
+import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+
+import { Module } from "srvmgr-api";
+
+import { ModuleService } from "../../Services/ModuleService";
 
 @Injectable
 export class MainComponent extends Component
@@ -25,13 +28,15 @@ export class MainComponent extends Component
     {
         super();
 
-        this.moduleService.modules.Subscribe( (newModules: Module[]) => this.modules = newModules );
-        this.modules = this.moduleService.modules.Get();
+        this.modules = [];
     }
 
     //Protected methods
     protected Render(): RenderNode
     {
+        if(this.moduleService.modules.WaitingForValue())
+            return <ProgressSpinner />;
+            
         return <fragment>
             <h1>Module manager</h1>
             <table>
@@ -56,6 +61,11 @@ export class MainComponent extends Component
     private modules: Module[];
 
     //Event handlers
+    public OnInitiated()
+    {
+        this.moduleService.modules.Subscribe( (newModules: Module[]) => this.modules = newModules );
+    }
+    
     private OnInstallModule(module: Module)
     {
         this.moduleService.Install(module.name);

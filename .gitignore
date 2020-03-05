@@ -1,3 +1,6 @@
+api/dist
+api/node_modules
+backend/dist
 backend/node_modules
 backend/package-lock.json
 frontend/dist
@@ -5,3 +8,4 @@ frontend/node_modules
 frontend/package-lock.json
 frontend_angular/node_modules
 
+npm-debug.log

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { Messages } from "./Messages";
+import { User } from "./Model/User";
+import { BackupTask, BackupSaveRequest } from "./Model/BackupTask";
+import { ExternalConnectionConfig, ExternalConnectionType, ExternalConnectionTypes, ExternalConnectionSettings } from "./Model/ExternalConnection";
+import { Module, ModuleName, moduleNames } from "./Model/Module";
 
-type ModuleName = "samba";
-
-interface Module
-{
-    name: ModuleName;
-    installed: boolean;
-}
+export {
+    BackupSaveRequest,
+    BackupTask,
+    ExternalConnectionConfig,
+    ExternalConnectionSettings,
+    ExternalConnectionType,
+    ExternalConnectionTypes,
+    Messages,
+    ModuleName,
+    moduleNames,
+    Module,
+    User
+};

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -23,6 +23,7 @@ export class WebSocketService
     {
         this.apiListeners = {};
         this.onOpen = new ObservableEvent();
+        this.responseCounter = 0;
         
         this.webSocketConnection = new WebSocket("ws://localhost:8081");
 
@@ -49,7 +50,7 @@ export class WebSocketService
     {
         if(this.webSocketConnection.readyState == 1)
         {
-            this.webSocketConnection.send(JSON.stringify({ route: route, data: data }));
+            this.webSocketConnection.send(JSON.stringify({ msg: route, data: data }));
         }
         else
         {
@@ -57,10 +58,31 @@ export class WebSocketService
         }
     }
 
+    public SendRequest<T>(message: string, data: any): Promise<T>
+    {
+        const id = this.responseCounter++;
+        const responseMsg = "/tmp/" + id;
+
+        return new Promise<T>( (resolve, reject) => {
+            this.RegisterApiListenerHandler(responseMsg, (result: any) => {
+                this.UnregisterApiListenerHandler(responseMsg);
+                resolve(result);
+            });
+            this.webSocketConnection.send(JSON.stringify({ msg: message, responseMsg: responseMsg, data: data }));
+        });
+    }
+
     //Private members
     private webSocketConnection: WebSocket;
     private apiListeners: Dictionary<Function>;
     private onOpen: ObservableEvent;
+    private responseCounter: number;
+
+    //Private methods
+    private UnregisterApiListenerHandler(message: string)
+    {
+        delete this.apiListeners[message];
+    }
 
     //Event handlers
     private OnMessageReceived(message: MessageEvent)

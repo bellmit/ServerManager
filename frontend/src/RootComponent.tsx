@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,22 +15,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent} from "acfrontend";
+import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable} from "acfrontend";
 
+import { PluginManager } from "./Services/PluginManager";
+
+@Injectable
 export class RootComponent extends Component
 {
+    constructor(private pluginManager: PluginManager)
+    {
+        super();
+    }
+
+    //Protected methods
     protected Render(): RenderNode
     {
         return (
             <fragment>
                 <nav>
-                    <ul>
-                    <li><Anchor route="/filemanager">Filemanager</Anchor></li>
-                        <li><Anchor route="/settings">System settings</Anchor></li>
-                    </ul>
+                    <ul>{this.RenderGlobals()}</ul>
                 </nav>
                 <RouterComponent/>
             </fragment>
         );
+    }
+
+    //Private methods
+    private RenderGlobals()
+    {
+        return this.pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute}>{plugin.title}</Anchor></li>);
     }
 }

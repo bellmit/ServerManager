@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,20 +18,20 @@
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
-import { CommandExecutor } from "../services/CommandExecutor";
+import { ProcessTracker } from "../services/ProcessTracker";
 
 @Injectable
 class SystemUpdateApi
 {
-    constructor(private connectionManager: ConnectionManager, private commandExecutor: CommandExecutor)
+    constructor(private connectionManager: ConnectionManager, private processTracker: ProcessTracker)
     {
     }
 
     @ApiEndpoint({ route: "Check" })
     public async CheckForUpdates(call: ApiCall)
     {
-        this.commandExecutor.ExecuteAsyncCommand("apt-get update");
-        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, )
+        const pid = this.processTracker.CreateProcessByCommand("apt-get update");
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, { processId: pid });
     }
 }
 

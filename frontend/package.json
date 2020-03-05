@@ -11,7 +11,9 @@
   "author": "Amir Czwink",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "acfrontend": "*"
+    "acts-util": "*",
+    "acfrontend": "*",
+    "srvmgr-api": "*"
   },
   "devDependencies": {
     "source-map-loader": "^0.2.4",

@@ -1,5 +1,5 @@
 {
-  "name": "backend",
+  "name": "srvmgr-backend",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -10,6 +10,8 @@
   "author": "Amir Czwink",
   "license": "AGPL-3.0",
   "dependencies": {
+    "acts-util": "*",
+    "srvmgr-api": "*",
     "@types/node": "^12.12.8",
     "@types/websocket": "^1.0.0",
     "reflect-metadata": "^0.1.13",

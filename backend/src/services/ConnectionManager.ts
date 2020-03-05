@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,13 +16,16 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import * as websocket from "websocket";
+
+import { Dictionary } from "acts-util";
+
 import { Injectable } from "../Injector";
-import { Dictionary } from "../Dictionary";
-import { ApiCall } from "../Api";
+import { ApiRequest } from "../Api";
 
 interface JsonMessage
 {
-    route: string;
+    msg: string;
+    responseMsg?: string;
     data: any;
 }
 
@@ -51,6 +54,14 @@ export class ConnectionManager
         connection.on("message", this.OnMessageReceived.bind(this, connectionId));
     }
 
+    public Broadcast(message: string, data: any)
+    {
+        for (const key in this.connections)
+        {
+            this.Send(key, message, data);
+        }
+    }
+
     public RegisterEndpoint(endPoint: string, callback: Function)
     {
         if(endPoint in this.callbacks)
@@ -58,13 +69,18 @@ export class ConnectionManager
         this.callbacks[endPoint] = callback;
     }
 
+    public Respond(request: ApiRequest, data: any)
+    {
+        this.Send(request.senderConnectionId, request.responseMsg, data);
+    }
+
     public Send(connectionId: string, route: string, data: any)
     {
         if(!(connectionId in this.connections))
             throw new Error("UNKNOWN CONNECTION ID");
 
-        const message = { route: route, data: data};
-        this.connections[connectionId].sendUTF(JSON.stringify(message));
+        const message = { route: route, data: data };
+        this.connections[connectionId]!.sendUTF(JSON.stringify(message));
     }
 
     //Private members
@@ -81,10 +97,10 @@ export class ConnectionManager
             throw new Error("Illegal message payload");
 
         const jsonMessage = JSON.parse(message.utf8Data) as JsonMessage;
-        if(jsonMessage.route in this.callbacks)
+        if(jsonMessage.msg in this.callbacks)
         {
-            const apiCall: ApiCall = { calledRoute: jsonMessage.route, senderConnectionId: connectionId };
-            this.callbacks[jsonMessage.route](apiCall, jsonMessage.data);
+            const apiCall = { calledRoute: jsonMessage.msg, responseMsg: jsonMessage.responseMsg, senderConnectionId: connectionId };
+            this.callbacks[jsonMessage.msg]!(apiCall, jsonMessage.data);
         }
     }
 }
