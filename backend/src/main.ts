@@ -15,13 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import * as bodyParser from "body-parser";
+import cors from "cors";
+import express from "express";
 import fs from "fs";
-import * as http from "http";
 import * as websocket from "websocket";
 import { Injector } from "./Injector";
 import { ConnectionManager } from "./services/ConnectionManager";
 import { ApiEndpointMetadata } from "./Api";
 import { BackupManager } from "./services/BackupManager";
+import { HttpEndpointMetadata } from "./Http";
 
 const port = 8081;
 
@@ -51,6 +54,8 @@ async function LoadApiCalls()
 
 async function SetupApiRoutes()
 {
+    console.log("Setting up api routes...");
+
     const connectionManager = Injector.Resolve<ConnectionManager>(ConnectionManager);
 
     const apiDefs = await LoadApiCalls();
@@ -71,14 +76,43 @@ async function SetupApiRoutes()
 
 async function SetupServer()
 {
-    const httpServer = http.createServer();
-    httpServer.listen(port);
+    console.log("Setting up http server...");
+
+    const app = express();
+    const httpServer = app.listen(port);
+
+    const FRONTEND_URL = "http://localhost:8080";
+    const corsOptions = {
+        origin: "http://localhost:8080",
+    };
+
+    app.use(cors(corsOptions));
+    app.use(bodyParser.json());
+    app.use(bodyParser.urlencoded({ extended: false }));
+
+    const apiDefs = await LoadApiCalls();
+    for (let index = 0; index < apiDefs.length; index++)
+    {
+        const apiClass = apiDefs[index];
+
+        const instance = Injector.Resolve<any>(apiClass);
+        if(instance.__httpRoutesSetup === undefined)
+            continue;
+        for (let index = 0; index < instance.__httpRoutesSetup.length; index++)
+        {
+            const routeSetup: HttpEndpointMetadata = instance.__httpRoutesSetup[index];
+
+            (app as any)[routeSetup.attributes.method](routeSetup.attributes.route, (req: express.Request, res: express.Response) => {
+                instance[routeSetup.methodName](req, res);
+            });
+        }
+    }
 
     const connectionManager = Injector.Resolve<ConnectionManager>(ConnectionManager);
     const webSocketServer = new websocket.server({ httpServer: httpServer });
     webSocketServer.on("request", (request) =>
     {
-        if(request.origin !== "http://localhost:8080")
+        if(request.origin !== FRONTEND_URL)
         {
             request.reject(401);
         }
@@ -91,7 +125,10 @@ async function SetupServer()
 }
 
 function SetupBackup()
-{    const bkpManager = Injector.Resolve<BackupManager>(BackupManager);
+{
+    console.log("Scheduling backup tasks...");
+
+    const bkpManager = Injector.Resolve<BackupManager>(BackupManager);
     bkpManager.Schedule();
 }
 
@@ -100,6 +137,8 @@ async function Init()
     await SetupApiRoutes();
     await SetupServer();
     SetupBackup();
+
+    console.log("Initialization finished.")
 }
 
 

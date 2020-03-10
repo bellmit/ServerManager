@@ -15,68 +15,88 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, Anchor, MatIcon, RouterButton } from "acfrontend";
-import { BackupTask } from "srvmgr-api";
+import { Injectable, Component, RenderNode, Router, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+
+import { DirectoryEntry, Routes } from "srvmgr-api";
 
 import { BackupService } from "./BackupService";
+import { BACKEND_HOST } from "../../Services/WebSocketService";
 
 @Injectable
 export class BackupListComponent extends Component
 {
-    constructor(private backupService: BackupService)
+    constructor(router: Router, private backupService: BackupService)
     {
         super();
 
-        this.backupService.backups.Subscribe( (newBackups: BackupTask[]) => this.backups = newBackups );
-        this.backups = this.backupService.backups.Get();
+        this.backupName = router.state.Get().routeParams.backupName;
+        this.filesList = null;
     }
 
     //Protected methods
     protected Render(): RenderNode
     {
         return <fragment>
-            <h1>Backups</h1>
-            <table>
-                <tr>
-                    <th>Name</th>
-                    <th>Enabled</th>
-                    <th>Actions</th>
-                </tr>
-                {this.RenderBackupsList()}
-            </table>
-            <div class="row">
-                <RouterButton route="/backup/add"><MatIcon>add</MatIcon></RouterButton>
-            </div>
-        </fragment>
+            <h1>Backups for: {this.backupName}</h1>
+            {this.RenderFilesList()}
+        </fragment>;
     }
 
     //Private members
-    private backups: BackupTask[];
+    private backupName: string;
+    private filesList: DirectoryEntry[] | null;
 
     //Private methods
-    private RenderBackupsList()
+    private RenderFilesList()
     {
-        return this.backups.map(backup => <tr>
-            <td>{backup.name}</td>
-            <td>{backup.enabled ? "Yes" : "No"}</td>
-            <td>
-                <Anchor route={"/backup/edit/" + backup.name}>edit</Anchor> |
-                <a onclick={this.OnBackupNowClicked.bind(this, backup.name)}>run now</a> |
-                <a onclick={this.OnDeleteActivated.bind(this, backup.name)}>delete</a>
-            </td>
-        </tr>);
+        if(this.filesList === null)
+            return <ProgressSpinner />;
+
+        return <table>
+            <tr>
+                <th>Name</th>
+                <th>Actions</th>
+            </tr>
+            {this.filesList.map(file => <tr>
+                <td>{file.fileName}</td>
+                <td>
+                    <button onclick={this.OnDownload.bind(this, file.fileName)}>download</button>
+                </td>
+            </tr>)}
+        </table>;
     }
 
     //Event handlers
-    private OnBackupNowClicked(backupName: string)
+    private async OnDownload(fileName: string)
     {
-        if(confirm("Are you sure that you want to run this backup task now?"))
-            this.backupService.RunBackup(backupName);
+        const form = document.createElement("form");
+        form.method = "post";
+        form.action = "http://" + BACKEND_HOST + Routes.BACKUPS_DOWNLOAD;
+
+        const args = {
+            backupName: this.backupName,
+            fileName: fileName
+        };
+        for (const key in args)
+        {
+            if (args.hasOwnProperty(key))
+            {
+                const input = document.createElement("input");
+                input.type = "hidden";
+                input.name = key;
+                input.value = (args as any)[key];
+
+                form.appendChild(input);
+            }
+        }
+
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
     }
 
-    private OnDeleteActivated(backupName: string)
+    public async OnInitiated()
     {
-        if(confirm("Are you sure that you want to delete this backup job?"))
-            this.backupService.DeleteBackup(backupName);
+        this.filesList = await this.backupService.FetchBackups(this.backupName);
     }
 }

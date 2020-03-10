@@ -121,13 +121,43 @@ export class ExternalConnectionManager
     private encryptionData?: Dictionary<ExternalConnectionEncryptionConfig>;
 
     //Private methods
+    private Base64Decode(data: string)
+    {
+        const buffer = new Buffer(data, "base64");
+        return buffer.toString("utf8");
+    }
+
+    private Base64Encode(data: string)
+    {
+        const buffer = new Buffer(data, "utf8");
+        return buffer.toString("base64");
+    }
+
+    private GenerateRandomNatural(low: number, high: number)
+    {
+        const buffer = crypto.randomBytes(4);
+        const num = buffer.readUInt32BE(0) / (2**32 - 1);
+        return Math.floor(num * (high - low) + low);
+    }
+
+    private GenerateRandomPassword(minLength: number, maxLength: number)
+    {
+        const length = this.GenerateRandomNatural(minLength, maxLength);
+
+        let result = "";
+        for(let i = 0; i < length; i++)
+            result += String.fromCharCode( this.GenerateRandomNatural(33, 126) );
+        return result;
+    }
+
     private GetEncryptionData(connectionName: string | undefined)
     {
         if( (connectionName === undefined) || (this.encryptionData === undefined) || !(connectionName in this.encryptionData) )
         {
+            const MIN_PW_LENGTH = 32;
             const SALT_LENGTH = 64;
             return {
-                password: crypto.randomBytes(SALT_LENGTH).toString("base64"),
+                password: this.GenerateRandomPassword(MIN_PW_LENGTH, SALT_LENGTH),
                 salt: crypto.randomBytes(SALT_LENGTH)
             };
         }
@@ -163,8 +193,13 @@ export class ExternalConnectionManager
         {
             for (const key in cfg.encryptionData)
             {
-                const element = cfg.encryptionData[key];
-                element.salt = new Buffer(element.salt, "base64");
+                if(cfg.encryptionData.hasOwnProperty(key))
+                {
+                    const element = cfg.encryptionData[key];
+
+                    element.password = this.Base64Decode(element.password);
+                    element.salt = new Buffer(element.salt, "base64");
+                }
             }
         }
 
@@ -186,10 +221,13 @@ export class ExternalConnectionManager
         {
             for (const key in this.encryptionData)
             {
+                if(!this.encryptionData.hasOwnProperty(key))
+                    continue;
+
                 const element = this.encryptionData[key]!;
                 encData[key] = {
                     salt: element.salt.toString("base64"),
-                    password: element.password
+                    password: this.Base64Encode(element.password)
                 }
             }
         }

@@ -16,7 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import * as fs from "fs";
-import * as path from "path";
+
+import { DirectoryEntry } from "srvmgr-api";
 
 import { ExternalConnection } from "./ExternalConnection";
 
@@ -27,7 +28,17 @@ export class WebdavConnection implements ExternalConnection
     }
     
     //Public methods
+    public CreateDirectoryTree(path: string): Promise<void>
+    {
+        throw new Error("Method not implemented.");
+    }
+
     public async Exists(filePath: string): Promise<boolean>
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>
     {
         throw new Error("Method not implemented.");
     }

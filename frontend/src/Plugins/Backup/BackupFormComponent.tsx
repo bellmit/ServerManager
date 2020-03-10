@@ -45,6 +45,9 @@ export class BackupFormComponent extends Component
         if( this.waiting )
             return <ProgressSpinner />;
 
+        if(this.externalConnections!.IsEmpty())
+            return "You need to set up an external connection first where the backup files can be stored."
+
         return <fragment>
             <div class="evenlySpacedRow">
                 <div class="column">
@@ -103,7 +106,10 @@ export class BackupFormComponent extends Component
             return; //still waiting
 
         if(this.externalConnections.find(connection => connection.name === this.backup!.connectionName) === undefined)
-            this.backup.connectionName = this.externalConnections[0].name;
+        {
+            if(!this.externalConnections.IsEmpty())
+                this.backup.connectionName = this.externalConnections[0].name;
+        }
 
         this.waiting = false;
     }

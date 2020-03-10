@@ -22,6 +22,8 @@ import * as stream from "stream";
 
 import { Dictionary } from "acts-util";
 
+import { DirectoryEntry } from "srvmgr-api";
+
 import { ExternalConnection } from "./ExternalConnection";
 import { TemporaryFilesService } from "../services/TemporaryFilesService";
 import { Injector } from "../Injector";
@@ -52,7 +54,17 @@ export class EncryptedConnection implements ExternalConnection
     }
 
     //Public methods
+    public CreateDirectoryTree(path: string): Promise<void>
+    {
+        throw new Error("Method not implemented.");
+    }
+
     public Exists(filePath: string): Promise<boolean>
+    {
+        throw new Error("Method not implemented.");
+    }
+
+    public ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>
     {
         throw new Error("Method not implemented.");
     }
@@ -117,8 +129,7 @@ export class EncryptedConnection implements ExternalConnection
     {
         const KEY_LENGTH = 32;
 
-        const key = this.salt; //TODO!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! INSTALL NEW NODE VERSION AND THEN USE SCRYPT
-        //const key = crypto.scryptSync(this.password, salt, KEY_LENGTH, { N: 16384, r: 8});
+        const key = crypto.scryptSync(this.password, this.salt, KEY_LENGTH, { N: 16384, r: 8});
 
         return key;
     }

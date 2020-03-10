@@ -28,6 +28,12 @@ export interface BackupTask
     path: string;
 }
 
+export interface DownloadFileRequest
+{
+    backupName: string;
+    fileName: string;
+}
+
 export interface BackupSaveRequest
 {
     originalName?: string;

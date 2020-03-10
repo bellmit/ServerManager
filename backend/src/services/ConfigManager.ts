@@ -35,7 +35,12 @@ export class ConfigManager
     {
         if(this.data === undefined)
             this.ReadConfig();
-        return this.data[key].DeepClone() as T;
+
+        const cfg = this.data[key];
+        if(cfg === undefined)
+            return undefined;
+
+        return cfg.DeepClone() as T;
     }
 
     public Set(key: string, data: any)

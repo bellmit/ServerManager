@@ -17,7 +17,7 @@
  * */
 import { Property } from "acts-util";
 
-import { BackupTask, Messages, BackupSaveRequest } from "srvmgr-api";
+import { BackupTask, Messages, BackupSaveRequest, DirectoryEntry } from "srvmgr-api";
 
 import { WebSocketService } from "../../Services/WebSocketService";
 import { ApiListener, ApiService } from "../../API/Api";
@@ -45,6 +45,11 @@ export class BackupService
     public DeleteBackup(backupName: string)
     {
         this.webSocketService.SendMessage(Messages.BACKUPS_DELETE, backupName);
+    }
+
+    public FetchBackups(backupName: string)
+    {
+        return this.webSocketService.SendRequest<DirectoryEntry[]>(Messages.BACKUPS_LIST_FILES, backupName);
     }
 
     public RunBackup(backupName: string)

@@ -17,6 +17,8 @@
  * */
 import { Dictionary, ObservableEvent } from "acfrontend";
 
+export const BACKEND_HOST = "localhost:8081";
+
 export class WebSocketService
 {
     constructor()
@@ -25,7 +27,7 @@ export class WebSocketService
         this.onOpen = new ObservableEvent();
         this.responseCounter = 0;
         
-        this.webSocketConnection = new WebSocket("ws://localhost:8081");
+        this.webSocketConnection = new WebSocket("ws://" + BACKEND_HOST);
 
         this.webSocketConnection.onopen = () => 
         {

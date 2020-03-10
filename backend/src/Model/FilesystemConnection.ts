@@ -18,6 +18,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { DirectoryEntry } from "srvmgr-api";
+
 import { ExternalConnection } from "./ExternalConnection";
 
 export class FilesystemConnection implements ExternalConnection
@@ -27,11 +29,41 @@ export class FilesystemConnection implements ExternalConnection
     }
 
     //Public methods
+    public CreateDirectoryTree(dirPath: string): Promise<void>
+    {
+        const absPath = path.join(this.root, dirPath);
+
+        return new Promise<void>( (resolve, reject) => {
+            fs.mkdir(absPath, error => {
+                if(error !== null)
+                    reject(error);
+                resolve();
+            });
+        });
+    }
+
     public Exists(filePath: string): Promise<boolean>
     {
         const absPath = path.join(this.root, filePath);
 
         return new Promise<boolean>( resolve => fs.exists(absPath, resolve) );
+    }
+
+    public ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>
+    {
+        const absPath = path.join(this.root, dirPath);
+
+        return new Promise<DirectoryEntry[]>( (resolve, reject) => {
+            fs.readdir(absPath, "utf8", (error, files) => {
+                if(error !== null)
+                    reject(error);
+
+                const results = files.map(file => {
+                    return { fileName: file };
+                });
+                resolve(results);
+            });
+        });
     }
     
     public async ReadFile(filePath: string): Promise<fs.ReadStream>
@@ -45,9 +77,15 @@ export class FilesystemConnection implements ExternalConnection
     {
         const absPath = path.join(this.root, remoteFilePath);
 
-        return new Promise<void>( resolve => {
-            fs.readFile(localFilePath, data => {
-                fs.writeFile(absPath, data, () => resolve());
+        return new Promise<void>( (resolve, reject) => {
+            fs.readFile(localFilePath, (error, data) => {
+                if(error !== null)
+                    reject(error);
+                fs.writeFile(absPath, data, error => {
+                    if(error !== null)
+                        reject(error);
+                    resolve();
+                });
             });
         });
     }

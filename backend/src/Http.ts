@@ -15,15 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
+type HttpMethod = "post";
 
-import { DirectoryEntry } from "srvmgr-api";
-
-export interface ExternalConnection
+interface HttpEndPointAttributes
 {
-    CreateDirectoryTree(dirPath: string): Promise<void>;
-    Exists(filePath: string): Promise<boolean>;
-    ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
-    ReadFile(filePath: string): Promise<fs.ReadStream>;
-    StoreFile(localFilePath: string, remoteFilePath: string): Promise<void>;
+    method: HttpMethod;
+    route: string;
+}
+
+export interface HttpEndpointMetadata
+{
+    methodName: string;
+    attributes: HttpEndPointAttributes;
+}
+
+export function HttpEndpoint(attributes: HttpEndPointAttributes)
+{
+    return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
+    {
+        if(!("__httpRoutesSetup" in targetClass))
+            targetClass.__httpRoutesSetup = [];
+        const metadata: HttpEndpointMetadata = {
+            methodName: methodName,
+            attributes: attributes
+        };
+        targetClass.__httpRoutesSetup.push(metadata);
+    };
 }

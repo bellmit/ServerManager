@@ -15,15 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
 
-import { DirectoryEntry } from "srvmgr-api";
-
-export interface ExternalConnection
+export interface DirectoryEntry
 {
-    CreateDirectoryTree(dirPath: string): Promise<void>;
-    Exists(filePath: string): Promise<boolean>;
-    ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
-    ReadFile(filePath: string): Promise<fs.ReadStream>;
-    StoreFile(localFilePath: string, remoteFilePath: string): Promise<void>;
+    fileName: string;
 }

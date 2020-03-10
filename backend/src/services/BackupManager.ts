@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import * as fs from "fs";
-import { join } from "path";
+import * as path from "path";
 
 import { BackupTask } from "srvmgr-api";
 
@@ -58,6 +58,26 @@ export class BackupManager
         this.WriteConfig(cfg);
 
         this.Schedule();
+    }
+
+    public ListBackupFileNames(backupName: string)
+    {
+        const task = this.tasks.find(t => t.name === backupName);
+        if(task === undefined)
+            return undefined;
+        const connection = this.externalConnectionManager.OpenConnection(task.connectionName);
+
+        return connection.ListDirectoryContents(task.path);
+    }
+
+    public ReadBackupFile(backupName: string, fileName: string)
+    {
+        const task = this.tasks.find(t => t.name === backupName);
+        if(task === undefined)
+            return undefined;
+        const connection = this.externalConnectionManager.OpenConnection(task.connectionName);
+
+        return connection.ReadFile( path.join(task.path, fileName) );
     }
     
     public async RunBackup(backupName: string)
@@ -141,7 +161,12 @@ export class BackupManager
     private Config(): BackupConfig
     {
         const obj = this.cfgManager.Get<any>(CONFIG_KEY);
-        obj?.backupTasks.forEach( (task: any) => task.nextBackupTime = new Date(task.nextBackupTime));
+        if(obj === undefined)
+            return {
+                backupTasks: []
+            };
+            
+        obj.backupTasks.forEach( (task: any) => task.nextBackupTime = new Date(task.nextBackupTime));
         return obj;
     }
 
@@ -157,7 +182,7 @@ export class BackupManager
     {
         //create directories
         const tmpDir = await this.tempFilesService.CreateTempDirectory();
-        const bkpDir = join(tmpDir, "data");
+        const bkpDir = path.join(tmpDir, "data");
         fs.mkdirSync(bkpDir);
 
         //do all steps in scope
@@ -170,9 +195,13 @@ export class BackupManager
         const bkpFileName = "bkp" + backupTime.toISOString() + ".zip";
         await this.commandExecutor.ExecuteWaitableAsyncCommand("zip -9 -r " + bkpFileName + " data /etc/ServerManager.json", { workingDirectory: tmpDir });
 
-        //pass zip to storage
+        //ensure that path exists
         const connection = this.externalConnectionManager.OpenConnection(task.connectionName);
-        await connection.StoreFile(join(tmpDir, bkpFileName), join(task.path, bkpFileName));
+        if(!(await connection.Exists(task.path)))
+            await connection.CreateDirectoryTree(task.path);
+
+        //pass zip to storage
+        await connection.StoreFile(path.join(tmpDir, bkpFileName), path.join(task.path, bkpFileName));
 
         //cleanup
         this.tempFilesService.CleanUp(tmpDir);

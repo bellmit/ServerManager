@@ -16,12 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Routes } from "acfrontend";
-import { BackupListComponent } from "./BackupListComponent";
+import { BackupTaskListComponent } from "./BackupTaskListComponent";
 import { AddBackupComponent } from "./AddBackupComponent";
 import { EditBackupComponent } from "./EditBackupComponent";
+import { BackupListComponent } from "./BackupListComponent";
 
 export const routes : Routes = [
     { path: "add", component: AddBackupComponent },
     { path: "edit/:backupName", component: EditBackupComponent },
-    { path: "", component: BackupListComponent},
+    { path: "list/:backupName", component: BackupListComponent },
+    { path: "", component: BackupTaskListComponent},
 ];

@@ -52,7 +52,7 @@ export class TemporaryFilesService
 
     public async CreateTempFilePath()
     {
-        const randomString = crypto.pseudoRandomBytes(12).toString("hex");
+        const randomString = crypto.randomBytes(12).toString("hex");
         return path.join(await this.GetGlobalTempDir(), randomString);
     }
 

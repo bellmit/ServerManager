@@ -29,9 +29,6 @@ export class EditBackupComponent extends Component
         this.backupName = router.state.Get().routeParams.backupName;
     }
 
-    //Private members
-    private backupName: string;
-
     //Protected methods
     protected Render(): RenderNode
     {
@@ -40,4 +37,7 @@ export class EditBackupComponent extends Component
             <BackupFormComponent backupName={this.backupName} />
         </fragment>;
     }
+
+    //Private members
+    private backupName: string;
 }

@@ -58,7 +58,10 @@ export class ConnectionManager
     {
         for (const key in this.connections)
         {
-            this.Send(key, message, data);
+            if(this.connections.hasOwnProperty(key))
+            {
+                this.Send(key, message, data);
+            }
         }
     }
 

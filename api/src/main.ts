@@ -17,13 +17,17 @@
  * */
 import { Messages } from "./Messages";
 import { User } from "./Model/User";
-import { BackupTask, BackupSaveRequest } from "./Model/BackupTask";
+import { BackupTask, BackupSaveRequest, DownloadFileRequest } from "./Model/BackupTask";
 import { ExternalConnectionConfig, ExternalConnectionType, ExternalConnectionTypes, ExternalConnectionSettings } from "./Model/ExternalConnection";
 import { Module, ModuleName, moduleNames } from "./Model/Module";
+import { DirectoryEntry } from "./Model/Filesystem";
+import { Routes } from "./Http";
 
 export {
     BackupSaveRequest,
     BackupTask,
+    DirectoryEntry,
+    DownloadFileRequest,
     ExternalConnectionConfig,
     ExternalConnectionSettings,
     ExternalConnectionType,
@@ -32,5 +36,6 @@ export {
     ModuleName,
     moduleNames,
     Module,
+    Routes,
     User
 };

@@ -15,12 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Messages, BackupSaveRequest } from "srvmgr-api";
+import express from "express";
+
+import { Messages, BackupSaveRequest, DownloadFileRequest, Routes } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { BackupManager } from "../services/BackupManager";
+import { HttpEndpoint } from "../Http";
 
 @Injectable
 class BackupsApi
@@ -33,6 +36,29 @@ class BackupsApi
     public DeleteBackup(call: ApiCall, backupName: string)
     {
         this.backupManager.Delete(backupName);
+    }
+
+    @HttpEndpoint({ method: "post", route: Routes.BACKUPS_DOWNLOAD })
+    public async DownloadFile(request: express.Request, response: express.Response)
+    {
+        const data = request.body;
+        const stream = await this.backupManager.ReadBackupFile(data.backupName, data.fileName);
+        if(stream === undefined)
+        {
+            response.writeHead(404);
+            response.end();
+        }
+        else
+        {
+            response.writeHead(200, { "Content-disposition": "attachment; filename=" + data.fileName });
+            stream.pipe(response);
+        }
+    }
+
+    @ApiEndpoint({ route: Messages.BACKUPS_LIST_FILES })
+    public async ListBackupFiles(request: ApiRequest, backupName: string)
+    {
+        this.connectionManager.Respond(request, await this.backupManager.ListBackupFileNames(backupName));
     }
 
     @ApiEndpoint({ route: Messages.BACKUPS_LIST })
