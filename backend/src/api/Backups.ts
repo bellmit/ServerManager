@@ -76,6 +76,8 @@ class BackupsApi
     @ApiEndpoint({ route: Messages.BACKUPS_SET })
     public SetBackup(request: ApiRequest, data: BackupSaveRequest)
     {
+        data.backup.nextBackupTime = new Date(data.backup.nextBackupTime); //from Json we get string not date!!!
+
         const result = this.backupManager.SetBackup(data.originalName, data.backup);
         this.connectionManager.Respond(request, result);
     }

@@ -18,6 +18,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
+import { Dictionary } from "acts-util";
+
 import { BackupTask } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
@@ -25,6 +27,7 @@ import { ConfigManager } from "./ConfigManager";
 import { CommandExecutor } from "./CommandExecutor";
 import { ExternalConnectionManager } from "./ExternalConnectionManager";
 import { TemporaryFilesService } from "./TemporaryFilesService";
+import { ExternalConnection } from "../Model/ExternalConnection";
 
 interface BackupConfig
 {
@@ -39,23 +42,31 @@ export class BackupManager
     constructor(private cfgManager: ConfigManager, private commandExecutor: CommandExecutor, private externalConnectionManager: ExternalConnectionManager,
         private tempFilesService: TemporaryFilesService)
     {
+        this.activeTasks = {};
     }
 
     //Properties
-    public get tasks()
+    public get tasks(): BackupTask[]
     {
-        return this.Config().backupTasks;
+        if(this.backupTasks === undefined)
+            this.backupTasks = this.ReadConfig().backupTasks;
+        return this.backupTasks;
     }
 
     //Public methods
     public Delete(backupName: string)
     {
-        const cfg = this.Config();
+        this.StopScheduler();
 
-        const srcIdx = cfg.backupTasks.findIndex( task => task.name === backupName );
-        cfg.backupTasks.Remove(srcIdx);
+        if(backupName in this.activeTasks)
+            throw new Error("NO");
+        else
+        {
+            const srcIdx = this.tasks.findIndex( task => task.name === backupName );
+            this.tasks.Remove(srcIdx);
 
-        this.WriteConfig(cfg);
+            this.WriteConfig();
+        }
 
         this.Schedule();
     }
@@ -82,31 +93,33 @@ export class BackupManager
     
     public async RunBackup(backupName: string)
     {
-        const wasRunning = this.StopScheduler();
+        this.StopScheduler();
         await this.IssueBackupJob( this.tasks.find(task => task.name === backupName)!, Date.now() );
-
-        if(wasRunning)
-            this.Schedule();
+        this.Schedule();
     }
 
     public SetBackup(originalName: string | undefined, backup: BackupTask)
     {
-        const cfg = this.Config();
+        this.StopScheduler();
 
         //check if target exists
-        if( (originalName !== undefined) && (originalName !== backup.name) && (cfg.backupTasks.find( task => task.name === backup.name ) !== undefined) )
+        if( (originalName !== undefined) && (originalName !== backup.name) && (this.tasks.find( task => task.name === backup.name ) !== undefined) )
+            return false;
+
+        //active backups can't be changed
+        if( (originalName !== undefined) && (originalName in this.activeTasks) )
             return false;
 
         //delete old
         if(originalName !== undefined)
         {
-            const srcIdx = cfg.backupTasks.findIndex( task => task.name === originalName );
-            cfg.backupTasks.Remove(srcIdx);
+            const srcIdx = this.tasks.findIndex( task => task.name === originalName );
+            this.tasks.Remove(srcIdx);
         }
 
         //set new
-        cfg.backupTasks.push(backup);
-        this.WriteConfig(cfg);
+        this.tasks.push(backup);
+        this.WriteConfig();
 
         this.Schedule();
 
@@ -117,7 +130,7 @@ export class BackupManager
     {
         this.StopScheduler();
 
-        if(this.Config()?.backupTasks.find(task => task.enabled) !== undefined)
+        if(this.tasks.find(task => task.enabled && !(task.name in this.activeTasks)) !== undefined)
         {
             const delay = this.ComputeNextBackupDelay();
             this.timeoutId = setTimeout(this.OnSchedulerInterrupt.bind(this), delay);
@@ -125,6 +138,8 @@ export class BackupManager
     }
 
     //Private members
+    private activeTasks: Dictionary<boolean>;
+    private backupTasks?: BackupTask[];
     private timeoutId?: NodeJS.Timeout;
 
     //Private methods
@@ -139,10 +154,12 @@ export class BackupManager
     private ComputeNextBackupDelay()
     {
         let delay = Number.MAX_VALUE;
-        for (let index = 0; index < this.Config()!.backupTasks.length; index++)
+        for (let index = 0; index < this.tasks.length; index++)
         {
-            const task = this.Config()!.backupTasks[index];
+            const task = this.tasks[index];
             if(!task.enabled)
+                continue;
+            if(task.name in this.activeTasks)
                 continue;
 
             const taskDelay = this.ComputeDelay(task);
@@ -158,20 +175,25 @@ export class BackupManager
         task.nextBackupTime = new Date(lastBackupTime + nIntervals * task.interval * 1000);
     }
 
-    private Config(): BackupConfig
+    private async DeleteOldBackups(task: BackupTask, connection: ExternalConnection)
     {
-        const obj = this.cfgManager.Get<any>(CONFIG_KEY);
-        if(obj === undefined)
-            return {
-                backupTasks: []
-            };
-            
-        obj.backupTasks.forEach( (task: any) => task.nextBackupTime = new Date(task.nextBackupTime));
-        return obj;
+        if(task.numberOfBackupsLimit === undefined)
+            return;
+
+        const bkpFiles = (await connection.ListDirectoryContents(task.path)).map(entry => entry.fileName);
+        bkpFiles.sort();
+
+        for(let i = 0; i < bkpFiles.length - task.numberOfBackupsLimit; i++)
+        {
+            await connection.Delete(path.join(task.path, bkpFiles[i]));
+        }
     }
 
     private async IssueBackupJob(task: BackupTask, now: number)
     {
+        if(task.name in this.activeTasks)
+            return;
+
         await this.PerformBackup(task, new Date(now));
         this.ComputeNextBackupTime(task, now);
 
@@ -205,11 +227,19 @@ export class BackupManager
 
         //cleanup
         this.tempFilesService.CleanUp(tmpDir);
+
+        await this.DeleteOldBackups(task, connection);
     }
 
-    private UpdateBackup(task: BackupTask)
+    private ReadConfig(): BackupConfig
     {
-        this.SetBackup(task.name, task);
+        const obj = this.cfgManager.Get<any>(CONFIG_KEY);
+        if(obj === undefined)
+            return {
+                backupTasks: []
+            };
+        obj.backupTasks.forEach( (task: any) => task.nextBackupTime = new Date(task.nextBackupTime));
+        return obj;
     }
 
     private StopScheduler()
@@ -223,21 +253,29 @@ export class BackupManager
         return true;
     }
 
-    private WriteConfig(cfg: BackupConfig)
+    private UpdateBackup(task: BackupTask)
     {
+        this.SetBackup(task.name, task);
+    }
+
+    private WriteConfig()
+    {
+        const cfg: BackupConfig = {
+            backupTasks: this.tasks
+        };
         this.cfgManager.Set(CONFIG_KEY, cfg);
     }
 
     //Event handlers
     private OnSchedulerInterrupt()
     {
-        const cfg = this.Config();
         const now = Date.now();
-        for (let index = 0; index < cfg.backupTasks.length; index++)
+        for (let index = 0; index < this.tasks.length; index++)
         {
-            const task = cfg.backupTasks[index];
-            if(task.enabled && (now >= task.nextBackupTime.valueOf()))
-                this.IssueBackupJob(task, now).then( () => this.Schedule() );
+            const task = this.tasks[index];
+            if( task.enabled && (now >= task.nextBackupTime.valueOf()) )
+                this.IssueBackupJob(task, now);
         }
+        this.Schedule();
     }
 }

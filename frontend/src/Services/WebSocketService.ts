@@ -48,16 +48,9 @@ export class WebSocketService
         this.apiListeners[route] = handler;
     }
 
-    public SendMessage(route: string, data: any = undefined)
+    public SendMessage(msg: string, data: any = undefined)
     {
-        if(this.webSocketConnection.readyState == 1)
-        {
-            this.webSocketConnection.send(JSON.stringify({ msg: route, data: data }));
-        }
-        else
-        {
-            this.onOpen.Subscribe(this.SendMessage.bind(this, route, data));
-        }
+        this.IssueDataTransfer({ msg: msg, data: data });
     }
 
     public SendRequest<T>(message: string, data: any): Promise<T>
@@ -70,7 +63,7 @@ export class WebSocketService
                 this.UnregisterApiListenerHandler(responseMsg);
                 resolve(result);
             });
-            this.webSocketConnection.send(JSON.stringify({ msg: message, responseMsg: responseMsg, data: data }));
+            this.IssueDataTransfer({ msg: message, responseMsg: responseMsg, data: data });
         });
     }
 
@@ -81,6 +74,19 @@ export class WebSocketService
     private responseCounter: number;
 
     //Private methods
+    private IssueDataTransfer(data: any)
+    {
+        if(this.webSocketConnection.readyState == 1)
+            this.SendJson(data);
+        else
+            this.onOpen.Subscribe(this.SendJson.bind(this, data));
+    }
+
+    private SendJson(data: any)
+    {
+        this.webSocketConnection.send(JSON.stringify(data));
+    }
+
     private UnregisterApiListenerHandler(message: string)
     {
         delete this.apiListeners[message];

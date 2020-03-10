@@ -42,6 +42,15 @@ export class FilesystemConnection implements ExternalConnection
         });
     }
 
+    public Delete(pathToNode: string): Promise<void>
+    {
+        const absPath = path.join(this.root, pathToNode);
+
+        return new Promise<void>( (resolve, reject) => {
+            fs.unlink(absPath, () => resolve() );
+        });
+    }
+
     public Exists(filePath: string): Promise<boolean>
     {
         const absPath = path.join(this.root, filePath);

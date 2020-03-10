@@ -59,6 +59,11 @@ export class EncryptedConnection implements ExternalConnection
         throw new Error("Method not implemented.");
     }
 
+    public Delete(pathToNode: string): Promise<void>
+    {
+        throw new Error("Method not implemented.");
+    }
+
     public Exists(filePath: string): Promise<boolean>
     {
         throw new Error("Method not implemented.");

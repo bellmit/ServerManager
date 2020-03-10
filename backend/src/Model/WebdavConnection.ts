@@ -33,6 +33,11 @@ export class WebdavConnection implements ExternalConnection
         throw new Error("Method not implemented.");
     }
 
+    public Delete(pathToNode: string): Promise<void>
+    {
+        throw new Error("Method not implemented.");
+    }
+
     public async Exists(filePath: string): Promise<boolean>
     {
         throw new Error("Method not implemented.");

@@ -26,6 +26,7 @@ export interface BackupTask
     scope: Dictionary<Dictionary<string>>;
     connectionName: string;
     path: string;
+    numberOfBackupsLimit?: number;
 }
 
 export interface DownloadFileRequest

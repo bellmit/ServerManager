@@ -37,6 +37,8 @@ export class BackupFormComponent extends Component
         this.waiting = true;
         this.backup = undefined;
         this.externalConnections = undefined;
+        this.maxBackupsEnabled = false;
+        this.maxBackupLimit = 10;
     }
 
     //Protected methods
@@ -79,6 +81,13 @@ export class BackupFormComponent extends Component
                             <th>Path</th>
                             <td><LineEdit value={this.backup!.path} onChanged={newValue => this.backup!.path = newValue} /></td>
                         </tr>
+                        <tr>
+                            <th>Limit number of backups</th>
+                            <td>
+                                <CheckBox value={this.maxBackupsEnabled} onChanged={newValue => this.maxBackupsEnabled = newValue} />
+                                {this.RenderMaxBackupLimitControl()}
+                            </td>
+                        </tr>
                     </table>
                 </div>
                 <div class="column">
@@ -98,12 +107,21 @@ export class BackupFormComponent extends Component
     private waiting: boolean;
     private backup: BackupTask | undefined;
     private externalConnections: ExternalConnectionConfig[] | undefined;
+    private maxBackupsEnabled: boolean;
+    private maxBackupLimit: number;
 
     //Private methods
     private CheckForEndOfInitialization()
     {
         if((this.backup === undefined) || (this.externalConnections === undefined) || (this.moduleService.modules.WaitingForValue()))
             return; //still waiting
+
+        if(this.backup !== undefined)
+        {
+            this.maxBackupsEnabled = this.backup!.numberOfBackupsLimit !== undefined;
+            if(this.maxBackupsEnabled)
+                this.maxBackupLimit = this.backup!.numberOfBackupsLimit!;
+        }
 
         if(this.externalConnections.find(connection => connection.name === this.backup!.connectionName) === undefined)
         {
@@ -118,6 +136,16 @@ export class BackupFormComponent extends Component
     {
         return this.externalConnections!.map( externalConnection =>
             <option selected={externalConnection.name === this.backup!.connectionName}>{externalConnection.name}</option> );
+    }
+
+    private RenderMaxBackupLimitControl()
+    {
+        if(this.maxBackupsEnabled)
+            return <fragment>
+                Keep only the newest <IntegerSpinner value={this.maxBackupLimit} onChanged={newValue => this.maxBackupLimit = newValue} /> backup files
+            </fragment>;
+
+        return "Don't automatically delete old backup files";
     }
 
     private RenderScope()
@@ -169,6 +197,10 @@ export class BackupFormComponent extends Component
     private async OnSave()
     {
         this.waiting = true;
+        if(this.maxBackupsEnabled)
+            this.backup!.numberOfBackupsLimit = this.maxBackupLimit;
+        else
+            this.backup!.numberOfBackupsLimit = undefined;
         const result = await this.backupService.SetBackup(this.input.backupName, this.backup!);
         if(!result)
         {

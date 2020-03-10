@@ -22,6 +22,7 @@ import { DirectoryEntry } from "srvmgr-api";
 export interface ExternalConnection
 {
     CreateDirectoryTree(dirPath: string): Promise<void>;
+    Delete(pathToNode: string): Promise<void>;
     Exists(filePath: string): Promise<boolean>;
     ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
     ReadFile(filePath: string): Promise<fs.ReadStream>;
