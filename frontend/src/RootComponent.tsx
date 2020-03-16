@@ -43,6 +43,6 @@ export class RootComponent extends Component
     //Private methods
     private RenderGlobals()
     {
-        return this.pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute}>{plugin.title}</Anchor></li>);
+        return this.pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></li>);
     }
 }

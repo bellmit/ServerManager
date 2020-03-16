@@ -15,17 +15,31 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { RenderNode, Instantiatable, Component } from "acfrontend";
-import { ModuleName } from "srvmgr-api";
+import {Component, JSX_CreateElement, RenderNode, Injectable} from "acfrontend";
 
-export interface PluginDefinition
+import { PluginManager } from "./Services/PluginManager";
+
+@Injectable
+export class ServerStatusComponent extends Component
 {
-    title: string;
-    providedIn: string;
+    constructor(private pluginManager: PluginManager)
+    {
+        super();
+    }
 
-    baseRoute?: string;
-    component?: Instantiatable<Component>;
+    //Protected methods
+    protected Render(): RenderNode
+    {
+        return <fragment>
+            <h1>Server Status</h1>
 
-    dependentModules?: Array<ModuleName>;
-    icon?: RenderNode;
+            {this.RenderStatusComponents()}
+        </fragment>;
+    }
+
+    //Private methods
+    private RenderStatusComponents()
+    {
+        return this.pluginManager.GetPluginsFor("serverstatus").map(plugin => JSX_CreateElement(plugin.component!));
+    }
 }

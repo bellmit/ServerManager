@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { RenderNode, Instantiatable, Component } from "acfrontend";
-import { ModuleName } from "srvmgr-api";
+import {PluginDefinition} from "../../Model/PluginDefinition";
+import { MySQLStatusComponent } from "./MySQLStatusComponent";
 
-export interface PluginDefinition
-{
-    title: string;
-    providedIn: string;
+export const plugin: PluginDefinition = {
+    title: "MySQL",
+    component: MySQLStatusComponent,
 
-    baseRoute?: string;
-    component?: Instantiatable<Component>;
-
-    dependentModules?: Array<ModuleName>;
-    icon?: RenderNode;
-}
+    dependentModules: ["mariadb"],
+    providedIn: "serverstatus",
+};

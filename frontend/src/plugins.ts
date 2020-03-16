@@ -20,6 +20,7 @@ import * as Backup from "./Plugins/Backup/plugin";
 import * as ExternalConnections from "./Plugins/ExternalConnections/plugin";
 import * as Filemanager from "./Plugins/Filemanager/plugin";
 import * as Modules from "./Plugins/Modules/plugin";
+import * as MySQL from "./Plugins/MySQL/plugin";
 import * as Settings from "./Plugins/Settings/plugin";
 import * as SMB from "./Plugins/SMB/plugin";
 import * as SystemUpdate from "./Plugins/SystemUpdate/plugin";
@@ -30,6 +31,7 @@ export const plugins: PluginDefinition[] = [
     ExternalConnections.plugin,
     Filemanager.plugin,
     Modules.plugin,
+    MySQL.plugin,
     Settings.plugin,
     SMB.plugin,
     SystemUpdate.plugin,

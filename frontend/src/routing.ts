@@ -24,6 +24,7 @@ import { routes as settingsRoutes } from "./Plugins/Settings/routing";
 import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
+import { ServerStatusComponent } from "./ServerStatusComponent";
 
 export const routes : Routes = [
     { path: "backup", children: backupRoutes },
@@ -32,5 +33,6 @@ export const routes : Routes = [
     { path: "settings", children: settingsRoutes },
     { path: "systemupdate", children: systemUpdateRoutes },
     { path: "users", children: usersRoutes },
+    { path: "", component: ServerStatusComponent },
     { path: "*", component: PageNotFoundComponent},
 ];

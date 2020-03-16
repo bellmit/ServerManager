@@ -52,7 +52,7 @@ export class SettingsComponent extends Component
     //Private methods
     private RenderButtons(sectionName: string)
     {
-        return this.pluginManager.GetPluginsFor(sectionName).map(plugin => <div>{plugin.icon}<Anchor route={plugin.baseRoute}>{plugin.title}</Anchor></div>);
+        return this.pluginManager.GetPluginsFor(sectionName).map(plugin => <div>{plugin.icon}<Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></div>);
     }
 
     //Event handlers
