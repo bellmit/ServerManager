@@ -57,10 +57,11 @@ export class ConfigManager
     //Private methods
     private Persist()
     {
-        fs.writeFile(configFilePath, JSON.stringify(this.data), { encoding: "utf-8", mode: 0o600 }, err => 
+        const data = JSON.stringify(this.data, null, 2);
+        fs.writeFile(configFilePath, data, { encoding: "utf-8", mode: 0o600 }, err => 
         {
             if(err)
-                console.error(err);
+                throw err;
         });
     }
 

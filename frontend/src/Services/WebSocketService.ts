@@ -15,19 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary, ObservableEvent } from "acfrontend";
+import { ObservableEvent, Injectable } from "acfrontend";
+import { Dictionary } from "acts-util";
+
+import { JsonResponseMessage, JsonRequestMessage } from "srvmgr-api";
+
+import { AuthenticationService } from "./AuthenticationService";
 
 export const BACKEND_HOST = "localhost:8081";
 
+@Injectable
 export class WebSocketService
 {
-    constructor()
+    constructor(private authenticationService: AuthenticationService)
     {
         this.apiListeners = {};
         this.onOpen = new ObservableEvent();
         this.responseCounter = 0;
         
         this.webSocketConnection = new WebSocket("ws://" + BACKEND_HOST);
+
+        this.webSocketConnection.onclose = () =>
+        {
+            this.authenticationService.Logout();
+        };
 
         this.webSocketConnection.onopen = () => 
         {
@@ -43,6 +54,12 @@ export class WebSocketService
     }
 
     //Public methods
+    public Close()
+    {
+        if( this.webSocketConnection.readyState !== WebSocket.CLOSED )
+            this.webSocketConnection.close();
+    }
+
     public RegisterApiListenerHandler(route: string, handler: Function)
     {
         this.apiListeners[route] = handler;
@@ -50,7 +67,7 @@ export class WebSocketService
 
     public SendMessage(msg: string, data: any = undefined)
     {
-        this.IssueDataTransfer({ msg: msg, data: data });
+        this.IssueDataTransfer({ msg: msg, data: data, token: this.authenticationService.token! });
     }
 
     public SendRequest<T>(message: string, data: any): Promise<T>
@@ -63,7 +80,7 @@ export class WebSocketService
                 this.UnregisterApiListenerHandler(responseMsg);
                 resolve(result);
             });
-            this.IssueDataTransfer({ msg: message, responseMsg: responseMsg, data: data });
+            this.IssueDataTransfer({ msg: message, responseMsg: responseMsg, data: data, token: this.authenticationService.token! });
         });
     }
 
@@ -74,12 +91,12 @@ export class WebSocketService
     private responseCounter: number;
 
     //Private methods
-    private IssueDataTransfer(data: any)
+    private IssueDataTransfer(message: JsonRequestMessage)
     {
         if(this.webSocketConnection.readyState == 1)
-            this.SendJson(data);
+            this.SendJson(message);
         else
-            this.onOpen.Subscribe(this.SendJson.bind(this, data));
+            this.onOpen.Subscribe(this.SendJson.bind(this, message));
     }
 
     private SendJson(data: any)
@@ -95,13 +112,15 @@ export class WebSocketService
     //Event handlers
     private OnMessageReceived(message: MessageEvent)
     {
-        const parsedMessage = JSON.parse(message.data);
-        if("route" in parsedMessage)
+        const parsedMessage: JsonResponseMessage = JSON.parse(message.data);
+        if(parsedMessage.msg === undefined)
+            return;
+
+        this.authenticationService.UpdateExpiryDateTime( new Date(parsedMessage.expiryDateTime) );
+            
+        if(parsedMessage.msg in this.apiListeners)
         {
-            if(parsedMessage.route in this.apiListeners)
-            {
-                this.apiListeners[parsedMessage.route](parsedMessage.data);
-            }
+            this.apiListeners[parsedMessage.msg]!(parsedMessage.data);
         }
     }
 }

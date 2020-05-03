@@ -19,23 +19,20 @@ import * as websocket from "websocket";
 
 import { Dictionary } from "acts-util";
 
+import { JsonRequestMessage, JsonResponseMessage } from "srvmgr-api";
+
 import { Injectable } from "../Injector";
 import { ApiRequest } from "../Api";
-
-interface JsonMessage
-{
-    msg: string;
-    responseMsg?: string;
-    data: any;
-}
+import { SessionManager } from "./SessionManager";
 
 @Injectable
 export class ConnectionManager
 {
-    constructor()
+    constructor(private sessionManager: SessionManager)
     {
         this.callbacks = {};
         this.connections = {};
+        this.connectionTokens = {};
         this.nextConnectionNumber = 0;
     }
 
@@ -48,6 +45,7 @@ export class ConnectionManager
         connection.on("close", () =>
         {
             delete this.connections[connectionId];
+            delete this.connectionTokens[connectionId];
         });
         this.connections[connectionId] = connection;
 
@@ -77,18 +75,27 @@ export class ConnectionManager
         this.Send(request.senderConnectionId, request.responseMsg, data);
     }
 
-    public Send(connectionId: string, route: string, data: any)
+    public Send(connectionId: string, msg: string, data: any)
     {
         if(!(connectionId in this.connections))
             throw new Error("UNKNOWN CONNECTION ID");
 
-        const message = { route: route, data: data };
+        const token = this.connectionTokens[connectionId];
+        if(token === undefined)
+            return;
+
+        const session = this.sessionManager.FindSession(token);
+        if( (session === undefined) || (session === null) )
+            return;
+
+        const message: JsonResponseMessage = { msg: msg, data: data, expiryDateTime: session.expiryDateTime.toUTCString() };
         this.connections[connectionId]!.sendUTF(JSON.stringify(message));
     }
 
     //Private members
     private callbacks: Dictionary<Function>;
     private connections: Dictionary<websocket.connection>;
+    private connectionTokens: Dictionary<string>;
     private nextConnectionNumber: number;
 
     //Event handlers
@@ -99,10 +106,28 @@ export class ConnectionManager
         if(message.utf8Data === undefined)
             throw new Error("Illegal message payload");
 
-        const jsonMessage = JSON.parse(message.utf8Data) as JsonMessage;
+        const jsonMessage = JSON.parse(message.utf8Data) as JsonRequestMessage;
+        if(jsonMessage.token === undefined)
+            return;
+
+        const session = this.sessionManager.FindSessionAndUpdateTime(jsonMessage.token);
+        if(session === undefined)
+            return;
+        if(session === null)
+        {
+            this.connections[connectionId]!.close();
+            return;
+        }
+        this.connectionTokens[connectionId] = jsonMessage.token;
+
         if(jsonMessage.msg in this.callbacks)
         {
-            const apiCall = { calledRoute: jsonMessage.msg, responseMsg: jsonMessage.responseMsg, senderConnectionId: connectionId };
+            const apiCall = {
+                calledRoute: jsonMessage.msg,
+                responseMsg: jsonMessage.responseMsg,
+                senderConnectionId: connectionId,
+                session: session
+            };
             this.callbacks[jsonMessage.msg]!(apiCall, jsonMessage.data);
         }
     }

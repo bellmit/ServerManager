@@ -15,29 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, Router } from "acfrontend";
 
-import { BackupFormComponent } from "./BackupFormComponent";
-
-@Injectable
-export class EditBackupComponent extends Component
+export interface AuthResult
 {
-    constructor(router: Router)
-    {
-        super();
-
-        this.backupName = router.state.Get().routeParams.backupName!;
-    }
-
-    //Protected methods
-    protected Render(): RenderNode
-    {
-        return <fragment>
-            <h1>Backup: {this.backupName}</h1>
-            <BackupFormComponent backupName={this.backupName} />
-        </fragment>;
-    }
-
-    //Private members
-    private backupName: string;
+    success: boolean;
+    token?: string;
+    expiryDateTime?: string;
 }

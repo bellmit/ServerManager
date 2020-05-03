@@ -11,8 +11,9 @@
   "author": "Amir Czwink",
   "license": "AGPL-3.0-or-later",
   "dependencies": {
-    "acts-util": "*",
     "acfrontend": "*",
+    "acts-util": "*",
+    "npx": "^10.2.2",
     "srvmgr-api": "*"
   },
   "devDependencies": {

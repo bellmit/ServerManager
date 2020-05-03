@@ -25,6 +25,7 @@ import { ConnectionManager } from "./services/ConnectionManager";
 import { ApiEndpointMetadata } from "./Api";
 import { BackupManager } from "./services/BackupManager";
 import { HttpEndpointMetadata } from "./Http";
+import { SessionManager } from "./services/SessionManager";
 
 const port = 8081;
 
@@ -64,6 +65,9 @@ async function SetupApiRoutes()
         const apiClass = apiDefs[index];
 
         const instance = Injector.Resolve<any>(apiClass);
+        if(instance.__routesSetup === undefined)
+            continue;
+            
         for (let index = 0; index < instance.__routesSetup.length; index++)
         {
             const routeSetup: ApiEndpointMetadata = instance.__routesSetup[index];
@@ -109,6 +113,7 @@ async function SetupServer()
     }
 
     const connectionManager = Injector.Resolve<ConnectionManager>(ConnectionManager);
+    const sessionManager = Injector.Resolve<SessionManager>(SessionManager);
     const webSocketServer = new websocket.server({ httpServer: httpServer });
     webSocketServer.on("request", (request) =>
     {
@@ -116,11 +121,13 @@ async function SetupServer()
         {
             request.reject(401);
         }
-        else
+        else if(sessionManager.SessionExists(request.remoteAddress))
         {
             const connection = request.accept(undefined, request.origin);
             connectionManager.Add(connection);
         }
+        else
+            request.reject(401);
     });
 }
 

@@ -32,7 +32,7 @@ class UsersApi
     }
 
     @ApiEndpoint({ route: Messages.USERS_LIST })
-    public async ListBackups(call: ApiCall)
+    public async ListUsers(call: ApiCall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.users);
     }

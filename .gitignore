@@ -1,5 +1,6 @@
 api/dist
 api/node_modules
+backend/build
 backend/dist
 backend/node_modules
 backend/package-lock.json

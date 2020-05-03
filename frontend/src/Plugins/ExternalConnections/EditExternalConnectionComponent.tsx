@@ -26,7 +26,7 @@ export class EditExternalConnectionComponent extends Component
     {
         super();
 
-        this.originalConnectionName = router.state.Get().routeParams.connectionName;
+        this.originalConnectionName = router.state.Get().routeParams.connectionName!;
     }
 
     //Private members

@@ -29,7 +29,7 @@ export class BackupListComponent extends Component
     {
         super();
 
-        this.backupName = router.state.Get().routeParams.backupName;
+        this.backupName = router.state.Get().routeParams.backupName!;
         this.filesList = null;
     }
 

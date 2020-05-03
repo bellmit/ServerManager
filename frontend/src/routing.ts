@@ -25,8 +25,10 @@ import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
 import { ServerStatusComponent } from "./ServerStatusComponent";
+import { AuthGuard } from "./AuthGuard";
+import { LoginComponent } from "./LoginComponent";
 
-export const routes : Routes = [
+const protectedRoutes : Routes = [
     { path: "backup", children: backupRoutes },
     { path: "externalconnections", children: externalConnectionsRoutes },
     { path: "modules", children: modulesRoutes },
@@ -34,5 +36,12 @@ export const routes : Routes = [
     { path: "systemupdate", children: systemUpdateRoutes },
     { path: "users", children: usersRoutes },
     { path: "", component: ServerStatusComponent },
-    { path: "*", component: PageNotFoundComponent},
 ];
+
+for (const route of protectedRoutes)
+    route.guards = [AuthGuard];
+
+export const routes : Routes = protectedRoutes.concat([
+    { path: "login", component: LoginComponent},
+    { path: "*", component: PageNotFoundComponent},
+]);

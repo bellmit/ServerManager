@@ -22,8 +22,9 @@ import { User } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 
-interface Protection
+interface ShadowData
 {
+    cryptData: string;
 }
 
 @Injectable
@@ -31,8 +32,10 @@ export class UsersService
 {
     constructor()
     {
+        this._shadow = new MulticastObservable<Dictionary<ShadowData>>( this.ObserveShadowFile.bind(this) );
         this._users = new MulticastObservable<User[]>(this.ObserveUserDatabase.bind(this));
-        this.protection = {};
+
+        this._shadow.Subscribe( { next: shadowData => this.currentShadowData = shadowData } );
     }
 
     //Properties
@@ -41,19 +44,36 @@ export class UsersService
         return this._users;
     }
 
+    //Public methods
+    public async Authenticate(userName: string, password: string)
+    {
+        if(this.currentShadowData === undefined)
+            return false;
+        const cryptBlock = this.currentShadowData[userName];
+        if(cryptBlock === undefined)
+            return false;
+        const cryptValue = cryptBlock.cryptData;
+
+        const crypt = require('../../build/Release/crypt.node').crypt;
+        const newCryptValue = crypt(password, cryptValue);
+
+        return newCryptValue === cryptValue;
+    }
+
     //Private members
+    private currentShadowData?: Dictionary<ShadowData>;
+    private _shadow : MulticastObservable<Dictionary<ShadowData>>;
     private _users: MulticastObservable<User[]>;
-    private protection: Dictionary<Protection>;
 
     //Private methods
-    private ObserveUserDatabase(observer: Observer<User[]>)
+    private ObserveFile(fileName: string, observer: (data: string) => void)
     {
-        const action = () => this.ReadUsers().then( users => observer.next(users));
+        const action = () => this.ReadFile(fileName).then( (data: string) => observer(data) );
         const debouncer = action.Debounce(500);
 
         action();
 
-        const watcher = fs.watch("/etc/passwd", () => debouncer());
+        const watcher = fs.watch(fileName, () => debouncer());
 
         return {
             Unsubscribe()
@@ -63,29 +83,39 @@ export class UsersService
         };
     }
 
-    /*private async ParseShadow(data: string)
+    private ObserveShadowFile(observer: Observer<Dictionary<ShadowData>>)
+    {
+        return this.ObserveFile("/etc/shadow", (data: string) => this.ParseShadow(data).then( shadowData => observer.next(shadowData) ) );
+    }
+
+    private ObserveUserDatabase(observer: Observer<User[]>)
+    {
+        return this.ObserveFile("/etc/passwd", (data: string) => this.ParseUsers(data).then( users => observer.next(users) ) );
+    }
+
+    private async ParseShadow(data: string)
     {
         const result: Dictionary<ShadowData> = {};
 
         const lines = data.split("\n");
         for (const line of lines)
         {
+            if(!line.trim())
+                continue;
             const parts = line.split(":");
 
             const userName = parts[0];
             const protection = parts[1];
 
-            if(protection === "*")
+            if( (protection === "!") || (protection === "*") )
                 continue;
 
-            /*result[userName] = {
+            result[userName] = {
+                cryptData: protection
             };
-
-            console.log(protection);
         }
-        throw new Error("Method not implemented.");
         return result;
-    }*/
+    }
 
     private async ParseUsers(data: string)
     {
@@ -105,9 +135,7 @@ export class UsersService
 
             //check if we need shadow file
             const protection = parts[1];
-            if(protection === "x")
-                delete this.protection[userName];
-            else
+            if(protection !== "x")
                 throw new Error("NOT IMPLEMENTED");
 
             result.push({
@@ -116,39 +144,21 @@ export class UsersService
                 gid: parseInt(parts[3]),
                 displayName: parts[4],
                 isSystemUser: (uid < 1000) || (uid > 60000), //TODO: specific ranges are defined in /etc/login.defs who is a system user and who is a real one,
-                //one most systems, real users start with uid 1000 and end with 60000. However, these should be read from file
+                //on most systems, real users start with uid 1000 and end with 60000. However, these should be read from file
             });
         }
 
         return result;
     }
 
-    /*private async ReadShadowData(): Promise<Dictionary<ShadowData>>
+    private async ReadFile(fileName: string)
     {
-        return new Promise<Dictionary<ShadowData>>( (resolve, reject) => {
-            fs.readFile("/etc/shadow", "utf8", async (error, data) => {
+        return new Promise<string>( (resolve, reject) => {
+            fs.readFile(fileName, "utf8", async (error, data) => {
                 if(error)
                     reject(error);
                 else
-                {
-                    const shadowData = await this.ParseShadow(data);
-                    resolve(shadowData);
-                }
-            });
-        });
-    }*/
-
-    private async ReadUsers()
-    {
-        return new Promise<User[]>( (resolve, reject) => {
-            fs.readFile("/etc/passwd", "utf8", async (error, data) => {
-                if(error)
-                    reject(error);
-                else
-                {
-                    const users = await this.ParseUsers(data);
-                    resolve(users);
-                }
+                    resolve(data);
             });
         });
     }

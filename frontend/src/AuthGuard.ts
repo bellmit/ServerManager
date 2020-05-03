@@ -15,29 +15,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, Router } from "acfrontend";
+import { RouteGuard, Injectable, Router, RouterState, Url } from "acfrontend";
 
-import { BackupFormComponent } from "./BackupFormComponent";
+import { AuthenticationService } from "./Services/AuthenticationService";
 
 @Injectable
-export class EditBackupComponent extends Component
+export class AuthGuard implements RouteGuard
 {
-    constructor(router: Router)
+    constructor(private authenticationService: AuthenticationService, private router: Router)
     {
-        super();
-
-        this.backupName = router.state.Get().routeParams.backupName!;
     }
 
-    //Protected methods
-    protected Render(): RenderNode
+    //Public methods
+    public CanActivate()
     {
-        return <fragment>
-            <h1>Backup: {this.backupName}</h1>
-            <BackupFormComponent backupName={this.backupName} />
-        </fragment>;
+        if(this.authenticationService.IsLoggedIn())
+            return true;
+        return false;
     }
 
-    //Private members
-    private backupName: string;
+    public OnActivationFailure(routerState: RouterState)
+    {
+        this.router.RouteTo( new Url("/login", { returnUrl: routerState.ToUrl().ToString() }) );
+    }
 }

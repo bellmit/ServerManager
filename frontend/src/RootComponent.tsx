@@ -15,16 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable} from "acfrontend";
+import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable, Injector} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
+import { AuthenticationService } from "./Services/AuthenticationService";
 
 @Injectable
 export class RootComponent extends Component
 {
-    constructor(private pluginManager: PluginManager)
+    constructor(private authenticationService: AuthenticationService)
     {
         super();
+
+        this.isLoggedIn = this.authenticationService.IsLoggedIn();
+        this.authenticationService.loginInfo.Subscribe(newValue => this.isLoggedIn = newValue !== undefined);
     }
 
     //Protected methods
@@ -32,17 +36,29 @@ export class RootComponent extends Component
     {
         return (
             <fragment>
-                <nav>
-                    <ul>{this.RenderGlobals()}</ul>
-                </nav>
+                {this.RenderNav()}
                 <RouterComponent/>
             </fragment>
         );
     }
 
+    //Private members
+    private isLoggedIn: boolean;
+
     //Private methods
     private RenderGlobals()
     {
-        return this.pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></li>);
+        const pluginManager = Injector.Resolve(PluginManager);
+        return pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></li>);
+    }
+
+    private RenderNav()
+    {
+        if(!this.isLoggedIn)
+            return null;
+
+        return <nav>
+            <ul>{this.RenderGlobals()}</ul>
+        </nav>;
     }
 }

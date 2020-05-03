@@ -15,10 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {App, Injector} from "acfrontend";
+import {App} from "acfrontend";
 import { RootComponent } from "./RootComponent";
 import { routes } from "./routing";
-import { WebSocketService } from "./Services/WebSocketService";
 
 const app = new App({
     mountPoint: document.body,
@@ -27,6 +26,3 @@ const app = new App({
     title: "ServerManager",
     version: "0.1 beta"
 });
-
-const webSocketService = new WebSocketService();
-Injector.Register(WebSocketService, webSocketService);

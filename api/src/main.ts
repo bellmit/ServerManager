@@ -15,15 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Messages } from "./Messages";
+import { Messages, JsonRequestMessage, JsonResponseMessage } from "./Messages";
 import { User } from "./Model/User";
 import { BackupTask, BackupSaveRequest, DownloadFileRequest } from "./Model/BackupTask";
 import { ExternalConnectionConfig, ExternalConnectionType, ExternalConnectionTypes, ExternalConnectionSettings } from "./Model/ExternalConnection";
 import { Module, ModuleName, moduleNames } from "./Model/Module";
 import { DirectoryEntry } from "./Model/Filesystem";
 import { Routes } from "./Http";
+import { AuthResult } from "./Model/Auth";
 
 export {
+    AuthResult,
     BackupSaveRequest,
     BackupTask,
     DirectoryEntry,
@@ -32,6 +34,8 @@ export {
     ExternalConnectionSettings,
     ExternalConnectionType,
     ExternalConnectionTypes,
+    JsonRequestMessage,
+    JsonResponseMessage,
     Messages,
     ModuleName,
     moduleNames,

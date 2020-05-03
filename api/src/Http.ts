@@ -19,5 +19,6 @@
 const ROUTE_BACKUPS = "/backups/";
 
 export const Routes = {
+    AUTH: "/auth",
     BACKUPS_DOWNLOAD: ROUTE_BACKUPS + "download",
 };

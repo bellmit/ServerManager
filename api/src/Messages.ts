@@ -16,6 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
+interface JsonMessage
+{
+    msg: string;
+    data: any;
+}
+
+export interface JsonRequestMessage extends JsonMessage
+{
+    responseMsg?: string;
+    token: string;
+}
+
+export interface JsonResponseMessage extends JsonMessage
+{
+    expiryDateTime: string;
+}
+
 const MSG_BACKUPS = "/Backups/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
 const MSG_MODULES = "/Modules/";

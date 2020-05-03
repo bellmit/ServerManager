@@ -11,6 +11,7 @@
   "author": "Amir Czwink",
   "license": "AGPL-3.0",
   "dependencies": {
-    "acts-util": "*"
+    "acts-util": "*",
+    "typescript": "^3.8.3"
   }
 }
