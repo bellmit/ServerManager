@@ -22,9 +22,6 @@ import { Module, ModuleName, Messages } from "srvmgr-api";
 import { WebSocketService } from "./WebSocketService";
 import { ApiProperty } from "../API/ApiProperty";
 
-const MSG_MODULES = "/Modules/";
-const MSG_MODULES_INSTALL = MSG_MODULES + "Install";
-
 @Injectable
 export class ModuleService
 {
@@ -42,7 +39,7 @@ export class ModuleService
     //Public methods
     public Install(moduleName: ModuleName)
     {
-        this.webSocketService.SendMessage(MSG_MODULES_INSTALL, moduleName);
+        return this.webSocketService.SendRequest(Messages.MODULES_INSTALL, moduleName);
     }
 
     public async IsModuleInstalled(moduleName: ModuleName)

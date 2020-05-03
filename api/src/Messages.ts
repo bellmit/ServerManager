@@ -36,6 +36,7 @@ export interface JsonResponseMessage extends JsonMessage
 const MSG_BACKUPS = "/Backups/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
 const MSG_MODULES = "/Modules/";
+const MSG_MYSQL = "/MySQL/";
 const MSG_USERS = "/Users/";
 
 const SUBMSG_DELETE = "Delete";
@@ -54,7 +55,10 @@ export const Messages = {
     EXTERNALCONNECTIONS_LIST: MSG_EXTERNALCONNECTIONS + SUBMSG_LIST,
     EXTERNALCONNECTIONS_SET: MSG_EXTERNALCONNECTIONS + SUBMSG_SET,
 
+    MODULES_INSTALL: MSG_MODULES + "Install",
     MODULES_LIST: MSG_MODULES + SUBMSG_LIST,
+
+    MYSQL_SHOW_STATUS: MSG_MYSQL + "ShowStatus",
 
     USERS_LIST: MSG_USERS + SUBMSG_LIST,
 };

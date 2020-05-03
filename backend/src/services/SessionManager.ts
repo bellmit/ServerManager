@@ -101,8 +101,7 @@ export class SessionManager
     //Private methods
     private CreateExpiryDateTime()
     {
-        //const minutes = 10;
-        const minutes = 10/60.0;
+        const minutes = 10;
         const t = minutes * 60 * 1000;
         return new Date( Date.now() + t );
     }

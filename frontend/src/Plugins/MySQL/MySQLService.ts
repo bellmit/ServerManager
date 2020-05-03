@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,10 +15,22 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ModuleName } from "srvmgr-api";
 
-export interface DistroPackageManager
+import { Injectable } from "acfrontend";
+
+import { WebSocketService } from "../../Services/WebSocketService";
+import { Messages } from "srvmgr-api";
+
+@Injectable
+export class MySQLService
 {
-    Install(moduleName: ModuleName): Promise<boolean>;
-    IsModuleInstalled(moduleName: ModuleName): Promise<boolean>;
+    constructor(private webSocketService: WebSocketService)
+    {
+    }
+
+    //Public methods
+    public ShowStatus()
+    {
+        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
+    }
 }

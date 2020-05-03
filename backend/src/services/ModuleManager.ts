@@ -47,9 +47,10 @@ export class ModuleManager
         return modules;
     }
 
-    public Install(moduleName: ModuleName)
+    public async Install(moduleName: ModuleName)
     {
-        throw new Error("Method not implemented.");
+        const distroPackageManager = await this.ResolveDistroPackageManager();
+        return distroPackageManager.Install(moduleName);
     }
 
     public MapModuleName(moduleName: string): ModuleName | null

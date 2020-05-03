@@ -58,7 +58,10 @@ export class RootComponent extends Component
             return null;
 
         return <nav>
-            <ul>{this.RenderGlobals()}</ul>
+            <ul>
+                <li><Anchor route="/">Server status</Anchor></li>
+                {this.RenderGlobals()}
+            </ul>
         </nav>;
     }
 }

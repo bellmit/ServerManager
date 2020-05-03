@@ -18,7 +18,7 @@
 import { Messages } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall } from "../Api";
+import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { ModuleManager } from "../services/ModuleManager";
 
@@ -30,12 +30,15 @@ class ModulesApi
     }
 
     //Api Endpoints
-    @ApiEndpoint({ route: "Install" })
-    public Install(call: ApiCall, moduleName: string)
+    @ApiEndpoint({ route: Messages.MODULES_INSTALL })
+    public async Install(request: ApiRequest, moduleName: string)
     {
         const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
         if(moduleNameMapped != null)
-            this.moduleManager.Install(moduleNameMapped);
+        {
+            await this.moduleManager.Install(moduleNameMapped);
+        }
+        this.connectionManager.Respond(request, true);
     }
 
     @ApiEndpoint({ route: Messages.MODULES_LIST })

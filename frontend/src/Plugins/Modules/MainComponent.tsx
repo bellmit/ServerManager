@@ -29,6 +29,7 @@ export class MainComponent extends Component
         super();
 
         this.modules = [];
+        this.installingModule = null;
     }
 
     //Protected methods
@@ -36,6 +37,14 @@ export class MainComponent extends Component
     {
         if(this.moduleService.modules.WaitingForValue())
             return <ProgressSpinner />;
+
+        if(this.installingModule !== null)
+        {
+            return <fragment>
+                <ProgressSpinner />
+                Installing module {this.installingModule}...
+            </fragment>;
+        }
             
         return <fragment>
             <h1>Module manager</h1>
@@ -59,6 +68,7 @@ export class MainComponent extends Component
 
     //Private members
     private modules: Module[];
+    private installingModule: string | null;
 
     //Event handlers
     public OnInitiated()
@@ -66,9 +76,11 @@ export class MainComponent extends Component
         this.moduleService.modules.Subscribe( (newModules: Module[]) => this.modules = newModules );
     }
     
-    private OnInstallModule(module: Module)
+    private async OnInstallModule(module: Module)
     {
-        this.moduleService.Install(module.name);
+        this.installingModule = module.name;
+        await this.moduleService.Install(module.name);
+        this.installingModule = null;
     }
 
     private OnUninstallModule(module: Module)

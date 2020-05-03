@@ -29,6 +29,12 @@ class UbuntuPackageManager implements DistroPackageManager
     }
 
     //Public methods
+    public async Install(moduleName: ModuleName): Promise<boolean>
+    {
+        await this.commandExecutor.ExecuteCommand("apt -y install " + this.MapModuleToPackageList(moduleName).join(" "));
+        return true;
+    }
+
     public async IsModuleInstalled(moduleName: ModuleName): Promise<boolean>
     {
         const packages = this.MapModuleToPackageList(moduleName);
