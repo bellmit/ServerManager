@@ -36,7 +36,7 @@ class ModulesApi
         const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
         if(moduleNameMapped != null)
         {
-            await this.moduleManager.Install(moduleNameMapped);
+            await this.moduleManager.Install(moduleNameMapped, request.session);
         }
         this.connectionManager.Respond(request, true);
     }
@@ -44,7 +44,7 @@ class ModulesApi
     @ApiEndpoint({ route: Messages.MODULES_LIST })
     public async ListAllModules(call: ApiCall)
     {
-        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules());
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules(call.session));
     }
 }
 

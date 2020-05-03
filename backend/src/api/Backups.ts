@@ -70,7 +70,7 @@ class BackupsApi
     @ApiEndpoint({ route: Messages.BACKUPS_RUN })
     public RunBackup(call: ApiCall, backupName: string)
     {
-        this.backupManager.RunBackup(backupName);
+        this.backupManager.RunBackup(backupName, call.session);
     }
 
     @ApiEndpoint({ route: Messages.BACKUPS_SET })

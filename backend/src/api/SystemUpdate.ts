@@ -30,7 +30,7 @@ class SystemUpdateApi
     @ApiEndpoint({ route: "Check" })
     public async CheckForUpdates(call: ApiCall)
     {
-        const pid = this.processTracker.CreateProcessByCommand("apt-get update");
+        const pid = this.processTracker.CreateProcessByCommand("apt-get update", call.session);
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, { processId: pid });
     }
 }

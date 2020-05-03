@@ -19,6 +19,7 @@ import { Dictionary } from "acts-util";
 
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
+import { ApiSessionInfo } from "../Api";
 
 @Injectable
 export class DistroInfoService
@@ -28,9 +29,9 @@ export class DistroInfoService
     }
 
     //Public methods    
-    public async FetchFields()
+    public async FetchFields(session: ApiSessionInfo)
     {
-        const fields = await this.commandExecutor.ExecuteCommand("cat /etc/*release");
+        const fields = await this.commandExecutor.ExecuteCommand("cat /etc/*release", session);
         const lines = fields.stdout.split("\n");
         const result: Dictionary<string> = {};
 
@@ -50,9 +51,9 @@ export class DistroInfoService
         return result;
     }
 
-    public async FetchId()
+    public async FetchId(session: ApiSessionInfo)
     {
-        const result = await this.FetchFields();
+        const result = await this.FetchFields(session);
         return result.ID;
     }
 }

@@ -20,6 +20,7 @@ import { Module, moduleNames, ModuleName } from "srvmgr-api";
 import { Injectable, Injector } from "../Injector";
 import { DistroPackageManager } from "../Model/DistroPackageManager";
 import { DistroInfoService } from "./DistroInfoService";
+import { ApiSessionInfo } from "../Api";
 
 @Injectable
 export class ModuleManager
@@ -30,7 +31,7 @@ export class ModuleManager
     }
 
     //Public methods
-    public async FetchModules()
+    public async FetchModules(session: ApiSessionInfo)
     {
         const modules: Array<Module> = [];
 
@@ -40,17 +41,17 @@ export class ModuleManager
             
             modules.push({
                 name: moduleName,
-                installed: await this.IsModuleInstalled(moduleName)
+                installed: await this.IsModuleInstalled(moduleName, session)
             });
         }
 
         return modules;
     }
 
-    public async Install(moduleName: ModuleName)
+    public async Install(moduleName: ModuleName, session: ApiSessionInfo)
     {
-        const distroPackageManager = await this.ResolveDistroPackageManager();
-        return distroPackageManager.Install(moduleName);
+        const distroPackageManager = await this.ResolveDistroPackageManager(session);
+        return distroPackageManager.Install(moduleName, session);
     }
 
     public MapModuleName(moduleName: string): ModuleName | null
@@ -64,17 +65,17 @@ export class ModuleManager
     private distroPackageManager: DistroPackageManager | null;
 
     //Private methods
-    private async IsModuleInstalled(moduleName: ModuleName): Promise<boolean>
+    private async IsModuleInstalled(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>
     {
-        const distroPackageManager = await this.ResolveDistroPackageManager();
-        return await distroPackageManager.IsModuleInstalled(moduleName);
+        const distroPackageManager = await this.ResolveDistroPackageManager(session);
+        return await distroPackageManager.IsModuleInstalled(moduleName, session);
     }
 
-    private async ResolveDistroPackageManager(): Promise<DistroPackageManager>
+    private async ResolveDistroPackageManager(session: ApiSessionInfo): Promise<DistroPackageManager>
     {
         if(this.distroPackageManager === null)
         {
-            const id = await this.distroInfoService.FetchId();
+            const id = await this.distroInfoService.FetchId(session);
             const pkg = await import("../distro/" + id + "/PackageManager");
 
             this.distroPackageManager = Injector.Resolve<DistroPackageManager>(pkg.default);

@@ -15,10 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+export interface ApiSessionInfo
+{
+    gid: number;
+    uid: number;
+}
+
 export interface ApiCall
 {
     calledRoute: string;
     senderConnectionId: string;
+    session: ApiSessionInfo;
 }
 
 export interface ApiRequest extends ApiCall

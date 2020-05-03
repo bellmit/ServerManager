@@ -22,6 +22,7 @@ import * as path from "path";
 
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
+import { ApiSessionInfo } from "../Api";
 
 @Injectable
 export class TemporaryFilesService
@@ -31,9 +32,9 @@ export class TemporaryFilesService
     }
 
     //Public methods
-    public CleanUp(path: string)
+    public CleanUp(path: string, session: ApiSessionInfo)
     {
-        this.commandExecutor.ExecuteWaitableAsyncCommand("rm -rf " + path);
+        this.commandExecutor.ExecuteWaitableAsyncCommand("rm -rf " + path, session);
     }
 
     public async CreateTempDirectory()

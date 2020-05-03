@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,6 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { CommandExecutor } from "./CommandExecutor";
+import { ApiSessionInfo } from "../Api";
 
 interface PartitionInfo
 {
@@ -84,9 +85,9 @@ export class StorageDevicesManager
     }
 
     //Public methods
-    public async QueryDevices(): Promise<Array<DeviceInfo>>
+    public async QueryDevices(session: ApiSessionInfo): Promise<Array<DeviceInfo>>
     {
-        const json = await this.QueryData();
+        const json = await this.QueryData(session);
 
         var result = [];
         for(var i = 0; i < json.blockdevices.length; i++)
@@ -99,9 +100,9 @@ export class StorageDevicesManager
     }
 
     //Private methods
-    private async QueryData()
+    private async QueryData(session: ApiSessionInfo)
     {
-        const { stdout } = await this.commandExecutor.ExecuteCommand("lsblk -bJOp");
+        const { stdout } = await this.commandExecutor.ExecuteCommand("lsblk -bJOp", session);
         return JSON.parse(stdout);
     }
 }

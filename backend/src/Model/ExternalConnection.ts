@@ -19,6 +19,8 @@ import * as fs from "fs";
 
 import { DirectoryEntry } from "srvmgr-api";
 
+import { ApiSessionInfo } from "../Api";
+
 export interface ExternalConnection
 {
     CreateDirectoryTree(dirPath: string): Promise<void>;
@@ -26,5 +28,5 @@ export interface ExternalConnection
     Exists(filePath: string): Promise<boolean>;
     ListDirectoryContents(dirPath: string): Promise<DirectoryEntry[]>;
     ReadFile(filePath: string): Promise<fs.ReadStream>;
-    StoreFile(localFilePath: string, remoteFilePath: string): Promise<void>;
+    StoreFile(localFilePath: string, remoteFilePath: string, session: ApiSessionInfo): Promise<void>;
 }

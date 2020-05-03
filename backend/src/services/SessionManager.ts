@@ -19,7 +19,11 @@ import * as crypto from "crypto";
 
 import { Dictionary } from "acts-util";
 
+import { User } from "srvmgr-api";
+
 import { Injectable } from "../Injector";
+import { ApiSessionInfo } from "../Api";
+import { UsersService } from "./UsersService";
 
 export interface SessionData
 {
@@ -27,7 +31,7 @@ export interface SessionData
     expiryDateTime: Date;
 }
 
-interface Session
+interface Session extends ApiSessionInfo
 {
     expiryDateTime: Date;
     remoteAddress: string;
@@ -37,9 +41,12 @@ interface Session
 @Injectable
 export class SessionManager
 {
-    constructor()
+    constructor(private usersService: UsersService)
     {
         this.sessions = {};
+        this.userData = {};
+
+        this.usersService.users.Subscribe({ next: this.OnUsersChanged.bind(this) });
     }
 
     //Public methods
@@ -59,6 +66,8 @@ export class SessionManager
             expiryDateTime: expiryDateTime,
             remoteAddress: remoteAddress,
             userName: userName,
+            gid: this.userData[userName]!.gid,
+            uid: this.userData[userName]!.uid,
         };
 
         return {
@@ -97,6 +106,7 @@ export class SessionManager
 
     //Private members
     private sessions: Dictionary<Session>;
+    private userData: Dictionary<ApiSessionInfo>;
 
     //Private methods
     private CreateExpiryDateTime()
@@ -134,5 +144,15 @@ export class SessionManager
                 resolve(data.toString("base64"));
             });
         });
+    }
+
+    //Event handlers
+    private OnUsersChanged(users: User[])
+    {
+        this.userData = {};
+        for (const user of users)
+        {
+            this.userData[user.name] = { gid: user.gid, uid: user.uid };
+        }
     }
 }

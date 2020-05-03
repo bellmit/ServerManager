@@ -20,6 +20,7 @@ import { Dictionary } from "acts-util";
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
 import { ChildProcessWithoutNullStreams } from "child_process";
+import { ApiSessionInfo } from "../Api";
 
 interface ProcessInfo
 {
@@ -38,9 +39,9 @@ export class ProcessTracker
     }
 
     //Public methods
-    public CreateProcessByCommand(command: string)
+    public CreateProcessByCommand(command: string, session: ApiSessionInfo)
     {
-        const process = this.commandExecutor.ExecuteAsyncCommand(command);
+        const process = this.commandExecutor.ExecuteAsyncCommand(command, session);
         const info: ProcessInfo = {
             process,
             stdOutBuffered: "",

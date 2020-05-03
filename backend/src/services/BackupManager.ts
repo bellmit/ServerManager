@@ -28,6 +28,7 @@ import { CommandExecutor } from "./CommandExecutor";
 import { ExternalConnectionManager } from "./ExternalConnectionManager";
 import { TemporaryFilesService } from "./TemporaryFilesService";
 import { ExternalConnection } from "../Model/ExternalConnection";
+import { ApiSessionInfo } from "../Api";
 
 interface BackupConfig
 {
@@ -91,10 +92,10 @@ export class BackupManager
         return connection.ReadFile( path.join(task.path, fileName) );
     }
     
-    public async RunBackup(backupName: string)
+    public async RunBackup(backupName: string, session: ApiSessionInfo)
     {
         this.StopScheduler();
-        await this.IssueBackupJob( this.tasks.find(task => task.name === backupName)!, Date.now() );
+        await this.IssueBackupJob( this.tasks.find(task => task.name === backupName)!, Date.now(), session);
         this.Schedule();
     }
 
@@ -189,18 +190,18 @@ export class BackupManager
         }
     }
 
-    private async IssueBackupJob(task: BackupTask, now: number)
+    private async IssueBackupJob(task: BackupTask, now: number, session: ApiSessionInfo)
     {
         if(task.name in this.activeTasks)
             return;
 
-        await this.PerformBackup(task, new Date(now));
+        await this.PerformBackup(task, new Date(now), session);
         this.ComputeNextBackupTime(task, now);
 
         this.UpdateBackup(task);
     }
 
-    private async PerformBackup(task: BackupTask, backupTime: Date)
+    private async PerformBackup(task: BackupTask, backupTime: Date, session: ApiSessionInfo)
     {
         //create directories
         const tmpDir = await this.tempFilesService.CreateTempDirectory();
@@ -210,12 +211,12 @@ export class BackupManager
         //do all steps in scope
         if("mysql" in task.scope)
         {
-            await this.commandExecutor.ExecuteWaitableAsyncCommand("mysqldump -u root --all-databases > " + bkpDir + "/mysql.sql");
+            await this.commandExecutor.ExecuteWaitableAsyncCommand("mysqldump -u root --all-databases > " + bkpDir + "/mysql.sql", session);
         }
 
         //compress to zip
         const bkpFileName = "bkp" + backupTime.toISOString() + ".zip";
-        await this.commandExecutor.ExecuteWaitableAsyncCommand("zip -9 -r " + bkpFileName + " data /etc/ServerManager.json", { workingDirectory: tmpDir });
+        await this.commandExecutor.ExecuteWaitableAsyncCommand("zip -9 -r " + bkpFileName + " data /etc/ServerManager.json", { workingDirectory: tmpDir, gid: session.gid, uid: session.uid });
 
         //ensure that path exists
         const connection = this.externalConnectionManager.OpenConnection(task.connectionName);
@@ -223,10 +224,10 @@ export class BackupManager
             await connection.CreateDirectoryTree(task.path);
 
         //pass zip to storage
-        await connection.StoreFile(path.join(tmpDir, bkpFileName), path.join(task.path, bkpFileName));
+        await connection.StoreFile(path.join(tmpDir, bkpFileName), path.join(task.path, bkpFileName), session);
 
         //cleanup
-        this.tempFilesService.CleanUp(tmpDir);
+        this.tempFilesService.CleanUp(tmpDir, session);
 
         await this.DeleteOldBackups(task, connection);
     }
@@ -274,7 +275,7 @@ export class BackupManager
         {
             const task = this.tasks[index];
             if( task.enabled && (now >= task.nextBackupTime.valueOf()) )
-                this.IssueBackupJob(task, now);
+                this.IssueBackupJob(task, now, { gid: 0, uid:0 });
         }
         this.Schedule();
     }

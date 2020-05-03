@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -26,6 +26,8 @@ interface CommandExecutionResult
 
 interface CommandOptions
 {
+    gid: number;
+    uid: number;
     workingDirectory?: string;
 }
 
@@ -33,19 +35,25 @@ interface CommandOptions
 export class CommandExecutor
 {
     //Public methods
-    public ExecuteAsyncCommand(command: string, options: CommandOptions = {})
+    public ExecuteAsyncCommand(command: string, options: CommandOptions)
     {
         const childProcess = spawn(command, [], {
             cwd: options.workingDirectory,
-            shell: true
+            gid: options.gid,
+            shell: true,
+            uid: options.uid,
         });
         return childProcess;
     }
 
-    public ExecuteCommand(command: string): Promise<CommandExecutionResult>
+    public ExecuteCommand(command: string, options: CommandOptions): Promise<CommandExecutionResult>
     {
         return new Promise<CommandExecutionResult>( (resolve, reject) => {
-            exec(command, (error, stdout, stderr) => {
+            exec(command, {
+                cwd: options.workingDirectory,
+                gid: options.gid,
+                uid: options.uid,
+            }, (error, stdout, stderr) => {
                 if(error)
                     reject(error);
                 resolve({stdout, stderr});
@@ -53,7 +61,7 @@ export class CommandExecutor
         });
     }
 
-    public ExecuteWaitableAsyncCommand(command: string, options: CommandOptions = {})
+    public ExecuteWaitableAsyncCommand(command: string, options: CommandOptions)
     {
         return new Promise<number>( (resolve, reject) => {
             const childProcess = this.ExecuteAsyncCommand(command, options);

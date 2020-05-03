@@ -27,6 +27,7 @@ import { DirectoryEntry } from "srvmgr-api";
 import { ExternalConnection } from "./ExternalConnection";
 import { TemporaryFilesService } from "../services/TemporaryFilesService";
 import { Injector } from "../Injector";
+import { ApiSessionInfo } from "../Api";
 
 interface FilePublicMetadata
 {
@@ -79,7 +80,7 @@ export class EncryptedConnection implements ExternalConnection
         throw new Error("Method not implemented.");
     }
 
-    public async StoreFile(localFilePath: string, remoteFilePath: string): Promise<void>
+    public async StoreFile(localFilePath: string, remoteFilePath: string, session: ApiSessionInfo): Promise<void>
     {
         const encryptedFilePath = await this.EncryptToTempFile(localFilePath);
 
@@ -89,16 +90,16 @@ export class EncryptedConnection implements ExternalConnection
         const newRemoteFileName = fileNumber.toString();
         const newRemoteFilePath = path.join(path.dirname(remoteFilePath), newRemoteFileName);
 
-        await this.innerConnection.StoreFile(encryptedFilePath, newRemoteFilePath);
+        await this.innerConnection.StoreFile(encryptedFilePath, newRemoteFilePath, session);
 
         //clean up
-        this.TempFilesService.CleanUp(encryptedFilePath);
+        this.TempFilesService.CleanUp(encryptedFilePath, session);
 
         //write metadata
         metadata.files[newRemoteFileName] = {
             fileName: path.basename(localFilePath)
         };
-        await this.WriteMetadataFile(metadata);
+        await this.WriteMetadataFile(metadata, session);
     }
 
     //Private properties
@@ -218,14 +219,14 @@ export class EncryptedConnection implements ExternalConnection
         return metadata;
     }
 
-    private async WriteMetadataFile(metadata: DirectoryPrivateMetadata)
+    private async WriteMetadataFile(metadata: DirectoryPrivateMetadata, session: ApiSessionInfo)
     {
         const buffer = new Buffer(JSON.stringify(metadata), "utf8");
         const encryptedFilePath = await this.EncryptBufferToTempFile(buffer);
 
-        await this.innerConnection.StoreFile(encryptedFilePath, "/metadata");
+        await this.innerConnection.StoreFile(encryptedFilePath, "/metadata", session);
 
-        this.TempFilesService.CleanUp(encryptedFilePath);
+        this.TempFilesService.CleanUp(encryptedFilePath, session);
     }
 
     private WriteJSON(file: stream.Writable, data: object)

@@ -17,8 +17,10 @@
  * */
 import { ModuleName } from "srvmgr-api";
 
+import { ApiSessionInfo } from "../Api";
+
 export interface DistroPackageManager
 {
-    Install(moduleName: ModuleName): Promise<boolean>;
-    IsModuleInstalled(moduleName: ModuleName): Promise<boolean>;
+    Install(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>;
+    IsModuleInstalled(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>;
 }
