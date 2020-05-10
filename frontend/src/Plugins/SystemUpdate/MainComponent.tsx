@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ export class MainComponent extends Component
     {
         return <fragment>
             <h1>System Update</h1>
-            <button onclick={this.OnCheckForUpdatesClicked.bind(this)}>Check for updates</button>
+            <button type="button" onclick={this.OnCheckForUpdatesClicked.bind(this)}>Check for updates</button>
         </fragment>;
     }
 

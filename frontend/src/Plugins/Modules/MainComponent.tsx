@@ -57,8 +57,8 @@ export class MainComponent extends Component
                     this.modules.map( (module: Module) => <tr>
                         <td>{module.name}</td>
                         <td>
-                            <button onclick={this.OnInstallModule.bind(this, module)} disabled={module.installed}>Install</button>
-                            <button onclick={this.OnUninstallModule.bind(this, module)} disabled={!module.installed}>Uninstall</button>
+                            <button type="button" onclick={this.OnInstallModule.bind(this, module)} disabled={module.installed}>Install</button>
+                            <button type="button" onclick={this.OnUninstallModule.bind(this, module)} disabled={!module.installed}>Uninstall</button>
                         </td>
                     </tr>)
                 }

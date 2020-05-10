@@ -17,15 +17,12 @@
  * */
 import * as crypto from "crypto";
 
-import { Dictionary, Property } from "acts-util";
+import { Dictionary, Property } from "acts-util-core";
+import { FileSystem, OSFileSystem, VirtualRootFileSystem, EncryptedFileSystem, WebDAVFileSystem } from "acts-util-node";
 import { ExternalConnectionConfig, ExternalConnectionType } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
-import { ExternalConnection } from "../Model/ExternalConnection";
-import { WebdavConnection } from "../Model/WebdavConnection";
-import { EncryptedConnection } from "../Model/EncryptedConnection";
 import { ConfigManager } from "./ConfigManager";
-import { FilesystemConnection } from "../Model/FilesystemConnection";
 
 interface ExternalConnectionEncryptionConfig
 {
@@ -77,7 +74,7 @@ export class ExternalConnectionManager
         return connectionName in this.encryptionData;
     }
 ;
-    public OpenConnection(connectionName: string): ExternalConnection
+    public OpenConnection(connectionName: string)
     {
         const result = this.connections.Get().find(connection => connection.name === connectionName);
         if(result === undefined)
@@ -133,6 +130,16 @@ export class ExternalConnectionManager
         return buffer.toString("base64");
     }
 
+    private DeriveEncryptionKey(password: string, salt: Buffer)
+    {
+        const KEY_LENGTH = 32;
+
+        const passwordBuffer = Buffer.from(password, "utf-8");
+        const key = crypto.scryptSync(passwordBuffer, salt, KEY_LENGTH, { N: 16384, r: 8});
+
+        return key;
+    }
+
     private GenerateRandomNatural(low: number, high: number)
     {
         const buffer = crypto.randomBytes(4);
@@ -166,21 +173,23 @@ export class ExternalConnectionManager
 
     private InstantiateConnection(config: ExternalConnectionConfig, encryption?: ExternalConnectionEncryptionConfig)
     {
-        const instance = this.InstantiateConnectionType(config.type, config.options!);
+        let instance = this.InstantiateConnectionType(config.type, config.options!);
+        if(config.options!.root !== undefined)
+            instance = new VirtualRootFileSystem(instance, config.options!.root);
         if(encryption !== undefined)
-            return new EncryptedConnection(encryption.salt, encryption.password, instance);
+            instance = new EncryptedFileSystem(instance, this.DeriveEncryptionKey(encryption.password, encryption.salt));
 
         return instance;
     }
 
-    private InstantiateConnectionType(configType: ExternalConnectionType, options: Dictionary<string>)
+    private InstantiateConnectionType(configType: ExternalConnectionType, options: Dictionary<string>): FileSystem
     {
         switch(configType)
         {
             case "file":
-                return new FilesystemConnection(options.root!);
+                return new OSFileSystem();
             case "webdav":
-                return new WebdavConnection(options.root!, options.username!, options.password!);
+                return new WebDAVFileSystem(options.url!, options.username!, options.password!);
         }
     }
 

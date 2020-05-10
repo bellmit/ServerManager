@@ -42,7 +42,7 @@ export class LoginComponent extends Component
                 <FormField hint="Password">
                     <LineEdit value={this.password} password onChanged={newValue => this.password = newValue}></LineEdit>
                 </FormField>
-                <button>Login</button>
+                <button type="submit">Login</button>
             </form>
             {this.RenderFailureMessage()}
         </div>;

@@ -15,12 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
-
-import { Observer, Dictionary, MulticastObservable } from "acts-util";
-import { User } from "srvmgr-api";
+import { Observer, Dictionary, MulticastObservable } from "acts-util-core";
+import { User, Group } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
+import { FileSystemWatcher } from "./FileSystemWatcher";
 
 interface ShadowData
 {
@@ -30,12 +29,15 @@ interface ShadowData
 @Injectable
 export class UsersService
 {
-    constructor()
+    constructor(private fileSystemWatcher: FileSystemWatcher)
     {
-        this._shadow = new MulticastObservable<Dictionary<ShadowData>>( this.ObserveShadowFile.bind(this) );
+        this._groups = new MulticastObservable<Group[]>(this.ObserveGroupDatabase.bind(this));
+        this.shadow = new MulticastObservable<Dictionary<ShadowData>>( this.ObserveShadowFile.bind(this) );
         this._users = new MulticastObservable<User[]>(this.ObserveUserDatabase.bind(this));
 
-        this._shadow.Subscribe( { next: shadowData => this.currentShadowData = shadowData } );
+        this._groups.Subscribe( { next: this.OnGroupsChanged.bind(this) });
+        this.shadow.Subscribe( { next: shadowData => this.currentShadowData = shadowData } );
+        this._users.Subscribe( { next: this.OnUsersChanged.bind(this) });
     }
 
     //Properties
@@ -60,37 +62,68 @@ export class UsersService
         return newCryptValue === cryptValue;
     }
 
+    public GetGroupsOf(uid: number)
+    {
+        const user = this.GetUserById(uid);
+        if(user === undefined)
+            return undefined;
+        if(this.groupMemberMap === undefined)
+            return undefined;
+
+        return this.groupMemberMap[user.name];
+    }
+
+    public GetUserById(uid: number)
+    {
+        if(this.userIdMap !== undefined)
+            return this.userIdMap[uid];
+        return undefined;
+    }
+
     //Private members
+    private groupMemberMap?: Dictionary<Group[]>;
     private currentShadowData?: Dictionary<ShadowData>;
-    private _shadow : MulticastObservable<Dictionary<ShadowData>>;
+    private userIdMap?: Dictionary<User>;
+    private _groups: MulticastObservable<Group[]>;
+    private shadow : MulticastObservable<Dictionary<ShadowData>>;
     private _users: MulticastObservable<User[]>;
 
     //Private methods
-    private ObserveFile(fileName: string, observer: (data: string) => void)
+    private ObserveGroupDatabase(observer: Observer<Group[]>)
     {
-        const action = () => this.ReadFile(fileName).then( (data: string) => observer(data) );
-        const debouncer = action.Debounce(500);
-
-        action();
-
-        const watcher = fs.watch(fileName, () => debouncer());
-
-        return {
-            Unsubscribe()
-            {
-                watcher.close();
-            }
-        };
+        return this.fileSystemWatcher.ObserveTextFile("/etc/group", (data: string) => this.ParseGroups(data).then( groups => observer.next(groups) ) );
     }
 
     private ObserveShadowFile(observer: Observer<Dictionary<ShadowData>>)
     {
-        return this.ObserveFile("/etc/shadow", (data: string) => this.ParseShadow(data).then( shadowData => observer.next(shadowData) ) );
+        return this.fileSystemWatcher.ObserveTextFile("/etc/shadow", (data: string) => this.ParseShadow(data).then( shadowData => observer.next(shadowData) ) );
     }
 
     private ObserveUserDatabase(observer: Observer<User[]>)
     {
-        return this.ObserveFile("/etc/passwd", (data: string) => this.ParseUsers(data).then( users => observer.next(users) ) );
+        return this.fileSystemWatcher.ObserveTextFile("/etc/passwd", (data: string) => this.ParseUsers(data).then( users => observer.next(users) ) );
+    }
+
+    private async ParseGroups(data: string)
+    {
+        const result: Group[] = [];
+
+        const lines = data.split("\n");
+        for (const line of lines)
+        {
+            if(!line)
+                continue;
+
+            const parts = line.split(":");
+
+            result.push({
+                name: parts[0],
+                gid: parseInt(parts[2]),
+                memberNames: parts[3] ? parts[3].split(",") : []
+            });
+        }
+
+        return result;
     }
 
     private async ParseShadow(data: string)
@@ -151,15 +184,33 @@ export class UsersService
         return result;
     }
 
-    private async ReadFile(fileName: string)
+    //Event handlers
+    private OnGroupsChanged(newGroups: Group[])
     {
-        return new Promise<string>( (resolve, reject) => {
-            fs.readFile(fileName, "utf8", async (error, data) => {
-                if(error)
-                    reject(error);
+        const groupMemberMap: Dictionary<Group[]> = {};
+        for (const group of newGroups)
+        {
+            for(const memberName of group.memberNames)
+            {
+                if(groupMemberMap[memberName] === undefined)
+                    groupMemberMap[memberName] = [group];
                 else
-                    resolve(data);
-            });
-        });
+                    groupMemberMap[memberName]!.push(group);
+            }
+        }
+
+        this.groupMemberMap = groupMemberMap;
+    }
+
+    private OnUsersChanged(newUsers: User[])
+    {
+        const userIdMap: Dictionary<User> = {};
+
+        for (const user of newUsers)
+        {
+            userIdMap[user.uid] = user;
+        }
+
+        this.userIdMap = userIdMap;
     }
 }

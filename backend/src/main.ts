@@ -106,8 +106,26 @@ async function SetupServer()
         {
             const routeSetup: HttpEndpointMetadata = instance.__httpRoutesSetup[index];
 
-            (app as any)[routeSetup.attributes.method](routeSetup.attributes.route, (req: express.Request, res: express.Response) => {
-                instance[routeSetup.methodName](req, res);
+            (app as any)[routeSetup.attributes.method](routeSetup.attributes.route, (req: express.Request, res: express.Response) =>
+            {
+                if(req.route.path === "/auth")
+                {
+                    instance[routeSetup.methodName](req, res);
+                }
+                else
+                {
+                    if( (req.headers.authorization !== undefined) && req.headers.authorization.startsWith("Bearer "))
+                    {
+                        const result = sessionManager.Authenticate(req.headers.authorization.substring(7), req.ip);
+                        if( (result !== undefined) && (result !== null) )
+                        {
+                            instance[routeSetup.methodName](req, res);
+                            return;
+                        }
+                    }
+
+                    res.sendStatus(401).end();
+                }
             });
         }
     }
@@ -138,6 +156,8 @@ function SetupBackup()
     const bkpManager = Injector.Resolve<BackupManager>(BackupManager);
     bkpManager.Schedule();
 }
+
+import { PermissionsManager } from "./services/PermissionsManager";
 
 async function Init()
 {

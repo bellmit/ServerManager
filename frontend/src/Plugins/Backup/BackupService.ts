@@ -15,20 +15,27 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Property } from "acts-util";
+import { Property } from "acts-util-core";
 
-import { BackupTask, Messages, BackupSaveRequest, DirectoryEntry } from "srvmgr-api";
+import { BackupTask, Messages, BackupSaveRequest, Routes } from "srvmgr-api";
 
-import { WebSocketService } from "../../Services/WebSocketService";
+import { WebSocketService, BACKEND_HOST } from "../../Services/WebSocketService";
 import { ApiListener, ApiService } from "../../API/Api";
+import { HttpService } from "acfrontend";
+import { AuthenticationService } from "../../Services/AuthenticationService";
 
 const MSG_BACKUPS = "/Backups/";
 const MSG_BACKUPS_LIST = MSG_BACKUPS + "List";
 
+export interface DirectoryEntry
+{
+    fileName: string;
+}
+
 @ApiService
 export class BackupService
 {
-    constructor(private webSocketService: WebSocketService)
+    constructor(private webSocketService: WebSocketService, private authService: AuthenticationService)
     {
         this._backups = new Property<BackupTask[]>([]);
 
@@ -45,6 +52,24 @@ export class BackupService
     public DeleteBackup(backupName: string)
     {
         this.webSocketService.SendMessage(Messages.BACKUPS_DELETE, backupName);
+    }
+
+    public DownloadFile(backupName: string, fileName: string): Promise<Blob>
+    {
+        const http = new HttpService;
+        return http.Request({
+            data: JSON.stringify({
+                backupName: backupName,
+                fileName: fileName
+            }),
+            headers: {
+                Authorization: "Bearer " + this.authService.token!,
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            responseType: "blob",
+            url: "http://" + BACKEND_HOST + Routes.BACKUPS_DOWNLOAD,
+        });
     }
 
     public FetchBackups(backupName: string)

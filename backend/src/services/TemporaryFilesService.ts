@@ -22,7 +22,7 @@ import * as path from "path";
 
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 
 @Injectable
 export class TemporaryFilesService
@@ -32,7 +32,7 @@ export class TemporaryFilesService
     }
 
     //Public methods
-    public CleanUp(path: string, session: ApiSessionInfo)
+    public CleanUp(path: string, session: POSIXAuthority)
     {
         this.commandExecutor.ExecuteWaitableAsyncCommand("rm -rf " + path, session);
     }

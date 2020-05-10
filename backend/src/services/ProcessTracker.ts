@@ -15,12 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary } from "acts-util";
+import { Dictionary } from "acts-util-core";
 
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
 import { ChildProcessWithoutNullStreams } from "child_process";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 
 interface ProcessInfo
 {
@@ -39,7 +39,7 @@ export class ProcessTracker
     }
 
     //Public methods
-    public CreateProcessByCommand(command: string, session: ApiSessionInfo)
+    public CreateProcessByCommand(command: string, session: POSIXAuthority)
     {
         const process = this.commandExecutor.ExecuteAsyncCommand(command, session);
         const info: ProcessInfo = {

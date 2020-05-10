@@ -29,7 +29,7 @@ export class ExternalConnectionsListComponent extends Component
         super();
 
         this.connections = [];
-        this.externalConnectionsService.connections.Subscribe( (newConnections) => this.connections = newConnections);
+        this.externalConnectionsService.connections.Subscribe( newConnections => this.connections = newConnections);
     }
 
     //Protected methods
@@ -62,7 +62,7 @@ export class ExternalConnectionsListComponent extends Component
             <td>{connection.type}</td>
             <td>
                 <Anchor route={"/externalconnections/edit/" + connection.name}>edit</Anchor>
-                <button onclick={this.OnDeleteActivated.bind(this, connection.name)}>delete</button>
+                <button type="button" onclick={this.OnDeleteActivated.bind(this, connection.name)}>delete</button>
             </td>
         </tr>);
     }

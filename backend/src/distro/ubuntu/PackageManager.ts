@@ -20,7 +20,7 @@ import { ModuleName } from "srvmgr-api";
 import { DistroPackageManager } from "../../Model/DistroPackageManager";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { Injectable } from "../../Injector";
-import { ApiSessionInfo } from "../../Api";
+import { POSIXAuthority } from "../../services/PermissionsManager";
 
 @Injectable
 class UbuntuPackageManager implements DistroPackageManager
@@ -30,13 +30,13 @@ class UbuntuPackageManager implements DistroPackageManager
     }
 
     //Public methods
-    public async Install(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>
+    public async Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         await this.commandExecutor.ExecuteCommand("apt -y install " + this.MapModuleToPackageList(moduleName).join(" "), session);
         return true;
     }
 
-    public async IsModuleInstalled(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>
+    public async IsModuleInstalled(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         const packages = this.MapModuleToPackageList(moduleName);
         const allPackages = await this.FetchInstalledPackages(session);
@@ -50,7 +50,7 @@ class UbuntuPackageManager implements DistroPackageManager
     }
 
     //Private methods
-    private async FetchInstalledPackages(session: ApiSessionInfo)
+    private async FetchInstalledPackages(session: POSIXAuthority)
     {
         const aptResult = await this.commandExecutor.ExecuteCommand("apt list --installed", session);
         const lines = aptResult.stdout.split("\n");

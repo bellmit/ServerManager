@@ -17,7 +17,7 @@
  * */
 import * as websocket from "websocket";
 
-import { Dictionary } from "acts-util";
+import { Dictionary } from "acts-util-core";
 
 import { JsonRequestMessage, JsonResponseMessage } from "srvmgr-api";
 
@@ -110,7 +110,7 @@ export class ConnectionManager
         if(jsonMessage.token === undefined)
             return;
 
-        const session = this.sessionManager.FindSessionAndUpdateTime(jsonMessage.token);
+        const session = this.sessionManager.Authenticate(jsonMessage.token, this.connections[connectionId]!.remoteAddress);
         if(session === undefined)
             return;
         if(session === null)

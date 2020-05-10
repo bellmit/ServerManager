@@ -98,7 +98,7 @@ export class BackupFormComponent extends Component
                 </div>
             </div>
             <div class="evenlySpacedRow">
-                <button onclick={this.OnSave.bind(this)}>Save</button>
+                <button type="button" onclick={this.OnSave.bind(this)}>Save</button>
             </div>
         </fragment>;
     }

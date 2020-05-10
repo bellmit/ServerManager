@@ -17,12 +17,12 @@
  * */
 import * as crypto from "crypto";
 
-import { Dictionary } from "acts-util";
+import { Dictionary } from "acts-util-core";
 
 import { User } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 import { UsersService } from "./UsersService";
 
 export interface SessionData
@@ -31,7 +31,7 @@ export interface SessionData
     expiryDateTime: Date;
 }
 
-interface Session extends ApiSessionInfo
+interface Session extends POSIXAuthority
 {
     expiryDateTime: Date;
     remoteAddress: string;
@@ -50,6 +50,14 @@ export class SessionManager
     }
 
     //Public methods
+    public Authenticate(token: string, remoteAddress: string)
+    {
+        const session = this.FindSession(token);
+        if( !( (session === undefined) || (session === null) ) )
+            session.expiryDateTime = this.CreateExpiryDateTime();
+        return session;
+    }
+
     public async CreateSession(userName: string, remoteAddress: string): Promise<SessionData>
     {
         while(true)
@@ -96,17 +104,9 @@ export class SessionManager
         return session;
     }
 
-    public FindSessionAndUpdateTime(token: string)
-    {
-        const session = this.FindSession(token);
-        if( !( (session === undefined) || (session === null) ) )
-            session.expiryDateTime = this.CreateExpiryDateTime();
-        return session;
-    }
-
     //Private members
     private sessions: Dictionary<Session>;
-    private userData: Dictionary<ApiSessionInfo>;
+    private userData: Dictionary<POSIXAuthority>;
 
     //Private methods
     private CreateExpiryDateTime()

@@ -16,7 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import * as fs from "fs";
-import "acts-util";
+
+import "acts-util-core";
 
 import { Injectable } from "../Injector";
 

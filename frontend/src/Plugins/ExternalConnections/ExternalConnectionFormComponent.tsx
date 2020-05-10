@@ -66,7 +66,7 @@ export class ExternalConnectionFormComponent extends Component
                 <td><CheckBox value={this.encrypt} onChanged={this.OnEncryptionToggled.bind(this)} /></td>
             </tr>
             <tr>
-                <td><button onclick={this.OnSave.bind(this)}>Save</button></td>
+                <td><button type="button" onclick={this.OnSave.bind(this)}>Save</button></td>
             </tr>
         </table>;
     }

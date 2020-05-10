@@ -15,6 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+export interface Group
+{
+    name: string;
+    gid: number;
+    memberNames: string[];
+}
+
 export interface User
 {
     name: string;

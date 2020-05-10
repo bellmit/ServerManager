@@ -20,7 +20,7 @@ import { Module, moduleNames, ModuleName } from "srvmgr-api";
 import { Injectable, Injector } from "../Injector";
 import { DistroPackageManager } from "../Model/DistroPackageManager";
 import { DistroInfoService } from "./DistroInfoService";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 
 @Injectable
 export class ModuleManager
@@ -31,7 +31,7 @@ export class ModuleManager
     }
 
     //Public methods
-    public async FetchModules(session: ApiSessionInfo)
+    public async FetchModules(session: POSIXAuthority)
     {
         const modules: Array<Module> = [];
 
@@ -48,7 +48,7 @@ export class ModuleManager
         return modules;
     }
 
-    public async Install(moduleName: ModuleName, session: ApiSessionInfo)
+    public async Install(moduleName: ModuleName, session: POSIXAuthority)
     {
         const distroPackageManager = await this.ResolveDistroPackageManager(session);
         return distroPackageManager.Install(moduleName, session);
@@ -65,13 +65,13 @@ export class ModuleManager
     private distroPackageManager: DistroPackageManager | null;
 
     //Private methods
-    private async IsModuleInstalled(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>
+    private async IsModuleInstalled(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         const distroPackageManager = await this.ResolveDistroPackageManager(session);
         return await distroPackageManager.IsModuleInstalled(moduleName, session);
     }
 
-    private async ResolveDistroPackageManager(session: ApiSessionInfo): Promise<DistroPackageManager>
+    private async ResolveDistroPackageManager(session: POSIXAuthority): Promise<DistroPackageManager>
     {
         if(this.distroPackageManager === null)
         {

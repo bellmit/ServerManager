@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Injector, HttpService } from "acfrontend";
-import { Property } from "acts-util";
+import { Injectable, Injector, HttpService, Router } from "acfrontend";
+import { Property } from "acts-util-core";
 
 import { Routes, AuthResult } from "srvmgr-api";
 
@@ -31,7 +31,7 @@ interface LoginInfo
 @Injectable
 export class AuthenticationService
 {
-    constructor()
+    constructor(private router: Router)
     {
         this._loginInfo = new Property<LoginInfo | undefined>(undefined);
         this._token = null;
@@ -70,7 +70,8 @@ export class AuthenticationService
             return true;
         }
 
-        this.Logout();
+        if(this.IsLoggedIn())
+            this.Logout();
 
         return false;
     }
@@ -83,7 +84,7 @@ export class AuthenticationService
         this._loginInfo.Set(undefined);
         this._token = null;
 
-        location.reload(true);
+        this.router.RouteTo("/");
     }
 
     public UpdateExpiryDateTime(date: Date)

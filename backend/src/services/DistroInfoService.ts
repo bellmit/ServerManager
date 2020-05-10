@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary } from "acts-util";
+import { Dictionary } from "acts-util-core";
 
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 
 @Injectable
 export class DistroInfoService
@@ -29,7 +29,7 @@ export class DistroInfoService
     }
 
     //Public methods    
-    public async FetchFields(session: ApiSessionInfo)
+    public async FetchFields(session: POSIXAuthority)
     {
         const fields = await this.commandExecutor.ExecuteCommand("cat /etc/*release", session);
         const lines = fields.stdout.split("\n");
@@ -51,7 +51,7 @@ export class DistroInfoService
         return result;
     }
 
-    public async FetchId(session: ApiSessionInfo)
+    public async FetchId(session: POSIXAuthority)
     {
         const result = await this.FetchFields(session);
         return result.ID;

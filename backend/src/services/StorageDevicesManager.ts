@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { CommandExecutor } from "./CommandExecutor";
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "./PermissionsManager";
 
 interface PartitionInfo
 {
@@ -85,7 +85,7 @@ export class StorageDevicesManager
     }
 
     //Public methods
-    public async QueryDevices(session: ApiSessionInfo): Promise<Array<DeviceInfo>>
+    public async QueryDevices(session: POSIXAuthority): Promise<Array<DeviceInfo>>
     {
         const json = await this.QueryData(session);
 
@@ -100,7 +100,7 @@ export class StorageDevicesManager
     }
 
     //Private methods
-    private async QueryData(session: ApiSessionInfo)
+    private async QueryData(session: POSIXAuthority)
     {
         const { stdout } = await this.commandExecutor.ExecuteCommand("lsblk -bJOp", session);
         return JSON.parse(stdout);

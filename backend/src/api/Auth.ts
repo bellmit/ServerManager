@@ -32,7 +32,7 @@ class AuthApi
     }
 
     @HttpEndpoint({ method: "post", route: Routes.AUTH })
-    public async DownloadFile(request: express.Request, response: express.Response)
+    public async Authenticate(request: express.Request, response: express.Response)
     {
         const data = request.body;
         const result:AuthResult = {

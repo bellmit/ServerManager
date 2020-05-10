@@ -17,10 +17,10 @@
  * */
 import { ModuleName } from "srvmgr-api";
 
-import { ApiSessionInfo } from "../Api";
+import { POSIXAuthority } from "../services/PermissionsManager";
 
 export interface DistroPackageManager
 {
-    Install(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>;
-    IsModuleInstalled(moduleName: ModuleName, session: ApiSessionInfo): Promise<boolean>;
+    Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>;
+    IsModuleInstalled(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>;
 }

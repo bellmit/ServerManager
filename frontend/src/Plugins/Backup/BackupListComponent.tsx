@@ -17,9 +17,9 @@
  * */
 import { Injectable, Component, RenderNode, Router, JSX_CreateElement, ProgressSpinner } from "acfrontend";
 
-import { DirectoryEntry, Routes } from "srvmgr-api";
+import { Routes } from "srvmgr-api";
 
-import { BackupService } from "./BackupService";
+import { BackupService, DirectoryEntry } from "./BackupService";
 import { BACKEND_HOST } from "../../Services/WebSocketService";
 
 @Injectable
@@ -60,7 +60,7 @@ export class BackupListComponent extends Component
             {this.filesList.map(file => <tr>
                 <td>{file.fileName}</td>
                 <td>
-                    <button onclick={this.OnDownload.bind(this, file.fileName)}>download</button>
+                    <button type="button" onclick={this.OnDownload.bind(this, file.fileName)}>download</button>
                 </td>
             </tr>)}
         </table>;
@@ -69,30 +69,17 @@ export class BackupListComponent extends Component
     //Event handlers
     private async OnDownload(fileName: string)
     {
-        const form = document.createElement("form");
-        form.method = "post";
-        form.action = "http://" + BACKEND_HOST + Routes.BACKUPS_DOWNLOAD;
+        const blob = await this.backupService.DownloadFile(this.backupName, fileName);
 
-        const args = {
-            backupName: this.backupName,
-            fileName: fileName
-        };
-        for (const key in args)
-        {
-            if (args.hasOwnProperty(key))
-            {
-                const input = document.createElement("input");
-                input.type = "hidden";
-                input.name = key;
-                input.value = (args as any)[key];
+        const objectUrl = window.URL.createObjectURL(blob);
 
-                form.appendChild(input);
-            }
-        }
+        const anchor = document.createElement("a");
+        anchor.href = objectUrl;
+        anchor.download = fileName;
+        document.body.appendChild(anchor);
+        anchor.click();
 
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
+        window.URL.revokeObjectURL(objectUrl);
     }
 
     public async OnInitiated()

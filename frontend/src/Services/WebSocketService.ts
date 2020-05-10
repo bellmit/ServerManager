@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { ObservableEvent, Injectable } from "acfrontend";
-import { Dictionary } from "acts-util";
+import { Dictionary } from "acts-util-core";
 
 import { JsonResponseMessage, JsonRequestMessage } from "srvmgr-api";
 
