@@ -45,6 +45,12 @@ export class PermissionsManager
         this.ObserveSudoersFile();
     }
 
+    //Properties
+    public get root(): POSIXAuthority
+    {
+        return { gid: 0, uid: 0 };
+    }
+
     //Public methods
     public CanSudo(uid: number)
     {

@@ -64,10 +64,6 @@ export class BackupFormComponent extends Component
                             <td><LineEdit value={this.backup!.name} onChanged={newValue => this.backup!.name = newValue} /></td>
                         </tr>
                         <tr>
-                            <th>Time of next backup</th>
-                            <td><input type="datetime-local" value={this.backup!.nextBackupTime.toLocaleString()} onchange={event => this.backup!.nextBackupTime = (event.target as any).value} /></td>
-                        </tr>
-                        <tr>
                             <th>Interval (in seconds)</th>
                             <td><IntegerSpinner value={this.backup!.interval} onChanged={newValue => this.backup!.interval = newValue} /></td>
                         </tr>
@@ -173,7 +169,7 @@ export class BackupFormComponent extends Component
             this.backup = {
                 enabled: false,
                 name: "",
-                nextBackupTime: new Date(),
+                lastBackupTime: new Date(1900, 1, 1),
                 interval: 0,
                 scope: {},
                 connectionName: "",

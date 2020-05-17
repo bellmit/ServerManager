@@ -21,8 +21,8 @@ export interface BackupTask
 {
     enabled: boolean;
     name: string;
-    nextBackupTime: Date;
-    interval: number; //in s
+    lastBackupTime: Date;
+    interval: number; //in ms
     scope: Dictionary<Dictionary<string>>;
     connectionName: string;
     path: string;

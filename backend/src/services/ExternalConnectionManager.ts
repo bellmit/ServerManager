@@ -189,7 +189,7 @@ export class ExternalConnectionManager
             case "file":
                 return new OSFileSystem();
             case "webdav":
-                return new WebDAVFileSystem(options.url!, options.username!, options.password!);
+                return new WebDAVFileSystem(options.url!, options.userName!, options.password!);
         }
     }
 

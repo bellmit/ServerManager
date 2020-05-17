@@ -157,13 +157,12 @@ function SetupBackup()
     bkpManager.Schedule();
 }
 
-import { PermissionsManager } from "./services/PermissionsManager";
-
 async function Init()
 {
     await SetupApiRoutes();
     await SetupServer();
-    SetupBackup();
+
+    setTimeout(SetupBackup, 1000);
 
     console.log("Initialization finished.")
 }
