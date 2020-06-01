@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Routes } from "acfrontend";
-import { UserListComponent } from "./UserListComponent";
+import { UsersAndGroupsComponent } from "./UsersAndGroupsComponent";
 
 export const routes : Routes = [
-    { path: "", component: UserListComponent},
+    { path: "", component: UsersAndGroupsComponent},
 ];

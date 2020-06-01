@@ -31,7 +31,7 @@ export class DistroInfoService
     //Public methods    
     public async FetchFields(session: POSIXAuthority)
     {
-        const fields = await this.commandExecutor.ExecuteCommand("cat /etc/*release", session);
+        const fields = await this.commandExecutor.ExecuteCommand(["cat", "/etc/*release"], session);
         const lines = fields.stdout.split("\n");
         const result: Dictionary<string> = {};
 

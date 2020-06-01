@@ -15,9 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
-import { Injectable, Injector, HttpService, Router } from "acfrontend";
-import { Property } from "acts-util-core";
+import { Property, Injector } from "acts-util-core";
+import { Injectable, HttpService, Router } from "acfrontend";
 
 import { Routes, AuthResult } from "srvmgr-api";
 
@@ -31,8 +30,10 @@ interface LoginInfo
 @Injectable
 export class AuthenticationService
 {
-    constructor(private router: Router)
+    constructor(private router: Router, private injector: Injector)
     {
+        this.injector.RegisterInstance(WebSocketService, null);
+
         this._loginInfo = new Property<LoginInfo | undefined>(undefined);
         this._token = null;
     }
@@ -78,8 +79,8 @@ export class AuthenticationService
 
     public Logout()
     {
-        Injector.Resolve(WebSocketService).Close();
-        Injector.Register(WebSocketService, null);
+        this.injector.Resolve(WebSocketService).Close();
+        this.injector.RegisterInstance(WebSocketService, null);
 
         this._loginInfo.Set(undefined);
         this._token = null;
@@ -99,7 +100,7 @@ export class AuthenticationService
     //Private methods
     private ConnectWebsocket()
     {
-        const webSocketService = Injector.Resolve(WebSocketService);
-        Injector.Register(WebSocketService, webSocketService);
+        const webSocketService = this.injector.CreateInstance(WebSocketService);
+        this.injector.RegisterInstance(WebSocketService, webSocketService);
     }
 }

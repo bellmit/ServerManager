@@ -27,7 +27,7 @@ export class ModuleService
 {
     constructor(private webSocketService: WebSocketService)
     {
-        this._modules = new ApiProperty<Module[]>(Messages.MODULES_LIST);
+        this._modules = new ApiProperty<Module[]>(Messages.MODULES_LIST, webSocketService);
     }
 
     //Properties

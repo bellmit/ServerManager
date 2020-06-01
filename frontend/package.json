@@ -4,8 +4,10 @@
   "description": "",
   "main": "dist/app.js",
   "scripts": {
-    "build": "tsc && npx webpack",
-    "deploy": "ln -s ../index.htm dist/ && ln -s ../node_modules/acfrontend/dist/acfrontend.js dist/ && ln -s ../node_modules/acfrontend/dist/clean_light.css dist/"
+    "compile": "tsc",
+    "build-debug": "npx webpack --config webpack.debug.config.js",
+    "build": "npx webpack",
+    "deploy": "ln -s ../index.htm dist/ && ln -s ../node_modules/acts-util-core/dist/acts-util-core.js dist/ && ln -s ../node_modules/acfrontend/dist/acfrontend.js dist/ && ln -s ../node_modules/acfrontend/dist/clean.css dist/"
   },
   "keywords": [],
   "author": "Amir Czwink",

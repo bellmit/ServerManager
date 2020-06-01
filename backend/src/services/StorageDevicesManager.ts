@@ -102,7 +102,7 @@ export class StorageDevicesManager
     //Private methods
     private async QueryData(session: POSIXAuthority)
     {
-        const { stdout } = await this.commandExecutor.ExecuteCommand("lsblk -bJOp", session);
+        const { stdout } = await this.commandExecutor.ExecuteCommand(["lsblk", "-bJOp"], session);
         return JSON.parse(stdout);
     }
 }

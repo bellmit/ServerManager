@@ -180,14 +180,14 @@ export class BackupManager
         if("mysql" in task.scope)
         {
             const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(
-                "mysqldump -u root --all-databases > " + bkpDir + "/mysql.sql", root);
+                ["mysqldump", "-u", "root", "--all-databases", ">", bkpDir, "/mysql.sql"], root);
             if(exitCode != 0)
                 throw new Error("mysqldump failed with exit code: " + exitCode);
         }
 
         //compress to zip
         const bkpFileName = "bkp" + backupTime.toISOString() + ".zip";
-        await this.commandExecutor.ExecuteWaitableAsyncCommand("zip -9 -r " + bkpFileName + " data /etc/ServerManager.json", { workingDirectory: tmpDir, gid: root.gid, uid: root.uid });
+        await this.commandExecutor.ExecuteWaitableAsyncCommand(["zip", "-9", "-r", bkpFileName, "data", "/etc/ServerManager.json"], { workingDirectory: tmpDir, gid: root.gid, uid: root.uid });
 
         //ensure that path exists
         const connection = this.externalConnectionManager.OpenConnection(task.connectionName);

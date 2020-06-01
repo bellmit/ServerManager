@@ -33,8 +33,8 @@ class MySQLApi
     @ApiEndpoint({ route: Messages.MYSQL_SHOW_STATUS })
     public async ShowStatus(request: ApiRequest)
     {
-        const result1 = await this.commandExecutor.ExecuteCommand("mysql -u root -e \"SELECT @@warning_count;\"", request.session);
-        const result2 = await this.commandExecutor.ExecuteCommand("mysql -u root -e \"SELECT @@error_count;\"", request.session);
+        const result1 = await this.commandExecutor.ExecuteCommand(["mysql", "-u", "root", "-e", "\"SELECT @@warning_count;\""], request.session);
+        const result2 = await this.commandExecutor.ExecuteCommand(["mysql", "-u", "root", "-e", "\"SELECT @@error_count;\""], request.session);
         this.connectionManager.Respond(request, result1.stderr + result1.stdout + result2.stderr + result2.stdout);
     }
 }

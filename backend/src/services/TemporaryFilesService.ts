@@ -34,7 +34,7 @@ export class TemporaryFilesService
     //Public methods
     public CleanUp(path: string, session: POSIXAuthority)
     {
-        this.commandExecutor.ExecuteWaitableAsyncCommand("rm -rf " + path, session);
+        this.commandExecutor.ExecuteWaitableAsyncCommand(["rm", "-rf", path], session);
     }
 
     public async CreateTempDirectory()

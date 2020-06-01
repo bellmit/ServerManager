@@ -20,12 +20,12 @@ import cors from "cors";
 import express from "express";
 import fs from "fs";
 import * as websocket from "websocket";
-import { Injector } from "./Injector";
 import { ConnectionManager } from "./services/ConnectionManager";
 import { ApiEndpointMetadata } from "./Api";
 import { BackupManager } from "./services/BackupManager";
 import { HttpEndpointMetadata } from "./Http";
 import { SessionManager } from "./services/SessionManager";
+import { GlobalInjector } from "./Injector";
 
 const port = 8081;
 
@@ -57,14 +57,14 @@ async function SetupApiRoutes()
 {
     console.log("Setting up api routes...");
 
-    const connectionManager = Injector.Resolve<ConnectionManager>(ConnectionManager);
+    const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
 
     const apiDefs = await LoadApiCalls();
     for (let index = 0; index < apiDefs.length; index++)
     {
         const apiClass = apiDefs[index];
 
-        const instance = Injector.Resolve<any>(apiClass);
+        const instance = GlobalInjector.Resolve<any>(apiClass);
         if(instance.__routesSetup === undefined)
             continue;
             
@@ -99,7 +99,7 @@ async function SetupServer()
     {
         const apiClass = apiDefs[index];
 
-        const instance = Injector.Resolve<any>(apiClass);
+        const instance = GlobalInjector.Resolve<any>(apiClass);
         if(instance.__httpRoutesSetup === undefined)
             continue;
         for (let index = 0; index < instance.__httpRoutesSetup.length; index++)
@@ -130,8 +130,8 @@ async function SetupServer()
         }
     }
 
-    const connectionManager = Injector.Resolve<ConnectionManager>(ConnectionManager);
-    const sessionManager = Injector.Resolve<SessionManager>(SessionManager);
+    const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
+    const sessionManager = GlobalInjector.Resolve<SessionManager>(SessionManager);
     const webSocketServer = new websocket.server({ httpServer: httpServer });
     webSocketServer.on("request", (request) =>
     {
@@ -153,7 +153,7 @@ function SetupBackup()
 {
     console.log("Scheduling backup tasks...");
 
-    const bkpManager = Injector.Resolve<BackupManager>(BackupManager);
+    const bkpManager = GlobalInjector.Resolve<BackupManager>(BackupManager);
     bkpManager.Schedule();
 }
 

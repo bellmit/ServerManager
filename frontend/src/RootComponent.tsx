@@ -15,15 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable, Injector} from "acfrontend";
+import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
 import { AuthenticationService } from "./Services/AuthenticationService";
+import { Injector } from "acts-util-core";
 
 @Injectable
 export class RootComponent extends Component
 {
-    constructor(private authenticationService: AuthenticationService)
+    constructor(private authenticationService: AuthenticationService, private injector: Injector)
     {
         super();
 
@@ -48,7 +49,7 @@ export class RootComponent extends Component
     //Private methods
     private RenderGlobals()
     {
-        const pluginManager = Injector.Resolve(PluginManager);
+        const pluginManager = this.injector.Resolve(PluginManager);
         return pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></li>);
     }
 

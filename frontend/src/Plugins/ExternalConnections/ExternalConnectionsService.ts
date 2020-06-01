@@ -27,7 +27,7 @@ export class ExternalConnectionsService
 {
     constructor(private webSocketService: WebSocketService)
     {
-        this._connections = new ApiObservable<ExternalConnectionConfig[]>([], Messages.EXTERNALCONNECTIONS_LIST);
+        this._connections = new ApiObservable<ExternalConnectionConfig[]>([], Messages.EXTERNALCONNECTIONS_LIST, this.webSocketService);
     }
 
     //Properties

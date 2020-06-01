@@ -18,10 +18,11 @@
 import { PropertyObserver } from "acts-util-core";
 
 import { ApiObservable } from "./ApiObservable";
+import { WebSocketService } from "../Services/WebSocketService";
 
 export class ApiProperty<T>
 {
-    constructor(updateMessage: string)
+    constructor(updateMessage: string, webSocketService: WebSocketService)
     {
         this.waiter = new Promise<void>( resolve => {
             if(this.resolver === undefined)
@@ -30,7 +31,7 @@ export class ApiProperty<T>
                 resolve();
         });
 
-        this.observable = new ApiObservable<T|undefined>(undefined, updateMessage);
+        this.observable = new ApiObservable<T|undefined>(undefined, updateMessage, webSocketService);
         this.observable.Subscribe(this.OnReceiveValue.bind(this));
     }
 

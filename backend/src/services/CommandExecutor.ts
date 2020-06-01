@@ -20,6 +20,7 @@ import { Injectable } from '../Injector';
 
 interface CommandExecutionResult
 {
+    exitCode: number;
     stdout: string;
     stderr: string;
 }
@@ -35,9 +36,9 @@ interface CommandOptions
 export class CommandExecutor
 {
     //Public methods
-    public ExecuteAsyncCommand(command: string, options: CommandOptions)
+    public ExecuteAsyncCommand(command: string[], options: CommandOptions)
     {
-        const childProcess = spawn(command, [], {
+        const childProcess = spawn(command.join(" "), [], {
             cwd: options.workingDirectory,
             gid: options.gid,
             shell: true,
@@ -46,22 +47,27 @@ export class CommandExecutor
         return childProcess;
     }
 
-    public ExecuteCommand(command: string, options: CommandOptions): Promise<CommandExecutionResult>
+    public ExecuteCommand(command: string[], options: CommandOptions): Promise<CommandExecutionResult>
     {
         return new Promise<CommandExecutionResult>( (resolve, reject) => {
-            exec(command, {
+            exec(command.join(" "), {
                 cwd: options.workingDirectory,
                 gid: options.gid,
                 uid: options.uid,
             }, (error, stdout, stderr) => {
-                if(error)
-                    reject(error);
-                resolve({stdout, stderr});
+                let exitCode = 0;
+                if(error !== null)
+                {
+                    if(error.code === undefined)
+                        reject(error);
+                    exitCode = error.code!;
+                }
+                resolve({ exitCode: exitCode, stdout, stderr});
             });
         });
     }
 
-    public ExecuteWaitableAsyncCommand(command: string, options: CommandOptions)
+    public ExecuteWaitableAsyncCommand(command: string[], options: CommandOptions)
     {
         return new Promise<number>( (resolve, reject) => {
             const childProcess = this.ExecuteAsyncCommand(command, options);

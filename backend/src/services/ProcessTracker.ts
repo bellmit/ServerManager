@@ -39,7 +39,7 @@ export class ProcessTracker
     }
 
     //Public methods
-    public CreateProcessByCommand(command: string, session: POSIXAuthority)
+    public CreateProcessByCommand(command: string[], session: POSIXAuthority)
     {
         const process = this.commandExecutor.ExecuteAsyncCommand(command, session);
         const info: ProcessInfo = {

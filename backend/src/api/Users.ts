@@ -15,10 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Messages, User } from "srvmgr-api";
+import { Messages, User, Group, OperationStatus } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall } from "../Api";
+import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { UsersService } from "../services/UsersService";
 
@@ -27,8 +27,60 @@ class UsersApi
 {
     constructor(private connectionManager: ConnectionManager, private usersService: UsersService)
     {
+        this.groups = [];
         this.users = [];
+        this.usersService.groups.Subscribe({ next: this.OnGroupsChanged.bind(this) });
         this.usersService.users.Subscribe({ next: this.OnUsersChanged.bind(this) });
+    }
+
+    @ApiEndpoint({ route: Messages.USERS_ADD })
+    public async AddUser(request: ApiRequest, data: any)
+    {
+        const result = await this.usersService.CreateUser(data.userName, data.createHomeDir, request.session);
+        this.connectionManager.Respond(request, result);
+    }
+
+    @ApiEndpoint({ route: Messages.USERS_GROUPS_ADD })
+    public async AddUserToGroup(request: ApiRequest, data: any)
+    {
+        const result = await this.usersService.AddUserToGroup(data.userName, data.groupName, request.session);
+        this.connectionManager.Respond(request, result);
+    }
+
+    @ApiEndpoint({ route: Messages.USERS_CHANGE_PASSWORD })
+    public async ChangePassword(request: ApiRequest, data: any)
+    {
+        const result = await this.usersService.ChangePassword(data.userName, data.oldPassword, data.newPassword, request.session);
+        this.connectionManager.Respond(request, result);
+    }
+
+    @ApiEndpoint({ route: Messages.USERS_DELETE })
+    public async DeleteUser(request: ApiRequest, userName: string)
+    {
+        let response: OperationStatus = { success: true };
+        try
+        {
+            await this.usersService.DeleteUser(userName, request.session)
+        }
+        catch(error)
+        {
+            response = { success: false, errorMessage: error.message };
+        }
+        this.connectionManager.Respond(request, response);
+    }
+
+    @ApiEndpoint({ route: Messages.USERGROUPS_LIST })
+    public async ListGroups(call: ApiCall)
+    {
+        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.groups);
+    }
+
+    @ApiEndpoint({ route: Messages.USERS_GROUPS_LIST })
+    public async ListUserGroups(request: ApiRequest, userName: string)
+    {
+        const user = this.users.find(user => user.name === userName);
+        const groups = user === undefined ? [] : this.usersService.GetGroupsOf(user.uid);
+        this.connectionManager.Respond(request, groups || []);
     }
 
     @ApiEndpoint({ route: Messages.USERS_LIST })
@@ -37,14 +89,28 @@ class UsersApi
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.users);
     }
 
+    @ApiEndpoint({ route: Messages.USERS_GROUPS_REMOVE })
+    public async RemoveUserFromGroup(request: ApiRequest, data: any)
+    {
+        const result = await this.usersService.RemoveUserFromGroup(data.userName, data.groupName, request.session);
+        this.connectionManager.Respond(request, result);
+    }
+
     //Private members
+    private groups: Group[];
     private users: User[];
 
     //Event handlers
+    private OnGroupsChanged(newGroups: Group[])
+    {
+        this.groups = newGroups;
+        this.connectionManager.Broadcast(Messages.USERGROUPS_LIST, newGroups);
+    }
+    
     private OnUsersChanged(newUsers: User[])
     {
         this.users = newUsers;
-        this.connectionManager.Broadcast(Messages.USERS_LIST, this.users);
+        this.connectionManager.Broadcast(Messages.USERS_LIST, newUsers);
     }
 }
 

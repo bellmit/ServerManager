@@ -17,7 +17,7 @@
  * */
 import { Module, moduleNames, ModuleName } from "srvmgr-api";
 
-import { Injectable, Injector } from "../Injector";
+import { Injectable, GlobalInjector } from "../Injector";
 import { DistroPackageManager } from "../Model/DistroPackageManager";
 import { DistroInfoService } from "./DistroInfoService";
 import { POSIXAuthority } from "./PermissionsManager";
@@ -78,7 +78,7 @@ export class ModuleManager
             const id = await this.distroInfoService.FetchId(session);
             const pkg = await import("../distro/" + id + "/PackageManager");
 
-            this.distroPackageManager = Injector.Resolve<DistroPackageManager>(pkg.default);
+            this.distroPackageManager = GlobalInjector.Resolve<DistroPackageManager>(pkg.default);
         }
 
         return this.distroPackageManager!;

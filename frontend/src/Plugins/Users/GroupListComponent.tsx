@@ -15,49 +15,48 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, Injectable, ProgressSpinner, MatIcon } from "acfrontend";
-
-import { MySQLService } from "./MySQLService";
+import { Component, RenderNode, ProgressSpinner, JSX_CreateElement, Injectable } from "acfrontend";
+import { UsersService } from "./UsersService";
+import { Group } from "srvmgr-api";
 
 @Injectable
-export class MySQLStatusComponent extends Component
+export class GroupListComponent extends Component
 {
-    constructor(private mySqlService: MySQLService)
+    constructor(private usersService: UsersService)
     {
         super();
 
-        this.status = null;
+        this.groups = null;
+        this.usersService.groups.Subscribe( (newGroups) => this.groups = newGroups );
     }
     
     //Protected methods
     protected Render(): RenderNode
     {
-        if( this.status === null )
+        if(this.groups === null)
             return <ProgressSpinner />;
 
         return <fragment>
-            MySQL Server: {this.RenderStatus()}
-        </fragment>;
+            <h1>Groups</h1>
+            <table>
+                <tr>
+                    <th>Group id</th>
+                    <th>Group name</th>
+                </tr>
+                {this.RenderGroupsList()}
+            </table>
+        </fragment>
     }
 
     //Private members
-    private status: string | null;
+    private groups: Group[] | null;
 
     //Private methods
-    private RenderStatus()
+    private RenderGroupsList()
     {
-        const regex = /@@warning_count[ \t\r\n]*0[ \t\r\n]*@@error_count[ \t\r\n]*0[ \t\r\n]*/;
-
-        if(this.status!.match(regex))
-            return <MatIcon>done</MatIcon>;
-
-        return <MatIcon class="danger">error</MatIcon>;
-        return <MatIcon>warning</MatIcon>;
-    }
-
-    //Event handlers
-    public async OnInitiated()
-    {
-        this.status = await this.mySqlService.ShowStatus();
+        return this.groups!.map(group => <tr>
+            <td>{group.gid}</td>
+            <td>{group.name}</td>
+        </tr>);
     }
 }

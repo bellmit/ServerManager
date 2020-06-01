@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Instantiatable, Injectable, Injector } from "acfrontend";
+import { Injectable, RootInjector } from "acfrontend";
 import { WebSocketService } from "../Services/WebSocketService";
+import { Instantiatable } from "acts-util-core";
 
 export interface ApiListenerProperties
 {
@@ -58,7 +59,7 @@ export function ApiService<T extends Instantiatable<{}>>(constructor:T)
                 {
                     const listener = listeners[index];
 
-                    const webSocketService = Injector.Resolve(WebSocketService);
+                    const webSocketService = RootInjector.Resolve(WebSocketService);
                     webSocketService.RegisterApiListenerHandler(listener.properties.route, (this as any)[listener.methodName].bind(this));
                 }
             }

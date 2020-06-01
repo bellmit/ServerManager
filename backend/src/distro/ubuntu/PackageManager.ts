@@ -32,7 +32,7 @@ class UbuntuPackageManager implements DistroPackageManager
     //Public methods
     public async Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
-        await this.commandExecutor.ExecuteCommand("apt -y install " + this.MapModuleToPackageList(moduleName).join(" "), session);
+        await this.commandExecutor.ExecuteCommand(["apt", "-y", "install", this.MapModuleToPackageList(moduleName).join(" ")], session);
         return true;
     }
 
@@ -52,7 +52,7 @@ class UbuntuPackageManager implements DistroPackageManager
     //Private methods
     private async FetchInstalledPackages(session: POSIXAuthority)
     {
-        const aptResult = await this.commandExecutor.ExecuteCommand("apt list --installed", session);
+        const aptResult = await this.commandExecutor.ExecuteCommand(["apt", "list", "--installed"], session);
         const lines = aptResult.stdout.split("\n");
 
         const result = [];

@@ -17,7 +17,7 @@
  * */
 import { Injectable } from "../Injector";
 import { FileSystemWatcher } from "./FileSystemWatcher";
-import { Dictionary } from "acts-util-core";
+import { Dictionary, Injector } from "acts-util-core";
 import { UsersService } from "./UsersService";
 
 export interface POSIXAuthority
@@ -37,7 +37,7 @@ interface UserRule
 @Injectable
 export class PermissionsManager
 {
-    constructor(private fileSystemWatcher: FileSystemWatcher, private usersService: UsersService)
+    constructor(private fileSystemWatcher: FileSystemWatcher, private injector: Injector)
     {
         this.groupRules = {};
         this.userRules = {};
@@ -54,14 +54,16 @@ export class PermissionsManager
     //Public methods
     public CanSudo(uid: number)
     {
-        const user = this.usersService.GetUserById(uid);
+        const usersService = this.injector.Resolve(UsersService);
+
+        const user = usersService.GetUserById(uid);
         if(user === undefined)
             return false;
         const userRule = this.userRules[user.name];
         if(userRule !== undefined)
             return true;
 
-        const groups = this.usersService.GetGroupsOf(user.uid);
+        const groups = usersService.GetGroupsOf(user.uid);
         if(groups === undefined)
             return false;
 

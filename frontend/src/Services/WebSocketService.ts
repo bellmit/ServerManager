@@ -24,7 +24,12 @@ import { AuthenticationService } from "./AuthenticationService";
 
 export const BACKEND_HOST = "localhost:8081";
 
-@Injectable
+//only used to make sure that metadata is emitted for the class
+function EmitMetadata(target: any)
+{
+}
+
+@EmitMetadata
 export class WebSocketService
 {
     constructor(private authenticationService: AuthenticationService)
@@ -70,7 +75,7 @@ export class WebSocketService
         this.IssueDataTransfer({ msg: msg, data: data, token: this.authenticationService.token! });
     }
 
-    public SendRequest<T>(message: string, data: any): Promise<T>
+    public SendRequest<T>(message: string, data?: any): Promise<T>
     {
         const id = this.responseCounter++;
         const responseMsg = "/tmp/" + id;

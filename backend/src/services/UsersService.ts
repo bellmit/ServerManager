@@ -20,6 +20,8 @@ import { User, Group } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 import { FileSystemWatcher } from "./FileSystemWatcher";
+import { CommandExecutor } from "./CommandExecutor";
+import { POSIXAuthority, PermissionsManager } from "./PermissionsManager";
 
 interface ShadowData
 {
@@ -29,7 +31,7 @@ interface ShadowData
 @Injectable
 export class UsersService
 {
-    constructor(private fileSystemWatcher: FileSystemWatcher)
+    constructor(private fileSystemWatcher: FileSystemWatcher, private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
     {
         this._groups = new MulticastObservable<Group[]>(this.ObserveGroupDatabase.bind(this));
         this.shadow = new MulticastObservable<Dictionary<ShadowData>>( this.ObserveShadowFile.bind(this) );
@@ -41,12 +43,30 @@ export class UsersService
     }
 
     //Properties
+    public get groups()
+    {
+        return this._groups;
+    }
+
     public get users()
     {
         return this._users;
     }
 
     //Public methods
+    public async AddUserToGroup(userName: string, groupName: string, session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+            return false;
+        if(groupName.trim().length === 0)
+            return false;
+
+        const result = await this.commandExecutor.ExecuteCommand(["usermod", "-a", "-G", groupName, userName], this.permissionsManager.Sudo(session.uid));
+        if(result.exitCode !== 0)
+            return false;
+        return true;
+    }
+
     public async Authenticate(userName: string, password: string)
     {
         if(this.currentShadowData === undefined)
@@ -60,6 +80,44 @@ export class UsersService
         const newCryptValue = crypt(password, cryptValue);
 
         return newCryptValue === cryptValue;
+    }
+
+    public async ChangePassword(userName: string, oldPassword: string, newPassword: string, session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+            return false;
+        const childProcess = this.commandExecutor.ExecuteAsyncCommand(["passwd", userName], this.permissionsManager.Sudo(session.uid))
+        if(oldPassword.trim().length !== 0) //it is possible, that the user does not have a password before. In that case it should be blank
+            childProcess.stdin.write(oldPassword + "\n");
+        childProcess.stdin.write(newPassword + "\n");
+        childProcess.stdin.write(newPassword + "\n");
+        childProcess.stdin.write("\n"); //in case the user had a password but oldPassword.length == 0, this will terminate passwd
+
+        return new Promise<boolean>( (resolve, reject) => {
+            childProcess.on("close", (code, _) => resolve(code === 0));
+            childProcess.on("error", reject);
+        });
+    }
+
+    public async CreateUser(userName: string, createHomeDir: boolean, session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+            return false;
+        const cmd = ["useradd"];
+        if(createHomeDir)
+            cmd.push("-m");
+        cmd.push(userName);
+        const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(cmd, this.permissionsManager.Sudo(session.uid));
+        return exitCode === 0;
+    }
+
+    public async DeleteUser(userName: string, session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+        throw new Error("Illegal user name");
+        const result = await this.commandExecutor.ExecuteCommand(["userdel", "-r", userName], this.permissionsManager.Sudo(session.uid));
+        if(result.exitCode !== 0)
+            throw new Error(result.stderr);
     }
 
     public GetGroupsOf(uid: number)
@@ -78,6 +136,19 @@ export class UsersService
         if(this.userIdMap !== undefined)
             return this.userIdMap[uid];
         return undefined;
+    }
+
+    public async RemoveUserFromGroup(userName: string, groupName: string, session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+            return false;
+        if(groupName.trim().length === 0)
+            return false;
+
+        const result = await this.commandExecutor.ExecuteCommand(["deluser", userName, groupName], this.permissionsManager.Sudo(session.uid));
+        if(result.exitCode !== 0)
+            return false;
+        return true;
     }
 
     //Private members
@@ -140,7 +211,8 @@ export class UsersService
             const userName = parts[0];
             const protection = parts[1];
 
-            if( (protection === "!") || (protection === "*") )
+            if( (protection === "!") //user is locked
+            || (protection === "*") ) //user is also locked but never had an established password
                 continue;
 
             result[userName] = {

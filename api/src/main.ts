@@ -23,6 +23,12 @@ import { Module, ModuleName, moduleNames } from "./Model/Module";
 import { Routes } from "./Http";
 import { AuthResult } from "./Model/Auth";
 
+interface OperationStatus
+{
+    success: boolean;
+    errorMessage?: string;
+}
+
 export {
     AuthResult,
     BackupSaveRequest,
@@ -39,6 +45,7 @@ export {
     ModuleName,
     moduleNames,
     Module,
+    OperationStatus,
     Routes,
     User
 };

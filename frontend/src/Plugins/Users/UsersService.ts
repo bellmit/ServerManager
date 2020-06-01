@@ -17,7 +17,7 @@
  * */
 import { Property } from "acts-util-core";
 
-import { Messages, User } from "srvmgr-api";
+import { Messages, User, Group, OperationStatus } from "srvmgr-api";
 
 import { WebSocketService } from "../../Services/WebSocketService";
 import { ApiListener, ApiService } from "../../API/Api";
@@ -27,21 +27,66 @@ export class UsersService
 {
     constructor(private webSocketService: WebSocketService)
     {
+        this._groups = new Property<Group[]>([]);
         this._users = new Property<User[]>([]);
 
+        this.webSocketService.SendMessage(Messages.USERGROUPS_LIST);
         this.webSocketService.SendMessage(Messages.USERS_LIST);
     }
 
     //Properties
+    public get groups()
+    {
+        return this._groups;
+    }
+
     public get users()
     {
         return this._users;
     }
 
+    //Public methods
+    public AddUser(userName: string, createHomeDir: boolean)
+    {
+        return this.webSocketService.SendRequest<boolean>(Messages.USERS_ADD, { userName, createHomeDir });
+    }
+
+    public AddUserToGroup(userName: string, groupName: string)
+    {
+        return this.webSocketService.SendRequest<boolean>(Messages.USERS_GROUPS_ADD, { userName, groupName });
+    }
+
+    public ChangePassword(userName: string, oldPassword: string, newPassword: string)
+    {
+        return this.webSocketService.SendRequest<boolean>(Messages.USERS_CHANGE_PASSWORD, { userName, oldPassword, newPassword });
+    }
+
+    public DeleteUser(userName: string)
+    {
+        return this.webSocketService.SendRequest<OperationStatus>(Messages.USERS_DELETE, userName);
+    }
+
+    public FetchUserGroups(userName: string)
+    {
+        return this.webSocketService.SendRequest<Group[]>(Messages.USERS_GROUPS_LIST, userName);
+    }
+
+    public RemoveUserFromGroup(userName: string, groupName: string)
+    {
+        return this.webSocketService.SendRequest<boolean>(Messages.USERS_GROUPS_REMOVE, { userName, groupName });
+    }
+
     //Private members
+    private _groups: Property<Group[]>;
     private _users: Property<User[]>;
 
     //Api Listeners
+    @ApiListener({ route: Messages.USERGROUPS_LIST })
+    private OnReceiveGroupsList(groups: Group[])
+    {
+        this._groups.Set(groups);
+    }
+
     @ApiListener({ route: Messages.USERS_LIST })
     private OnReceiveUsersList(users: User[])
     {

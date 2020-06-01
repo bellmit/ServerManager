@@ -16,19 +16,17 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Property, PropertyObserver } from "acts-util-core";
-import { Injector } from "acfrontend";
 
 import { WebSocketService } from "../Services/WebSocketService";
 
 export class ApiObservable<T>
 {
-    constructor(value: T, updateMessage: string)
+    constructor(value: T, updateMessage: string, webSocketService: WebSocketService)
     {
         this.property = new Property<T>(value);
 
-        const service = Injector.Resolve<WebSocketService>(WebSocketService);
-        service.RegisterApiListenerHandler(updateMessage, (data: T) => this.property.Set(data));
-        service.SendMessage(updateMessage);
+        webSocketService.RegisterApiListenerHandler(updateMessage, (data: T) => this.property.Set(data));
+        webSocketService.SendMessage(updateMessage);
     }
 
     //Public methods

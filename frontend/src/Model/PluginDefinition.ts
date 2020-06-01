@@ -15,7 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { RenderNode, Instantiatable, Component } from "acfrontend";
+import { RenderNode, Component } from "acfrontend";
+import { Instantiatable } from "acts-util-core";
 import { ModuleName } from "srvmgr-api";
 
 export interface PluginDefinition

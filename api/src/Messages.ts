@@ -37,8 +37,11 @@ const MSG_BACKUPS = "/Backups/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
 const MSG_MODULES = "/Modules/";
 const MSG_MYSQL = "/MySQL/";
+const MSG_USERGROUPS = "/UserGroups/";
 const MSG_USERS = "/Users/";
+const MSG_USERS_GROUPS = MSG_USERS + "Groups/";
 
+const SUBMSG_ADD = "Add";
 const SUBMSG_DELETE = "Delete";
 const SUBMSG_LIST = "List";
 const SUBMSG_SET = "Set";
@@ -60,5 +63,13 @@ export const Messages = {
 
     MYSQL_SHOW_STATUS: MSG_MYSQL + "ShowStatus",
 
+    USERGROUPS_LIST: MSG_USERGROUPS + SUBMSG_LIST,
+
+    USERS_ADD: MSG_USERS + SUBMSG_ADD,
+    USERS_CHANGE_PASSWORD: MSG_USERS + "ChangePassword",
+    USERS_DELETE: MSG_USERS + SUBMSG_DELETE,
+    USERS_GROUPS_ADD: MSG_USERS_GROUPS + SUBMSG_ADD,
+    USERS_GROUPS_LIST: MSG_USERS_GROUPS + SUBMSG_LIST,
+    USERS_GROUPS_REMOVE: MSG_USERS_GROUPS + SUBMSG_DELETE,
     USERS_LIST: MSG_USERS + SUBMSG_LIST,
 };
