@@ -30,7 +30,7 @@ import { GlobalInjector } from "./Injector";
 const port = 8081;
 
 //functions
-async function LoadApiCalls()
+async function LoadGeneralApiCalls()
 {
     const path = __dirname + "/api/";
         
@@ -51,6 +51,33 @@ async function LoadApiCalls()
     }
         
     return apiCalls;
+}
+
+async function LoadPluginApiCalls()
+{
+    const path = __dirname + "/modules/";
+    const apiCalls = [];
+    const paths = fs.readdirSync(path);
+
+    for (let i = 0; i < paths.length; i++)
+    {
+        const fileName = paths[i] + "/_api.js";
+        const filePath = path + fileName;
+
+        if(fs.existsSync(filePath))
+        {
+            const apiClass: any = (await import(filePath)).default;
+
+            apiCalls.push( apiClass );
+        }
+    }
+        
+    return apiCalls;
+}
+
+async function LoadApiCalls()
+{
+    return (await LoadGeneralApiCalls()).concat(await LoadPluginApiCalls());
 }
 
 async function SetupApiRoutes()
@@ -164,7 +191,7 @@ async function Init()
 
     setTimeout(SetupBackup, 1000);
 
-    console.log("Initialization finished.")
+    console.log("Initialization finished.");
 }
 
 

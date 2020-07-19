@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import {PluginDefinition} from "../../Model/PluginDefinition";
+import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "Users",
-    baseRoute: "/users",
+    title: "Notifications",
+    baseRoute: "/notifications",
 
-    providedIn: "settings/core",
+    icon: <MatIcon>notifications</MatIcon>,
+    providedIn: "settings/security",
 };

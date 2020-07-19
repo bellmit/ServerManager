@@ -17,6 +17,7 @@
  * */
 import { exec, spawn } from 'child_process';
 import { Injectable } from '../Injector';
+import { ProcessTracker } from './ProcessTracker';
 
 interface CommandExecutionResult
 {
@@ -25,7 +26,7 @@ interface CommandExecutionResult
     stderr: string;
 }
 
-interface CommandOptions
+export interface CommandOptions
 {
     gid: number;
     uid: number;
@@ -35,19 +36,36 @@ interface CommandOptions
 @Injectable
 export class CommandExecutor
 {
+    constructor(private processTracker: ProcessTracker)
+    {
+    }
+
     //Public methods
     public ExecuteAsyncCommand(command: string[], options: CommandOptions)
     {
-        const childProcess = spawn(command.join(" "), [], {
+        const commandLine = command.join(" ");
+        const childProcess = spawn(commandLine, [], {
             cwd: options.workingDirectory,
             gid: options.gid,
             shell: true,
             uid: options.uid,
         });
+
+        this.processTracker.RegisterProcess(childProcess, commandLine);
+
         return childProcess;
     }
 
-    public ExecuteCommand(command: string[], options: CommandOptions): Promise<CommandExecutionResult>
+    public async ExecuteCommand(command: string[], options: CommandOptions, expectedExitCode: number = 0)
+    {
+        const result = await this.ExecuteCommandWithExitCode(command, options);
+        if(result.exitCode !== expectedExitCode)
+            throw new Error("Command '" + command.join(" ") + "' failed. stderr: " + result.stderr);
+
+        return result;
+    }
+
+    public ExecuteCommandWithExitCode(command: string[], options: CommandOptions): Promise<CommandExecutionResult>
     {
         return new Promise<CommandExecutionResult>( (resolve, reject) => {
             exec(command.join(" "), {

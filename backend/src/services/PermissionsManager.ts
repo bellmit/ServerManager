@@ -82,7 +82,7 @@ export class PermissionsManager
         if(!this.CanSudo(uid))
             throw new Error("Permission denied");
             
-        return { uid: 0, gid: 0};
+        return this.root;
     }
 
     //Private members

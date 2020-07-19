@@ -15,6 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import * as Apache from "./Model/Apache";
+import * as Commands from "./Model/Commands";
+import * as JDownloader from "./Model/JDownloader";
+
 import { Messages, JsonRequestMessage, JsonResponseMessage } from "./Messages";
 import { User, Group } from "./Model/User";
 import { BackupTask, BackupSaveRequest, DownloadFileRequest } from "./Model/BackupTask";
@@ -22,6 +26,9 @@ import { ExternalConnectionConfig, ExternalConnectionType, ExternalConnectionTyp
 import { Module, ModuleName, moduleNames } from "./Model/Module";
 import { Routes } from "./Http";
 import { AuthResult } from "./Model/Auth";
+import { SystemService, SystemServiceAction, SystemServiceActionData } from "./Model/SystemServices";
+import { NotificationSettings } from "./Model/Notifications";
+import { Certificate } from "./Model/Certificates";
 
 interface OperationStatus
 {
@@ -30,14 +37,18 @@ interface OperationStatus
 }
 
 export {
+    Apache,
     AuthResult,
     BackupSaveRequest,
     BackupTask,
     DownloadFileRequest,
+    Certificate,
+    Commands,
     ExternalConnectionConfig,
     ExternalConnectionSettings,
     ExternalConnectionType,
     ExternalConnectionTypes,
+    JDownloader,
     Group,
     JsonRequestMessage,
     JsonResponseMessage,
@@ -45,7 +56,11 @@ export {
     ModuleName,
     moduleNames,
     Module,
+    NotificationSettings,
     OperationStatus,
     Routes,
-    User
+    User,
+    SystemService,
+    SystemServiceAction,
+    SystemServiceActionData,
 };

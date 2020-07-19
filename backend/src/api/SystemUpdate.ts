@@ -18,19 +18,19 @@
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
-import { ProcessTracker } from "../services/ProcessTracker";
+import { CommandExecutor } from "../services/CommandExecutor";
 
 @Injectable
 class SystemUpdateApi
 {
-    constructor(private connectionManager: ConnectionManager, private processTracker: ProcessTracker)
+    constructor(private connectionManager: ConnectionManager, private commandExecutor: CommandExecutor)
     {
     }
 
     @ApiEndpoint({ route: "Check" })
     public async CheckForUpdates(call: ApiCall)
     {
-        const pid = this.processTracker.CreateProcessByCommand(["apt-get", "update"], call.session);
+        const pid = this.commandExecutor.ExecuteAsyncCommand(["apt-get", "update"], call.session);
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, { processId: pid });
     }
 }

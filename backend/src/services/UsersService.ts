@@ -76,7 +76,7 @@ export class UsersService
             return false;
         const cryptValue = cryptBlock.cryptData;
 
-        const crypt = require('../../build/Release/crypt.node').crypt;
+        const crypt = require('../../../build/Release/crypt.node').crypt;
         const newCryptValue = crypt(password, cryptValue);
 
         return newCryptValue === cryptValue;
@@ -99,16 +99,27 @@ export class UsersService
         });
     }
 
-    public async CreateUser(userName: string, createHomeDir: boolean, session: POSIXAuthority)
+    public async CreateGroup(name: string, session: POSIXAuthority)
     {
-        if(userName.trim().length === 0)
+        if(name.trim().length === 0)
             return false;
-        const cmd = ["useradd"];
-        if(createHomeDir)
-            cmd.push("-m");
-        cmd.push(userName);
+        const cmd = ["groupadd"];
+
+        cmd.push("-r");
+
+        cmd.push(name);
         const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(cmd, this.permissionsManager.Sudo(session.uid));
         return exitCode === 0;
+    }
+
+    public CreateUser(userName: string, createHomeDir: boolean, session: POSIXAuthority)
+    {
+        return this.AddUser(userName, createHomeDir ? ["-m"] : [], session);
+    }
+
+    public async CreateSystemUser(userName: string, session: POSIXAuthority)
+    {
+        return this.AddUser(userName, ["-r"], session);
     }
 
     public async DeleteUser(userName: string, session: POSIXAuthority)
@@ -118,6 +129,20 @@ export class UsersService
         const result = await this.commandExecutor.ExecuteCommand(["userdel", "-r", userName], this.permissionsManager.Sudo(session.uid));
         if(result.exitCode !== 0)
             throw new Error(result.stderr);
+    }
+
+    public GetGroupByName(name: string)
+    {
+        for (const key in this.groupIdMap)
+        {
+            if (this.groupIdMap.hasOwnProperty(key))
+            {
+                const value = this.groupIdMap[key]!;
+                if(value.name === name)
+                    return value;
+            }
+        }
+        return undefined;
     }
 
     public GetGroupsOf(uid: number)
@@ -138,6 +163,22 @@ export class UsersService
         return undefined;
     }
 
+    public GetUserByName(name: string)
+    {
+        if(this.userIdMap === undefined)
+            return undefined;
+        for (const key in this.userIdMap)
+        {
+            if (this.userIdMap.hasOwnProperty(key))
+            {
+                const value = this.userIdMap[key]!;
+                if(value.name === name)
+                    return value;
+            }
+        }
+        return undefined;
+    }
+
     public async RemoveUserFromGroup(userName: string, groupName: string, session: POSIXAuthority)
     {
         if(userName.trim().length === 0)
@@ -152,6 +193,7 @@ export class UsersService
     }
 
     //Private members
+    private groupIdMap?: Dictionary<Group>;
     private groupMemberMap?: Dictionary<Group[]>;
     private currentShadowData?: Dictionary<ShadowData>;
     private userIdMap?: Dictionary<User>;
@@ -160,6 +202,19 @@ export class UsersService
     private _users: MulticastObservable<User[]>;
 
     //Private methods
+    private async AddUser(userName: string, options: string[], session: POSIXAuthority)
+    {
+        if(userName.trim().length === 0)
+            return false;
+        const cmd = ["useradd"];
+
+        cmd.push(...options);
+
+        cmd.push(userName);
+        const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(cmd, this.permissionsManager.Sudo(session.uid));
+        return exitCode === 0;
+    }
+
     private ObserveGroupDatabase(observer: Observer<Group[]>)
     {
         return this.fileSystemWatcher.ObserveTextFile("/etc/group", (data: string) => this.ParseGroups(data).then( groups => observer.next(groups) ) );
@@ -259,6 +314,7 @@ export class UsersService
     //Event handlers
     private OnGroupsChanged(newGroups: Group[])
     {
+        const groupIdMap: Dictionary<Group> = {};
         const groupMemberMap: Dictionary<Group[]> = {};
         for (const group of newGroups)
         {
@@ -269,8 +325,10 @@ export class UsersService
                 else
                     groupMemberMap[memberName]!.push(group);
             }
+            groupIdMap[group.gid] = group;
         }
 
+        this.groupIdMap = groupIdMap;
         this.groupMemberMap = groupMemberMap;
     }
 

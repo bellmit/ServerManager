@@ -66,7 +66,7 @@ export class ConnectionManager
     public RegisterEndpoint(endPoint: string, callback: Function)
     {
         if(endPoint in this.callbacks)
-            throw new Error("ENDPOINT ALREADY REGISTERED");
+            throw new Error("ENDPOINT '" + + endPoint + "' ALREADY REGISTERED");
         this.callbacks[endPoint] = callback;
     }
 
@@ -128,7 +128,14 @@ export class ConnectionManager
                 senderConnectionId: connectionId,
                 session: session
             };
-            this.callbacks[jsonMessage.msg]!(apiCall, jsonMessage.data);
+            const result = this.callbacks[jsonMessage.msg]!(apiCall, jsonMessage.data);
+            if(apiCall.responseMsg !== undefined)
+            {
+                if(result instanceof Promise)
+                    result.then(realResult => this.Respond(apiCall as ApiRequest, realResult));
+                else
+                    this.Respond(apiCall as ApiRequest, result);
+            }
         }
     }
 }

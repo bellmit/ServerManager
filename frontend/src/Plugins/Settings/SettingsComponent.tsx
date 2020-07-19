@@ -15,9 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, Injectable, RenderNode, JSX_CreateElement, MatIcon, Anchor, ProgressSpinner} from "acfrontend";
+import {Component, Injectable, RenderNode, JSX_CreateElement, Anchor, ProgressSpinner} from "acfrontend";
 import { ModuleService } from "../../Services/ModuleService";
 import { PluginManager } from "../../Services/PluginManager";
+
+interface Section
+{
+    title: string;
+    section: string;
+}
 
 @Injectable
 export class SettingsComponent extends Component
@@ -33,19 +39,24 @@ export class SettingsComponent extends Component
         if(this.moduleService.modules.WaitingForValue())
             return <ProgressSpinner />;
 
+        const sections: Section[] = [
+            {
+                title: "Core",
+                section: "settings/core",
+            },
+            {
+                title: "Network",
+                section: "settings/network"
+            },
+            {
+                title: "Security",
+                section: "settings/security",
+            },
+        ];
+
         return <fragment>
             <h1>Settings</h1>
-
-            <h2>Core</h2>
-            <div class="evenlySpacedRow">
-                {this.RenderButtons("settings/core")}
-            </div>
-            <hr />
-            
-            <h2>Network services</h2>
-            <div class="evenlySpacedRow">
-                {this.RenderButtons("settings/network")}
-            </div>
+            {...this.RenderSections(sections)}
         </fragment>;
     }
 
@@ -53,6 +64,26 @@ export class SettingsComponent extends Component
     private RenderButtons(sectionName: string)
     {
         return this.pluginManager.GetPluginsFor(sectionName).map(plugin => <div>{plugin.icon}<Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></div>);
+    }
+
+    private RenderSections(sections: Section[])
+    {
+        const ret = [];
+        for (let index = 0; index < sections.length; index++)
+        {
+            const section = sections[index];
+            ret.push(<h2>{section.title}</h2>);
+            ret.push(<div class="evenlySpacedRow">
+                {this.RenderButtons(section.section)}
+            </div>);
+
+            if((index > 0) && (index < sections.length))
+            {
+                ret.push(<hr />);
+            }
+        }
+
+        return ret;
     }
 
     //Event handlers

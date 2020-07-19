@@ -15,16 +15,16 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary } from "acts-util-core";
+import { Dictionary, Property } from "acts-util-core";
 
 import { Injectable } from "../Injector";
-import { CommandExecutor } from "./CommandExecutor";
 import { ChildProcessWithoutNullStreams } from "child_process";
-import { POSIXAuthority } from "./PermissionsManager";
+import { Commands } from "srvmgr-api";
 
 interface ProcessInfo
 {
     process: ChildProcessWithoutNullStreams;
+    commandLine: string;
     exitCode?: number;
     stdOutBuffered: string;
     stdErrBuffered: string;
@@ -33,31 +33,54 @@ interface ProcessInfo
 @Injectable
 export class ProcessTracker
 {
-    constructor(private commandExecutor: CommandExecutor)
+    constructor()
     {
         this.processInfo = {};
+        this._processList = new Property<Commands.CommandOverviewData[]>([]);
+    }
+
+    //Properties
+    public get processList()
+    {
+        return this._processList;
     }
 
     //Public methods
-    public CreateProcessByCommand(command: string[], session: POSIXAuthority)
+    public RegisterProcess(process: ChildProcessWithoutNullStreams, commandLine: string)
     {
-        const process = this.commandExecutor.ExecuteAsyncCommand(command, session);
         const info: ProcessInfo = {
             process,
+            commandLine,
             stdOutBuffered: "",
             stdErrBuffered: ""
-        }
+        };
         this.processInfo[process.pid] = info;
+        this.UpdateProcessList();
 
         process.stdout.on("data", this.OnStdOutDataReceived.bind(this, info));
         process.stderr.on("data", this.OnStdErrDataReceived.bind(this, info));
         process.on("close", this.OnProcessClosed.bind(this, info));
-
-        return process.pid;
     }
 
     //Private members
     private processInfo: Dictionary<ProcessInfo>;
+    private _processList: Property<Commands.CommandOverviewData[]>;
+
+    //Private methods
+    private UpdateProcessList()
+    {
+        const list: Commands.CommandOverviewData[] = [];
+        for (const key in this.processInfo)
+        {
+            if (this.processInfo.hasOwnProperty(key))
+            {
+                const value = this.processInfo[key]!;
+
+                list.push({ commandline: value.commandLine, pid: value.process.pid, running: value.exitCode === undefined });
+            }
+        }
+        this._processList.Set(list);
+    }
 
     //Event handlers
     private OnProcessClosed(processInfo: ProcessInfo, exitCode: number)
@@ -69,6 +92,7 @@ export class ProcessTracker
     private OnProcessTimeEnded(processInfo: ProcessInfo)
     {
         delete this.processInfo[processInfo.process.pid];
+        this.UpdateProcessList();
     }
 
     private OnStdErrDataReceived(processInfo: ProcessInfo, chunk: string)

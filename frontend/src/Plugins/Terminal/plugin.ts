@@ -15,11 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {PluginDefinition} from "../../Model/PluginDefinition";
+import { PluginDefinition } from "../../Model/PluginDefinition";
 
 export const plugin: PluginDefinition = {
-    title: "Backup",
-    baseRoute: "/backup",
+    title: "Terminal",
+    baseRoute: "/terminal",
 
-    providedIn: "settings/core",
+    providedIn: "root",
 };

@@ -16,24 +16,36 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { PluginDefinition } from "./Model/PluginDefinition";
+import * as Apache from "./Plugins/Apache/plugin";
 import * as Backup from "./Plugins/Backup/plugin";
+import * as Certificates from "./Plugins/Certificates/plugin";
 import * as ExternalConnections from "./Plugins/ExternalConnections/plugin";
 import * as Filemanager from "./Plugins/Filemanager/plugin";
+import * as JDownloader from "./Plugins/JDownloader/plugin";
 import * as Modules from "./Plugins/Modules/plugin";
 import * as MySQL from "./Plugins/MySQL/plugin";
+import * as Notifications from "./Plugins/Notifications/plugin";
+import * as Services from "./Plugins/Services/plugin";
 import * as Settings from "./Plugins/Settings/plugin";
 import * as SMB from "./Plugins/SMB/plugin";
 import * as SystemUpdate from "./Plugins/SystemUpdate/plugin";
+import * as Terminal from "./Plugins/Terminal/plugin";
 import * as Users from "./Plugins/Users/plugin";
 
 export const plugins: PluginDefinition[] = [
+    Apache.plugin,
     Backup.plugin,
+    Certificates.plugin,
     ExternalConnections.plugin,
     Filemanager.plugin,
+    JDownloader.plugin,
     Modules.plugin,
     MySQL.plugin,
+    Notifications.plugin,
+    Services.plugin,
     Settings.plugin,
     SMB.plugin,
     SystemUpdate.plugin,
+    Terminal.plugin,
     Users.plugin,
 ];

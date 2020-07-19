@@ -15,11 +15,6 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {PluginDefinition} from "../../Model/PluginDefinition";
 
-export const plugin: PluginDefinition = {
-    title: "System update",
-    baseRoute: "/systemupdate",
-
-    providedIn: "settings/core",
-};
+export const jdDir = "/srv/jdownloader";
+export const userAndGroupName = "jdownloader";

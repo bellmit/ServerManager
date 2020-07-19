@@ -21,6 +21,7 @@ import { Injectable, GlobalInjector } from "../Injector";
 import { DistroPackageManager } from "../Model/DistroPackageManager";
 import { DistroInfoService } from "./DistroInfoService";
 import { POSIXAuthority } from "./PermissionsManager";
+import { ModuleInstaller } from "../Model/ModuleInstaller";
 
 @Injectable
 export class ModuleManager
@@ -51,7 +52,9 @@ export class ModuleManager
     public async Install(moduleName: ModuleName, session: POSIXAuthority)
     {
         const distroPackageManager = await this.ResolveDistroPackageManager(session);
-        return distroPackageManager.Install(moduleName, session);
+        const mod = await this.GetModuleInstaller(moduleName);
+
+        return await distroPackageManager.Install(moduleName, session) && await mod.Install(session);
     }
 
     public MapModuleName(moduleName: string): ModuleName | null
@@ -65,10 +68,28 @@ export class ModuleManager
     private distroPackageManager: DistroPackageManager | null;
 
     //Private methods
+    private GetModuleInstaller(moduleName: ModuleName)
+    {
+        return new Promise<ModuleInstaller>( resolve => {
+            import("../modules/" + moduleName + "/_installer").then(pkg => resolve(GlobalInjector.Resolve<ModuleInstaller>(pkg.default))).catch(_ => resolve({
+                async Install(session: POSIXAuthority)
+                {
+                    return true;
+                },
+                async IsModuleInstalled(session: POSIXAuthority)
+                {
+                    return true;
+                }
+            }))
+        });
+    }
+
     private async IsModuleInstalled(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         const distroPackageManager = await this.ResolveDistroPackageManager(session);
-        return await distroPackageManager.IsModuleInstalled(moduleName, session);
+        const mod = await this.GetModuleInstaller(moduleName);
+
+        return (await distroPackageManager.IsModuleInstalled(moduleName, session)) && (await mod.IsModuleInstalled(session));
     }
 
     private async ResolveDistroPackageManager(session: POSIXAuthority): Promise<DistroPackageManager>

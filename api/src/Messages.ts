@@ -34,17 +34,22 @@ export interface JsonResponseMessage extends JsonMessage
 }
 
 const MSG_BACKUPS = "/Backups/";
+const MSG_CERTIFICATES = "/Certificates/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
 const MSG_MODULES = "/Modules/";
 const MSG_MYSQL = "/MySQL/";
+const MSG_NOTIFICATIONS = "/Notifications/";
+const MSG_SERVICES = "/Services/";
 const MSG_USERGROUPS = "/UserGroups/";
 const MSG_USERS = "/Users/";
 const MSG_USERS_GROUPS = MSG_USERS + "Groups/";
 
 const SUBMSG_ADD = "Add";
 const SUBMSG_DELETE = "Delete";
-const SUBMSG_LIST = "List";
-const SUBMSG_SET = "Set";
+export const SUBMSG_ENABLE = "Enable";
+export const SUBMSG_LIST = "List";
+export const SUBMSG_QUERY = "Query";
+export const SUBMSG_SET = "Set";
 
 export const Messages = {
     BACKUPS_DELETE: MSG_BACKUPS + SUBMSG_DELETE,
@@ -52,6 +57,9 @@ export const Messages = {
     BACKUPS_LIST_FILES : MSG_BACKUPS + "ListFiles",
     BACKUPS_RUN: MSG_BACKUPS + "Run",
     BACKUPS_SET: MSG_BACKUPS + SUBMSG_SET,
+
+    CERTIFICATES_ADD: MSG_CERTIFICATES + SUBMSG_ADD,
+    CERTIFICATES_LIST: MSG_CERTIFICATES + SUBMSG_LIST,
 
     EXTERNALCONNECTIONS_DELETE: MSG_EXTERNALCONNECTIONS + SUBMSG_DELETE,
     EXTERNALCONNECTIONS_ISENCRYPTED: MSG_EXTERNALCONNECTIONS + "IsEncrypted",
@@ -62,6 +70,12 @@ export const Messages = {
     MODULES_LIST: MSG_MODULES + SUBMSG_LIST,
 
     MYSQL_SHOW_STATUS: MSG_MYSQL + "ShowStatus",
+
+    NOTIFICATIONS_QUERY: MSG_NOTIFICATIONS + "Get",
+    NOTIFICATIONS_SET: MSG_NOTIFICATIONS + SUBMSG_SET,
+
+    SERVICES_ACTION: MSG_SERVICES + "Action",
+    SERVICES_LIST: MSG_SERVICES + SUBMSG_LIST,
 
     USERGROUPS_LIST: MSG_USERGROUPS + SUBMSG_LIST,
 

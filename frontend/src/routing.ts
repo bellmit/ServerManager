@@ -17,23 +17,37 @@
  * */
 import { Routes } from "acfrontend";
 
+import { routes as apacheRoutes } from "./Plugins/Apache/routing";
 import { routes as backupRoutes } from "./Plugins/Backup/routing";
+import { routes as certificatesRoutes } from "./Plugins/Certificates/routing";
 import { routes as externalConnectionsRoutes } from "./Plugins/ExternalConnections/routing";
+import { routes as jdownloaderRoutes } from "./Plugins/JDownloader/routing";
 import { routes as modulesRoutes } from "./Plugins/Modules/routing";
+import { routes as notificationsRoutes } from "./Plugins/Notifications/routing";
+import { routes as servicesRoutes } from "./Plugins/Services/routing";
 import { routes as settingsRoutes } from "./Plugins/Settings/routing";
 import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
+import { routes as terminalRoutes } from "./Plugins/Terminal/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
 import { ServerStatusComponent } from "./ServerStatusComponent";
 import { AuthGuard } from "./AuthGuard";
 import { LoginComponent } from "./LoginComponent";
 
+import { ApacheComponent } from "./Plugins/Apache/ApacheComponent";
+
 const protectedRoutes : Routes = [
+    { path: "apache", component: ApacheComponent, children: apacheRoutes },
     { path: "backup", children: backupRoutes },
+    { path: "certs", children: certificatesRoutes },
     { path: "externalconnections", children: externalConnectionsRoutes },
+    { path: "jdownloader", children: jdownloaderRoutes },
     { path: "modules", children: modulesRoutes },
+    { path: "notifications", children: notificationsRoutes },
+    { path: "services", children: servicesRoutes },
     { path: "settings", children: settingsRoutes },
     { path: "systemupdate", children: systemUpdateRoutes },
+    { path: "terminal", children: terminalRoutes },
     { path: "users", children: usersRoutes },
     { path: "", component: ServerStatusComponent },
 ];

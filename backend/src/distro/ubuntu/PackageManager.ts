@@ -20,19 +20,19 @@ import { ModuleName } from "srvmgr-api";
 import { DistroPackageManager } from "../../Model/DistroPackageManager";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { Injectable } from "../../Injector";
-import { POSIXAuthority } from "../../services/PermissionsManager";
+import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
 
 @Injectable
 class UbuntuPackageManager implements DistroPackageManager
 {
-    constructor(private commandExecutor: CommandExecutor)
+    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
     {
     }
 
     //Public methods
     public async Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
-        await this.commandExecutor.ExecuteCommand(["apt", "-y", "install", this.MapModuleToPackageList(moduleName).join(" ")], session);
+        await this.commandExecutor.ExecuteCommand(["apt", "-y", "install", this.MapModuleToPackageList(moduleName).join(" ")], this.permissionsManager.Sudo(session.uid));
         return true;
     }
 
@@ -70,8 +70,16 @@ class UbuntuPackageManager implements DistroPackageManager
     {
         switch(moduleName)
         {
+            case "apache":
+                return ["apache2"];
+            case "jdownloader":
+                return ["openjdk-11-jre-headless"];
+            case "letsencrypt":
+                return ["certbot"];
             case "mariadb":
                 return ["mariadb-server"];
+            case "nextcloud":
+                return [];
             case "openvpn":
                 return ["openvpn"];
             case "samba":
