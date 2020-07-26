@@ -18,6 +18,9 @@
 import * as Apache from "./Model/Apache";
 import * as Commands from "./Model/Commands";
 import * as JDownloader from "./Model/JDownloader";
+import * as MySQL from "./Model/MySQL";
+import * as SMB from "./Model/SMB";
+import * as SystemUpdate from "./Model/SystemUpdate";
 
 import { Messages, JsonRequestMessage, JsonResponseMessage } from "./Messages";
 import { User, Group } from "./Model/User";
@@ -56,11 +59,14 @@ export {
     ModuleName,
     moduleNames,
     Module,
+    MySQL,
     NotificationSettings,
     OperationStatus,
     Routes,
     User,
+    SMB,
     SystemService,
     SystemServiceAction,
     SystemServiceActionData,
+    SystemUpdate,
 };

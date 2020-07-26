@@ -17,30 +17,34 @@
  * */
 
 import { Injectable } from "acfrontend";
-
 import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, MySQL } from "srvmgr-api";
+import { SMB } from "srvmgr-api";
 
 @Injectable
-export class MySQLService
+export class SMBService
 {
-    constructor(private webSocketService: WebSocketService)
+    constructor(private websocketService: WebSocketService)
     {
     }
 
     //Public methods
-    public QueryMysqldSettings()
+    public AddUser(data: SMB.Api.AddUser.RequestData)
     {
-        return this.webSocketService.SendRequest<MySQL.Api.QueryMysqldSettings.ResultData>(MySQL.Api.QueryMysqldSettings.message);
+        return this.websocketService.SendRequest<SMB.Api.AddUser.ResponseData>(SMB.Api.AddUser.message, data);
     }
 
-    public SaveMysqldSettings(data: MySQL.Api.SaveMysqldSettings.RequestData)
+    public QueryShares()
     {
-        return this.webSocketService.SendRequest(MySQL.Api.SaveMysqldSettings.message, data);
+        return this.websocketService.SendRequest<SMB.Api.ListShares.ResponseData>(SMB.Api.ListShares.message);
     }
 
-    public ShowStatus()
+    public QueryUsers()
     {
-        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
+        return this.websocketService.SendRequest<SMB.Api.ListUsers.ResponseData>(SMB.Api.ListUsers.message);
+    }
+
+    public SetShare(data: SMB.Api.SetShare.RequestData)
+    {
+        return this.websocketService.SendRequest(SMB.Api.SetShare.message, data);
     }
 }

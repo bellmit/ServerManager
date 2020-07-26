@@ -86,7 +86,7 @@ export class UsersService
     {
         if(userName.trim().length === 0)
             return false;
-        const childProcess = this.commandExecutor.ExecuteAsyncCommand(["passwd", userName], this.permissionsManager.Sudo(session.uid))
+        const childProcess = this.commandExecutor.CreateChildProcess(["passwd", userName], this.permissionsManager.Sudo(session.uid))
         if(oldPassword.trim().length !== 0) //it is possible, that the user does not have a password before. In that case it should be blank
             childProcess.stdin.write(oldPassword + "\n");
         childProcess.stdin.write(newPassword + "\n");
@@ -108,7 +108,7 @@ export class UsersService
         cmd.push("-r");
 
         cmd.push(name);
-        const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(cmd, this.permissionsManager.Sudo(session.uid));
+        const exitCode = await this.commandExecutor.ExecuteCommandExitCodeOnly(cmd, this.permissionsManager.Sudo(session.uid));
         return exitCode === 0;
     }
 
@@ -211,7 +211,7 @@ export class UsersService
         cmd.push(...options);
 
         cmd.push(userName);
-        const exitCode = await this.commandExecutor.ExecuteWaitableAsyncCommand(cmd, this.permissionsManager.Sudo(session.uid));
+        const exitCode = await this.commandExecutor.ExecuteCommandExitCodeOnly(cmd, this.permissionsManager.Sudo(session.uid));
         return exitCode === 0;
     }
 

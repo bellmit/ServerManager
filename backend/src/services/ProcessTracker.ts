@@ -15,15 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Dictionary, Property } from "acts-util-core";
+import { Dictionary, Property, Subject } from "acts-util-core";
 
 import { Injectable } from "../Injector";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { Commands } from "srvmgr-api";
 
-interface ProcessInfo
+export interface ProcessInfo
 {
-    process: ChildProcessWithoutNullStreams;
+    processId: number;
     commandLine: string;
     exitCode?: number;
     stdOutBuffered: string;
@@ -36,20 +36,31 @@ export class ProcessTracker
     constructor()
     {
         this.processInfo = {};
+        this._processData = new Subject<ProcessInfo>();
         this._processList = new Property<Commands.CommandOverviewData[]>([]);
     }
 
     //Properties
+    public get processData()
+    {
+        return this._processData;
+    }
+
     public get processList()
     {
         return this._processList;
     }
 
     //Public methods
+    public Get(pid: number)
+    {
+        return this.processInfo[pid];
+    }
+    
     public RegisterProcess(process: ChildProcessWithoutNullStreams, commandLine: string)
     {
         const info: ProcessInfo = {
-            process,
+            processId: process.pid,
             commandLine,
             stdOutBuffered: "",
             stdErrBuffered: ""
@@ -64,6 +75,7 @@ export class ProcessTracker
 
     //Private members
     private processInfo: Dictionary<ProcessInfo>;
+    private _processData: Subject<ProcessInfo>;
     private _processList: Property<Commands.CommandOverviewData[]>;
 
     //Private methods
@@ -76,7 +88,7 @@ export class ProcessTracker
             {
                 const value = this.processInfo[key]!;
 
-                list.push({ commandline: value.commandLine, pid: value.process.pid, running: value.exitCode === undefined });
+                list.push({ commandline: value.commandLine, pid: value.processId, exitCode: value.exitCode });
             }
         }
         this._processList.Set(list);
@@ -87,21 +99,29 @@ export class ProcessTracker
     {
         processInfo.exitCode = exitCode;
         setTimeout(this.OnProcessTimeEnded.bind(this, processInfo), 60 * 1000);
+
+        this._processData.Next(processInfo);
+        this.UpdateProcessList();
     }
 
     private OnProcessTimeEnded(processInfo: ProcessInfo)
     {
-        delete this.processInfo[processInfo.process.pid];
+        delete this.processInfo[processInfo.processId];
+
         this.UpdateProcessList();
     }
 
     private OnStdErrDataReceived(processInfo: ProcessInfo, chunk: string)
     {
         processInfo.stdErrBuffered += chunk;
+
+        this._processData.Next(processInfo);
     }
 
     private OnStdOutDataReceived(processInfo: ProcessInfo, chunk: string)
     {
         processInfo.stdOutBuffered += chunk;
+
+        this._processData.Next(processInfo);
     }
 }

@@ -41,6 +41,7 @@ export const plugins: PluginDefinition[] = [
     JDownloader.plugin,
     Modules.plugin,
     MySQL.plugin,
+    MySQL.statusPlugin,
     Notifications.plugin,
     Services.plugin,
     Settings.plugin,

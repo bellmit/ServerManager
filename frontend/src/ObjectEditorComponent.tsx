@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement, LineEdit } from "acfrontend";
+import { Component, RenderNode, JSX_CreateElement, LineEdit, Switch, CheckBox } from "acfrontend";
 
 export class ObjectEditorComponent extends Component
 {
@@ -49,16 +49,26 @@ export class ObjectEditorComponent extends Component
         {
             const value = obj[key];
 
-            if(typeof value === "string")
+            let isValue = true;
+            let control;
+            if( (typeof value === "string") || (typeof value === "number") )
+                control = <LineEdit value={value.toString()} onChanged={this.OnChangeValue.bind(this, obj, key)} />;
+            else if(typeof value === "boolean")
+                control = <CheckBox value={value} onChanged={this.OnChangeValue.bind(this, obj, key)} />;
+            else if(value === null)
+                control = <Switch checked={true} onChanged={this.OnChangeNull.bind(this, obj, key)} />;
+            else
+            {
+                isValue = false;
+                subsections.push(this.AddObject(obj, key));
+            }
+
+            if(isValue)
             {
                 rows.push(<tr>
                     <th>{key}</th>
-                    <td><LineEdit value={value} onChanged={this.OnChangeValue.bind(this, obj, key)} /></td>
+                    <td>{control}</td>
                 </tr>);
-            }
-            else
-            {
-                subsections.push(this.AddObject(obj, key));
             }
         }
 
@@ -70,11 +80,25 @@ export class ObjectEditorComponent extends Component
         </fragment>;
     }
 
+    private NotifyObjectUpdate()
+    {
+        if(this.input.onObjectUpdated !== undefined)
+            this.input.onObjectUpdated();
+    }
+
     //Event handlers
+    private OnChangeNull(obj: any, key: string)
+    {
+        if(key in obj)
+            delete obj[key];
+        else
+            obj[key] = null;
+        this.NotifyObjectUpdate();
+    }
+
     private OnChangeValue(obj: any, key: string, newValue: any)
     {
         obj[key] = newValue;
-        if(this.input.onObjectUpdated !== undefined)
-            this.input.onObjectUpdated();
+        this.NotifyObjectUpdate();
     }
 }

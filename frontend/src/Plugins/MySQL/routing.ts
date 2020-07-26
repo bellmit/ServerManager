@@ -15,13 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { Routes } from "acfrontend";
+import { EditMysqldSettingsComponent } from "./EditMysqldSettingsComponent";
 
-import { GlobalInjector } from "../src/Injector";
-import { MariaDBManager } from "../src/modules/mariadb/MariaDBManager";
-
-//TODO: Make real tests
-
-const sm = GlobalInjector.Resolve(MariaDBManager);
-
-const res = sm.QueryMysqldSettings();
-console.log(res);
+export const routes : Routes = [
+    { path: "settings", component: EditMysqldSettingsComponent },
+    { path: "", redirect: "settings" }
+];

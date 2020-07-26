@@ -24,15 +24,45 @@ export interface CommandOverviewData
 {
     pid: number;
     commandline: string;
-    running: boolean;
+    exitCode?: number;
+}
+
+export interface CommandData
+{
+    pid: number;
+    exitCode?: number;
+    stderr: string;
+    stdout: string;
 }
 
 export namespace Api
 {
+    export namespace CommandData
+    {
+        export const message = MSG_COMMANDS + "Data";
+
+        export type BackendSendData = CommandData;
+    }
+
     export namespace ListCommands
     {
         export const message = MSG_COMMANDS + SUBMSG_LIST;
 
         export type BackendSendData = CommandOverviewData[];
+    }
+
+    export namespace SubscribeCommand
+    {
+        export const message = MSG_COMMANDS + "Subscribe";
+
+        export type RequestData = number;
+        export type ResultData = CommandData;
+    }
+
+    export namespace UnsubscribeCommand
+    {
+        export const message = MSG_COMMANDS + "Unsubscribe";
+        
+        export type BackendExpectData = number;
     }
 }

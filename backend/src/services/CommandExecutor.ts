@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { exec, spawn } from 'child_process';
+import { exec, spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { Injectable } from '../Injector';
 import { ProcessTracker } from './ProcessTracker';
 
@@ -41,7 +41,15 @@ export class CommandExecutor
     }
 
     //Public methods
-    public ExecuteAsyncCommand(command: string[], options: CommandOptions)
+    public ChildProcessToPromise(childProcess: ChildProcessWithoutNullStreams)
+    {
+        return new Promise<number>( (resolve, reject) => {
+            childProcess.on("close", (code, _) => resolve(code));
+            childProcess.on("error", reject);
+        });
+    }
+
+    public CreateChildProcess(command: string[], options: CommandOptions)
     {
         const commandLine = command.join(" ");
         const childProcess = spawn(commandLine, [], {
@@ -65,32 +73,23 @@ export class CommandExecutor
         return result;
     }
 
-    public ExecuteCommandWithExitCode(command: string[], options: CommandOptions): Promise<CommandExecutionResult>
+    public async ExecuteCommandWithExitCode(command: string[], options: CommandOptions): Promise<CommandExecutionResult>
     {
-        return new Promise<CommandExecutionResult>( (resolve, reject) => {
-            exec(command.join(" "), {
-                cwd: options.workingDirectory,
-                gid: options.gid,
-                uid: options.uid,
-            }, (error, stdout, stderr) => {
-                let exitCode = 0;
-                if(error !== null)
-                {
-                    if(error.code === undefined)
-                        reject(error);
-                    exitCode = error.code!;
-                }
-                resolve({ exitCode: exitCode, stdout, stderr});
-            });
-        });
+        const childProcess = this.CreateChildProcess(command, options);
+
+        let stdOut = "";
+        childProcess.stdout.on("data", chunk => stdOut += chunk);
+
+        let stdErr = "";
+        childProcess.stderr.on("data", chunk => stdErr += chunk);
+
+        const exitCode = await this.ChildProcessToPromise(childProcess);
+
+        return { exitCode, stderr: stdErr, stdout: stdOut };
     }
 
-    public ExecuteWaitableAsyncCommand(command: string[], options: CommandOptions)
+    public async ExecuteCommandExitCodeOnly(command: string[], options: CommandOptions): Promise<number>
     {
-        return new Promise<number>( (resolve, reject) => {
-            const childProcess = this.ExecuteAsyncCommand(command, options);
-            childProcess.on("close", (code, _) => resolve(code));
-            childProcess.on("error", reject);
-        });
+        return (await this.ExecuteCommandWithExitCode(command, options)).exitCode;
     }
 }

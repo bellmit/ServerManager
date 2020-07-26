@@ -15,32 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
-import { Injectable } from "acfrontend";
-
-import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, MySQL } from "srvmgr-api";
+import { Component, RenderNode, Injectable, JSX_CreateElement } from "acfrontend";
+import { SMB } from "srvmgr-api";
+import { ShareFormComponent } from "./ShareFormComponent";
 
 @Injectable
-export class MySQLService
+export class AddShareComponent extends Component
 {
-    constructor(private webSocketService: WebSocketService)
+    constructor()
     {
+        super();
+
+        this.share = SMB.CreateDefaultShare("");
     }
 
-    //Public methods
-    public QueryMysqldSettings()
+    protected Render(): RenderNode
     {
-        return this.webSocketService.SendRequest<MySQL.Api.QueryMysqldSettings.ResultData>(MySQL.Api.QueryMysqldSettings.message);
+        return <fragment>
+            <h1>Create share</h1>
+            <ShareFormComponent share={this.share} />
+        </fragment>;
     }
 
-    public SaveMysqldSettings(data: MySQL.Api.SaveMysqldSettings.RequestData)
-    {
-        return this.webSocketService.SendRequest(MySQL.Api.SaveMysqldSettings.message, data);
-    }
-
-    public ShowStatus()
-    {
-        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
-    }
+    //Private members
+    private share: SMB.Share;
 }

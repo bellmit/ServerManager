@@ -16,12 +16,22 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { GlobalInjector } from "../src/Injector";
-import { MariaDBManager } from "../src/modules/mariadb/MariaDBManager";
+import { Component, RenderNode, JSX_CreateElement, Anchor, RouterComponent } from "acfrontend";
 
-//TODO: Make real tests
-
-const sm = GlobalInjector.Resolve(MariaDBManager);
-
-const res = sm.QueryMysqldSettings();
-console.log(res);
+export class SMBComponent extends Component
+{
+    protected Render(): RenderNode
+    {
+        return <fragment>
+            <div class="vertNav">
+                <ul>
+                    <li><Anchor route="/smb/shares">Shares</Anchor></li>
+                    <li><Anchor route="/smb/users">Users</Anchor></li>
+                </ul>
+            </div>
+            <div class="stack">
+                <RouterComponent />
+            </div>
+        </fragment>;
+    }
+}

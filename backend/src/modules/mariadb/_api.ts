@@ -16,31 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "acfrontend";
-
-import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, MySQL } from "srvmgr-api";
+import { Injectable } from "../../Injector";
+import { ApiEndpoint, ApiRequest } from "../../Api";
+import { MySQL } from "srvmgr-api";
+import { MariaDBManager } from "./MariaDBManager";
 
 @Injectable
-export class MySQLService
+class MySQLApi
 {
-    constructor(private webSocketService: WebSocketService)
+    constructor(private mariaDBManager: MariaDBManager)
     {
     }
 
-    //Public methods
-    public QueryMysqldSettings()
+    @ApiEndpoint({ route: MySQL.Api.QueryMysqldSettings.message })
+    public async QueryMysqldSettings(request: ApiRequest): Promise<MySQL.Api.QueryMysqldSettings.ResultData>
     {
-        return this.webSocketService.SendRequest<MySQL.Api.QueryMysqldSettings.ResultData>(MySQL.Api.QueryMysqldSettings.message);
+        return this.mariaDBManager.QueryMysqldSettings();
     }
 
-    public SaveMysqldSettings(data: MySQL.Api.SaveMysqldSettings.RequestData)
+    @ApiEndpoint({ route: MySQL.Api.SaveMysqldSettings.message })
+    public async SaveMysqldSettings(request: ApiRequest, data: MySQL.Api.SaveMysqldSettings.RequestData)
     {
-        return this.webSocketService.SendRequest(MySQL.Api.SaveMysqldSettings.message, data);
-    }
-
-    public ShowStatus()
-    {
-        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
+        this.mariaDBManager.SetMysqldSettings(data);
     }
 }
+
+export default MySQLApi;

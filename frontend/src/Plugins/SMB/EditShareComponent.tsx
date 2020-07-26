@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,39 +15,41 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner } from "acfrontend";
-import { UpdateService } from "./UpdateService";
+import { Component, RenderNode, Injectable, JSX_CreateElement, RouterState, ProgressSpinner } from "acfrontend";
+import { ShareFormComponent } from "./ShareFormComponent";
+import { SMBService } from "./SMBService";
+import { SMB } from "srvmgr-api";
 
 @Injectable
-export class MainComponent extends Component
+export class EditShareComponent extends Component
 {
-    constructor(private updateService: UpdateService)
+    constructor(routerState: RouterState, private smbService: SMBService)
     {
         super();
 
-        this.data = "";
+        this.oldShareName = routerState.routeParams.shareName!;
+        this.share = null;
     }
 
-    //Protected methods
     protected Render(): RenderNode
     {
-        if(this.data === null)
+        if(this.share === null)
             return <ProgressSpinner />;
 
         return <fragment>
-            <h1>System Update</h1>
-            <button type="button" onclick={this.OnCheckForUpdatesClicked.bind(this)}>Check for updates</button>
-            <textarea cols="80" readonly rows="24">{this.data}</textarea>
+            <h1>Edit share {this.oldShareName}</h1>
+            <ShareFormComponent oldShareName={this.oldShareName} share={this.share} />
         </fragment>;
     }
 
     //Private members
-    private data: string | null;
+    private oldShareName: string;
+    private share: SMB.Share | null;
 
     //Event handlers
-    private async OnCheckForUpdatesClicked()
+    public async OnInitiated()
     {
-        this.data = null;
-        this.data = await this.updateService.CheckForUpdates();
+        const shares = await this.smbService.QueryShares();
+        this.share = shares.find(share => share.name === this.oldShareName)!;
     }
 }

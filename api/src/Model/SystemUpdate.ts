@@ -16,31 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "acfrontend";
+const MSG_SYSTEMUPDATE = "/SystemUpdate/";
 
-import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, MySQL } from "srvmgr-api";
-
-@Injectable
-export class MySQLService
+export namespace Api
 {
-    constructor(private webSocketService: WebSocketService)
+    export namespace CheckForUpdates
     {
-    }
-
-    //Public methods
-    public QueryMysqldSettings()
-    {
-        return this.webSocketService.SendRequest<MySQL.Api.QueryMysqldSettings.ResultData>(MySQL.Api.QueryMysqldSettings.message);
-    }
-
-    public SaveMysqldSettings(data: MySQL.Api.SaveMysqldSettings.RequestData)
-    {
-        return this.webSocketService.SendRequest(MySQL.Api.SaveMysqldSettings.message, data);
-    }
-
-    public ShowStatus()
-    {
-        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
+        export const message = MSG_SYSTEMUPDATE + "Check";
     }
 }

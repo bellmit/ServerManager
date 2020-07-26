@@ -16,22 +16,25 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall } from "../Api";
-import { ConnectionManager } from "../services/ConnectionManager";
+import { ApiEndpoint, ApiRequest } from "../Api";
 import { CommandExecutor } from "../services/CommandExecutor";
+import { SystemUpdate } from "srvmgr-api";
+import { PermissionsManager } from "../services/PermissionsManager";
 
 @Injectable
 class SystemUpdateApi
 {
-    constructor(private connectionManager: ConnectionManager, private commandExecutor: CommandExecutor)
+    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
     {
     }
 
-    @ApiEndpoint({ route: "Check" })
-    public async CheckForUpdates(call: ApiCall)
+    @ApiEndpoint({ route: SystemUpdate.Api.CheckForUpdates.message })
+    public async CheckForUpdates(call: ApiRequest)
     {
-        const pid = this.commandExecutor.ExecuteAsyncCommand(["apt-get", "update"], call.session);
-        this.connectionManager.Send(call.senderConnectionId, call.calledRoute, { processId: pid });
+        await this.commandExecutor.ExecuteCommand(["apt-get", "update"], this.permissionsManager.Sudo(call.session.uid));
+
+        const res = await this.commandExecutor.ExecuteCommand(["apt", "list", "--upgradeable"], call.session);
+        return res.stdout;
     }
 }
 

@@ -52,6 +52,10 @@ export class SettingsComponent extends Component
                 title: "Security",
                 section: "settings/security",
             },
+            {
+                title: "Other",
+                section: "settings/other"
+            }
         ];
 
         return <fragment>

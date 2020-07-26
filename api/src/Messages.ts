@@ -44,7 +44,7 @@ const MSG_USERGROUPS = "/UserGroups/";
 const MSG_USERS = "/Users/";
 const MSG_USERS_GROUPS = MSG_USERS + "Groups/";
 
-const SUBMSG_ADD = "Add";
+export const SUBMSG_ADD = "Add";
 const SUBMSG_DELETE = "Delete";
 export const SUBMSG_ENABLE = "Enable";
 export const SUBMSG_LIST = "List";

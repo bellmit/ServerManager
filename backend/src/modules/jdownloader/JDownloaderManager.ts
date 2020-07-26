@@ -41,7 +41,7 @@ export class JDownloaderManager
         const settings = this.QuerySettings();
 
         const cmdOptions: CommandOptions = { gid, uid, workingDirectory: jdDir };
-        const childProcess = this.commandExecutor.ExecuteAsyncCommand(["java", "-Djava.awt.headless=true", "-jar", "JDownloader.jar", "-norestart", "-myjd"], cmdOptions);
+        const childProcess = this.commandExecutor.CreateChildProcess(["java", "-Djava.awt.headless=true", "-jar", "JDownloader.jar", "-norestart", "-myjd"], cmdOptions);
         childProcess.stdin.write("y\n");
         childProcess.stdin.write(settings.userName + "\n");
         childProcess.stdin.write(settings.password + "\n");

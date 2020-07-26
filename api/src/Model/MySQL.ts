@@ -16,31 +16,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "acfrontend";
+import { SUBMSG_QUERY, SUBMSG_SET } from "../Messages";
 
-import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, MySQL } from "srvmgr-api";
+const MSG_MYSQL = "/MySQL/";
+const MSG_MYSQL_SETTINGS = MSG_MYSQL + "Settings/";
 
-@Injectable
-export class MySQLService
+export interface MysqldSettings
 {
-    constructor(private webSocketService: WebSocketService)
+    "default-time-zone"?: string;
+}
+
+export namespace Api
+{
+    export namespace QueryMysqldSettings
     {
+        export const message = MSG_MYSQL_SETTINGS + SUBMSG_QUERY;
+
+        export type ResultData = MysqldSettings;
     }
 
-    //Public methods
-    public QueryMysqldSettings()
+    export namespace SaveMysqldSettings
     {
-        return this.webSocketService.SendRequest<MySQL.Api.QueryMysqldSettings.ResultData>(MySQL.Api.QueryMysqldSettings.message);
-    }
+        export const message = MSG_MYSQL_SETTINGS + SUBMSG_SET;
 
-    public SaveMysqldSettings(data: MySQL.Api.SaveMysqldSettings.RequestData)
-    {
-        return this.webSocketService.SendRequest(MySQL.Api.SaveMysqldSettings.message, data);
-    }
-
-    public ShowStatus()
-    {
-        return this.webSocketService.SendRequest<string>(Messages.MYSQL_SHOW_STATUS, undefined);
+        export type RequestData = MysqldSettings;
     }
 }

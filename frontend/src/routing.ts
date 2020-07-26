@@ -23,9 +23,11 @@ import { routes as certificatesRoutes } from "./Plugins/Certificates/routing";
 import { routes as externalConnectionsRoutes } from "./Plugins/ExternalConnections/routing";
 import { routes as jdownloaderRoutes } from "./Plugins/JDownloader/routing";
 import { routes as modulesRoutes } from "./Plugins/Modules/routing";
+import { routes as mysqlRoutes } from "./Plugins/MySQL/routing";
 import { routes as notificationsRoutes } from "./Plugins/Notifications/routing";
 import { routes as servicesRoutes } from "./Plugins/Services/routing";
 import { routes as settingsRoutes } from "./Plugins/Settings/routing";
+import { routes as smbRoutes } from "./Plugins/SMB/routing";
 import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
 import { routes as terminalRoutes } from "./Plugins/Terminal/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
@@ -35,6 +37,8 @@ import { AuthGuard } from "./AuthGuard";
 import { LoginComponent } from "./LoginComponent";
 
 import { ApacheComponent } from "./Plugins/Apache/ApacheComponent";
+import { SMBComponent } from "./Plugins/SMB/SMBComponent";
+import { MySQLSettingsComponent } from "./Plugins/MySQL/MySQLSettingsComponent";
 
 const protectedRoutes : Routes = [
     { path: "apache", component: ApacheComponent, children: apacheRoutes },
@@ -43,9 +47,11 @@ const protectedRoutes : Routes = [
     { path: "externalconnections", children: externalConnectionsRoutes },
     { path: "jdownloader", children: jdownloaderRoutes },
     { path: "modules", children: modulesRoutes },
+    { path: "mysql", component: MySQLSettingsComponent, children: mysqlRoutes },
     { path: "notifications", children: notificationsRoutes },
     { path: "services", children: servicesRoutes },
     { path: "settings", children: settingsRoutes },
+    { path: "smb", component: SMBComponent, children: smbRoutes },
     { path: "systemupdate", children: systemUpdateRoutes },
     { path: "terminal", children: terminalRoutes },
     { path: "users", children: usersRoutes },

@@ -17,8 +17,18 @@
  * */
 import {PluginDefinition} from "../../Model/PluginDefinition";
 import { MySQLStatusComponent } from "./MySQLStatusComponent";
+import { MySQLSettingsComponent } from "./MySQLSettingsComponent";
 
 export const plugin: PluginDefinition = {
+    title: "MySQL",
+    component: MySQLSettingsComponent,
+
+    dependentModules: ["mariadb"],
+    baseRoute: "/mysql",
+    providedIn: "settings/other",
+};
+
+export const statusPlugin: PluginDefinition = {
     title: "MySQL",
     component: MySQLStatusComponent,
 
