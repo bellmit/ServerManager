@@ -18,6 +18,6 @@
 
 export const config = {
     trusted_origins: [
-        "localhost:8080",
+        "http://localhost:8080",
     ]
 };

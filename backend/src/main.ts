@@ -26,6 +26,7 @@ import { BackupManager } from "./services/BackupManager";
 import { HttpEndpointMetadata } from "./Http";
 import { SessionManager } from "./services/SessionManager";
 import { GlobalInjector } from "./Injector";
+import { config } from "./config";
 
 const port = 8081;
 
@@ -112,9 +113,8 @@ async function SetupServer()
     const app = express();
     const httpServer = app.listen(port);
 
-    const FRONTEND_URL = "http://localhost:8080";
     const corsOptions = {
-        origin: "http://localhost:8080",
+        origin: config.trusted_origins,
     };
 
     app.use(cors(corsOptions));
@@ -162,17 +162,23 @@ async function SetupServer()
     const webSocketServer = new websocket.server({ httpServer: httpServer });
     webSocketServer.on("request", (request) =>
     {
-        if(request.origin !== FRONTEND_URL)
+        let match = false;
+        for (const trusted of config.trusted_origins)
         {
-            request.reject(401);
+            if(request.origin === trusted)
+            {
+                match = true;
+                break;
+            }
         }
-        else if(sessionManager.SessionExists(request.remoteAddress))
+
+        if(match && sessionManager.SessionExists(request.remoteAddress))
         {
             const connection = request.accept(undefined, request.origin);
             connectionManager.Add(connection);
         }
-        else
-            request.reject(401);
+        
+        request.reject(401);
     });
 }
 

@@ -81,7 +81,7 @@ class UbuntuPackageManager implements DistroPackageManager
             case "nextcloud":
                 return [];
             case "openvpn":
-                return ["openvpn"];
+                return ["openvpn", "easy-rsa"];
             case "samba":
                 return ["samba"];
         }

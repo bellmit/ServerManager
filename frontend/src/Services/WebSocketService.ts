@@ -22,7 +22,7 @@ import { JsonResponseMessage, JsonRequestMessage } from "srvmgr-api";
 
 import { AuthenticationService } from "./AuthenticationService";
 
-export const BACKEND_HOST = "localhost:8081";
+export const BACKEND_HOST = window.location.hostname + ":8081";
 
 //only used to make sure that metadata is emitted for the class
 function EmitMetadata(target: any)

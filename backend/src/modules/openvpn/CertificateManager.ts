@@ -15,21 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
 
-import { BashVarsParser } from "../src/Model/BashVarsParser";
+import { Injectable } from "../../Injector";
+import { CommandExecutor } from "../../services/CommandExecutor";
+import { POSIXAuthority } from "../../services/PermissionsManager";
 
-//TODO: Make real tests
-
-
-async function ASync()
+@Injectable
+export class CertificateManager
 {
-    const bvp = new BashVarsParser();
+    constructor(private commandExecutor: CommandExecutor)
+    {
+    }
 
-    const input = fs.readFileSync("/etc/openvpn/test/vars", "utf-8");
-
-    const res = bvp.Parse(input);
-    console.log(res);
+    //Public methods
+    public async CreateCa(name: string, session: POSIXAuthority)
+    {
+        await this.commandExecutor.ExecuteCommand(["make-cadir", "/etc/openvpn/" + name], session);
+    }
 }
-
-ASync();
