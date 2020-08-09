@@ -20,23 +20,17 @@ import { Component, RenderNode, Injectable, JSX_CreateElement, ProgressSpinner }
 import { TerminalComponent } from "./TerminalComponent";
 import { TerminalService } from "./TerminalService";
 import { Commands } from "srvmgr-api";
+import { Subscription } from "acts-util-core";
 
 @Injectable
 export class CommandListComponent extends Component
 {
-    constructor(terminalService: TerminalService)
+    constructor(private terminalService: TerminalService)
     {
         super();
 
         this.commands = [];
         this.selectedCommand = null;
-        terminalService.commands.Subscribe(newCommands => {
-            this.commands = newCommands;
-            if( (this.selectedCommand === null) && (newCommands.length > 0))
-                this.selectedCommand = newCommands[newCommands.length-1];
-            else if(newCommands.length === 0)
-                this.selectedCommand = null;
-        });
     }
 
     protected Render(): RenderNode
@@ -57,6 +51,7 @@ export class CommandListComponent extends Component
     //Private members
     private commands: Commands.CommandOverviewData[];
     private selectedCommand: Commands.CommandOverviewData | null;
+    private subscription?: Subscription;
 
     //Private methods
     private RenderCommand(cmd: Commands.CommandOverviewData)
@@ -66,5 +61,22 @@ export class CommandListComponent extends Component
                 {cmd.commandline} ({cmd.pid})
             </a>
         </li>;
+    }
+
+    //Event handlers
+    public OnInitiated()
+    {
+        this.subscription = this.terminalService.commands.Subscribe(newCommands => {
+            this.commands = newCommands;
+            if( (this.selectedCommand === null) && (newCommands.length > 0))
+                this.selectedCommand = newCommands[newCommands.length-1];
+            else if(newCommands.length === 0)
+                this.selectedCommand = null;
+        });
+    }
+
+    public OnUnmounted()
+    {
+        this.subscription?.Unsubscribe();
     }
 }

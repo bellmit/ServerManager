@@ -15,38 +15,44 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import * as fs from "fs";
 
-export interface KeyValuePair
+interface FileSystemEntry
 {
-    key: string;
-    value: string;
+    fileSystem: string;
+    mountPoint: string;
+    type: string;
+    options: string;
+    dump: number;
+    pass: number;
 }
 
-export class BashVarsParser
+export class fstabParser
 {
     //Public methods
-    public Parse(input: string)
+    public Parse()
     {
-        const data: (KeyValuePair | string)[] = [];
-
+        const input = fs.readFileSync("/etc/fstab", "utf-8");
         const lines = input.split("\n");
-        for (let line of lines)
+
+        const entries: FileSystemEntry[] = [];
+        for (const line of lines)
         {
-            const exp = "export ";
+            if(line.startsWith("#"))
+                continue;
 
-            if(line.startsWith(exp))
-            {
-                line = line.substr(exp.length);
-                const parts = line.split("=");
-                if(parts.length != 2)
-                    throw new Error("Illegal data: " + line + " (" + line.length + ")");
+            const parts = line.split(" ").filter(str => str.length > 0);
 
-                data.push({ key: parts[0], value: parts[1].startsWith('"') ? parts[1].substr(1, parts[1].length - 2) : parts[1] });
-            }
-            else
-                data.push(line);
+            entries.push({
+                fileSystem: parts[0],
+                mountPoint: parts[1],
+                type: parts[2],
+                options: parts[3],
+                dump: parseInt(parts[4]),
+                pass: parseInt(parts[5]),
+            });
         }
 
-        return data;
+        return entries;
     }
 }

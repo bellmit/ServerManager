@@ -23,12 +23,8 @@ import { ModuleService } from "../../Services/ModuleService";
 import { ExternalConnectionsService } from "../ExternalConnections/ExternalConnectionsService";
 
 @Injectable
-export class BackupFormComponent extends Component
+export class BackupFormComponent extends Component<{ backupName?: string; }>
 {
-    input!: {
-        backupName?: string;
-    }
-
     constructor(private backupService: BackupService, private router: Router, private moduleService: ModuleService,
         private externalConnectionService: ExternalConnectionsService)
     {

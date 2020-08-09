@@ -18,7 +18,7 @@
 
 import { Injectable, Component, RenderNode, JSX_CreateElement, RouterButton, MatIcon, ProgressSpinner } from "acfrontend";
 import { CertificatesService } from "./CertificatesService";
-import { Certificate } from "srvmgr-api";
+import { CertificatesApi } from "srvmgr-api";
 
 @Injectable
 export class ListCertificatesComponent extends Component
@@ -53,10 +53,10 @@ export class ListCertificatesComponent extends Component
     }
 
     //Private members
-    private data: Certificate[] | null;
+    private data: CertificatesApi.List.Certificate[] | null;
 
     //Private methods
-    private RenderCertificate(certificate: Certificate)
+    private RenderCertificate(certificate: CertificatesApi.List.Certificate)
     {
         return <tr>
             <td>{certificate.name}</td>

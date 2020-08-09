@@ -21,13 +21,11 @@ import { SMB } from "srvmgr-api";
 import { SMBService } from "./SMBService";
 
 @Injectable
-export class ShareFormComponent extends Component
+export class ShareFormComponent extends Component<{
+    oldShareName?: string;
+    share: SMB.Share;
+}>
 {
-    input!: {
-        oldShareName?: string;
-        share: SMB.Share;
-    }
-
     constructor(private smbService: SMBService, private router: Router)
     {
         super();

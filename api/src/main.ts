@@ -31,7 +31,8 @@ import { Routes } from "./Http";
 import { AuthResult } from "./Model/Auth";
 import { SystemService, SystemServiceAction, SystemServiceActionData } from "./Model/SystemServices";
 import { NotificationSettings } from "./Model/Notifications";
-import { Certificate } from "./Model/Certificates";
+import { CertificatesApi } from "./Model/Certificates";
+import { OpenVPNApi } from "./Model/OpenVPN";
 
 interface OperationStatus
 {
@@ -45,7 +46,7 @@ export {
     BackupSaveRequest,
     BackupTask,
     DownloadFileRequest,
-    Certificate,
+    CertificatesApi,
     Commands,
     ExternalConnectionConfig,
     ExternalConnectionSettings,
@@ -61,6 +62,7 @@ export {
     Module,
     MySQL,
     NotificationSettings,
+    OpenVPNApi,
     OperationStatus,
     Routes,
     User,

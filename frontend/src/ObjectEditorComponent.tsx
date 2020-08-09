@@ -16,15 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement, LineEdit, Switch, CheckBox } from "acfrontend";
+import { Component, RenderNode, JSX_CreateElement, LineEdit, Switch, CheckBox, NumberSpinner } from "acfrontend";
 
-export class ObjectEditorComponent extends Component
+export class ObjectEditorComponent extends Component<{
+    object: any;
+    onObjectUpdated?: () => void;
+}>
 {
-    input!: {
-        object: any;
-        onObjectUpdated?: () => void;
-    }
-
+    //Protected methods
     protected Render(): RenderNode
     {
         return this.AddObjectMembers(this.input.object);
@@ -51,7 +50,9 @@ export class ObjectEditorComponent extends Component
 
             let isValue = true;
             let control;
-            if( (typeof value === "string") || (typeof value === "number") )
+            if(typeof value === "number")
+                control = <NumberSpinner value={value} onChanged={this.OnChangeValue.bind(this, obj, key)} step="any" />;
+            else if(typeof value === "string")
                 control = <LineEdit value={value.toString()} onChanged={this.OnChangeValue.bind(this, obj, key)} />;
             else if(typeof value === "boolean")
                 control = <CheckBox value={value} onChanged={this.OnChangeValue.bind(this, obj, key)} />;

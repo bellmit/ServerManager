@@ -20,7 +20,7 @@ import { Injectable } from "../../Injector";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { NotificationsManager } from "../../services/NotificationsManager";
 import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
-import { Certificate } from "srvmgr-api";
+import { CertificatesApi } from "srvmgr-api";
 
 @Injectable
 export class CertbotManager
@@ -30,11 +30,9 @@ export class CertbotManager
     }
 
     //Public methods
-    public async CreateCertificate(domainName: string, session: POSIXAuthority)
+    public async CreateCertificate(domainName: string, email: string, session: POSIXAuthority)
     {
-        const notificationSettings = this.notificationsManager.QuerySettings();
-
-        const commands = ["certbot", "certonly", "--webroot", "-w", "/var/www/html/", "-d", domainName, "-m", notificationSettings.email, "--agree-tos"];
+        const commands = ["certbot", "certonly", "--webroot", "-w", "/var/www/html/", "-d", domainName, "-m", email, "--agree-tos"];
         await this.commandExecutor.ExecuteCommand(commands, this.permissionsManager.Sudo(session.uid));
     }
 
@@ -42,7 +40,7 @@ export class CertbotManager
     {
         const result = await this.commandExecutor.ExecuteCommand(["certbot", "certificates"], this.permissionsManager.Sudo(session.uid));
 
-        const certs: Certificate[] = [];
+        const certs: CertificatesApi.List.Certificate[] = [];
 
         const lines = result.stdout.split("\n");
         for (let index = 0; index < lines.length; index++)

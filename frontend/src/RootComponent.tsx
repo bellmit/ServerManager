@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable} from "acfrontend";
+import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable, MatIcon} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
 import { AuthenticationService } from "./Services/AuthenticationService";
@@ -50,7 +50,9 @@ export class RootComponent extends Component
     private RenderGlobals()
     {
         const pluginManager = this.injector.Resolve(PluginManager);
-        return pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor></li>);
+        return pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>
+            {plugin.icon ? plugin.icon.Clone() : plugin.title}
+        </Anchor></li>);
     }
 
     private RenderNav()
@@ -60,7 +62,7 @@ export class RootComponent extends Component
 
         return <nav>
             <ul>
-                <li><Anchor route="/">Server status</Anchor></li>
+                <li><Anchor route="/"><MatIcon>dashboard</MatIcon></Anchor></li>
                 {this.RenderGlobals()}
             </ul>
         </nav>;

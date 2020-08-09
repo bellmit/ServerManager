@@ -18,7 +18,7 @@
 
 import { Injectable } from "../../Injector";
 import { ApiEndpoint, ApiRequest } from "../../Api";
-import { Messages } from "srvmgr-api";
+import { Messages, CertificatesApi } from "srvmgr-api";
 import { ConnectionManager } from "../../services/ConnectionManager";
 import { CertbotManager } from "./CertbotManager";
 
@@ -29,14 +29,14 @@ class LetsEncryptApi
     {
     }
 
-    @ApiEndpoint({ route: Messages.CERTIFICATES_ADD })
-    public async CreateCertificate(request: ApiRequest, domainName: string)
+    @ApiEndpoint({ route: CertificatesApi.Add.message })
+    public async CreateCertificate(request: ApiRequest, data: CertificatesApi.Add.RequestData)
     {
-        await this.certbotManager.CreateCertificate(domainName, request.session);
+        await this.certbotManager.CreateCertificate(data.domainName, data.email, request.session);
         this.connectionManager.Respond(request, undefined);
     }
 
-    @ApiEndpoint({ route: Messages.CERTIFICATES_LIST })
+    @ApiEndpoint({ route: CertificatesApi.List.message })
     public async ListCertificates(request: ApiRequest)
     {
         const result = await this.certbotManager.ListCertificates(request.session);

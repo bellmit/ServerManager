@@ -16,26 +16,32 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, JSX_CreateElement, LineEdit, Router } from "acfrontend";
+import { Injectable, Component, RenderNode, JSX_CreateElement, LineEdit, Router, ProgressSpinner } from "acfrontend";
 import { CertificatesService } from "./CertificatesService";
+import { NotificationsService } from "../Notifications/NotificationsService";
 
 @Injectable
 export class AddCertificateComponent extends Component
 {
-    constructor(private certificatesService: CertificatesService, private router: Router)
+    constructor(private certificatesService: CertificatesService, private router: Router, private notificationsService: NotificationsService)
     {
         super();
 
         this.domainName = "";
+        this.email = null;
     }
 
     protected Render(): RenderNode
     {
+        if(this.email === null)
+            return <ProgressSpinner />;
+
         return <fragment>
             <h1>Create new certificate</h1>
 
             <form onsubmit={this.OnCreateCertificate.bind(this)}>
                 Domain name: <LineEdit value={this.domainName} onChanged={newValue => this.domainName = newValue} />
+                E-Mail: <LineEdit value={this.email} onChanged={newValue => this.email = newValue} />
                 <button type="submit">Create</button>
             </form>
         </fragment>;
@@ -43,14 +49,23 @@ export class AddCertificateComponent extends Component
 
     //Private members
     private domainName: string;
+    private email: string | null;
 
     //Event handlers
     private async OnCreateCertificate(event: Event)
     {
         event.preventDefault();
 
-        await this.certificatesService.CreateCertificate(this.domainName);
+        await this.certificatesService.CreateCertificate({
+            domainName: this.domainName,
+            email: this.email!
+        });
 
         this.router.RouteTo("/certs");
+    }
+
+    public async OnInitiated()
+    {
+        this.email = (await this.notificationsService.QuerySettings()).email;
     }
 }

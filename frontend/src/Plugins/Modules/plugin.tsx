@@ -16,24 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import {PluginDefinition} from "../../Model/PluginDefinition";
-import { MySQLStatusComponent } from "./MySQLStatusComponent";
-import { MySQLSettingsComponent } from "./MySQLSettingsComponent";
 import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "MySQL",
-    component: MySQLSettingsComponent,
+    title: "Modules",
+    baseRoute: "/modules",
 
-    dependentModules: ["mariadb"],
-    baseRoute: "/mysql",
-    icon: <MatIcon>storage</MatIcon>,
-    providedIn: "settings/other",
-};
-
-export const statusPlugin: PluginDefinition = {
-    title: "MySQL",
-    component: MySQLStatusComponent,
-
-    dependentModules: ["mariadb"],
-    providedIn: "serverstatus",
+    icon: <MatIcon>extension</MatIcon>,
+    providedIn: "settings/core",
 };

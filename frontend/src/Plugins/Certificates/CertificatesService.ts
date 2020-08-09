@@ -18,7 +18,7 @@
 
 import { Injectable } from "acfrontend";
 import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, Certificate } from "srvmgr-api";
+import { CertificatesApi } from "srvmgr-api";
 
 @Injectable
 export class CertificatesService
@@ -28,13 +28,13 @@ export class CertificatesService
     }
 
     //Public methods
-    public CreateCertificate(domainName: string)
+    public CreateCertificate(data: CertificatesApi.Add.RequestData)
     {
-        return this.websocketService.SendRequest(Messages.CERTIFICATES_ADD, domainName);
+        return this.websocketService.SendRequest(CertificatesApi.Add.message, data);
     }
 
     public ListCertificates()
     {
-        return this.websocketService.SendRequest<Certificate[]>(Messages.CERTIFICATES_LIST);
+        return this.websocketService.SendRequest<CertificatesApi.List.Certificate[]>(CertificatesApi.List.message);
     }
 }

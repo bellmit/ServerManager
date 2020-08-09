@@ -16,10 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import {PluginDefinition} from "../../Model/PluginDefinition";
+import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "Modules",
-    baseRoute: "/modules",
+    title: "Apache",
+    baseRoute: "/apache",
 
-    providedIn: "settings/core",
+    dependentModules: ["apache"],
+    icon: <MatIcon>http</MatIcon>,
+    providedIn: "settings/network",
 };

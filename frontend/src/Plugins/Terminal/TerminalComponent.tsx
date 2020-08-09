@@ -21,12 +21,8 @@ import { Commands } from "srvmgr-api";
 import { TerminalService } from "./TerminalService";
 
 @Injectable
-export class TerminalComponent extends Component
+export class TerminalComponent extends Component<{ command: Commands.CommandOverviewData; }>
 {
-    input!: {
-        command: Commands.CommandOverviewData;
-    };
-
     constructor(private terminalService: TerminalService)
     {
         super();

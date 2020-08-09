@@ -24,12 +24,8 @@ import { ManageUserGroupsComponent } from "./ManageUserGroupsComponent";
 import { ChangePasswordComponent } from "./ChangePasswordComponent";
 
 @Injectable
-export class UserListComponent extends Component
+export class UserListComponent extends Component<{ showSystemUsers: boolean; }>
 {
-    input!: {
-        showSystemUsers: boolean;
-    };
-
     constructor(private usersService: UsersService, private popupManager: PopupManager)
     {
         super();

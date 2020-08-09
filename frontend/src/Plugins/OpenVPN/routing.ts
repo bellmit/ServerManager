@@ -15,11 +15,10 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {PluginDefinition} from "../../Model/PluginDefinition";
+import { Routes } from "acfrontend";
+import { AddCADirComponent } from "./AddCADirComponent";
 
-export const plugin: PluginDefinition = {
-    title: "External connections",
-    baseRoute: "/externalconnections",
-
-    providedIn: "settings/network",
-};
+export const routes : Routes = [
+    { path: "addcadir", component: AddCADirComponent },
+    { path: "" },
+];

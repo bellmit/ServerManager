@@ -176,6 +176,7 @@ async function SetupServer()
         {
             const connection = request.accept(undefined, request.origin);
             connectionManager.Add(connection);
+            return;
         }
         
         request.reject(401);

@@ -82,6 +82,8 @@ class UbuntuPackageManager implements DistroPackageManager
                 return [];
             case "openvpn":
                 return ["openvpn", "easy-rsa"];
+            case "phpmyadmin":
+                return ["phpmyadmin"];
             case "samba":
                 return ["samba"];
         }

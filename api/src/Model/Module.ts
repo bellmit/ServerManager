@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export type ModuleName = "apache" | "jdownloader" | "letsencrypt" | "mariadb" | "nextcloud" | "openvpn" | "samba";
-export const moduleNames: Array<ModuleName> = [ "apache", "jdownloader", "letsencrypt", "mariadb", "nextcloud", "openvpn", "samba" ];
+export type ModuleName = "apache" | "jdownloader" | "letsencrypt" | "mariadb" | "nextcloud" | "openvpn" | "phpmyadmin" | "samba";
+export const moduleNames: Array<ModuleName> = [ "apache", "jdownloader", "letsencrypt", "mariadb", "nextcloud", "openvpn", "phpmyadmin", "samba" ];
 
 export interface Module
 {

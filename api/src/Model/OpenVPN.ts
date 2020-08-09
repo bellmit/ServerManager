@@ -15,12 +15,21 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {PluginDefinition} from "../../Model/PluginDefinition";
 
-export const plugin: PluginDefinition = {
-    title: "JDownloader",
-    baseRoute: "/jdownloader",
-
-    dependentModules: ["jdownloader"],
-    providedIn: "settings/network",
-};
+export namespace OpenVPNApi
+{
+    export namespace AddCA
+    {
+        export interface RequestData
+        {
+            name: string;
+            keySize: number;
+            country: string;
+            province: string;
+            city: string;
+            organization: string;
+            email: string;
+            organizationalUnit: string;
+        }
+    }
+}

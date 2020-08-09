@@ -16,37 +16,41 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export interface KeyValuePair
+export class ObjectValidator
 {
-    key: string;
-    value: string;
-}
-
-export class BashVarsParser
-{
-    //Public methods
-    public Parse(input: string)
+    //Public functions
+    public static Validate(data: any)
     {
-        const data: (KeyValuePair | string)[] = [];
+        const validator = new ObjectValidator;
+        return validator.ValidateAny(data);
+    }
 
-        const lines = input.split("\n");
-        for (let line of lines)
+    //Public methods
+    public ValidateAny(v: any)
+    {
+        if(typeof v === "number")
+            return v != 0;
+
+        if(typeof v === "string")
+            return v.trim().length > 0;
+
+        if(typeof v === "object")
+            return this.ValidateObject(v);
+
+        throw new Error("IMPLEMENT ME: " + typeof v + " - " + v);
+    }
+
+    //Private methods
+    private ValidateObject(v: any)
+    {
+        for (const key in v)
         {
-            const exp = "export ";
-
-            if(line.startsWith(exp))
+            if (Object.prototype.hasOwnProperty.call(v, key))
             {
-                line = line.substr(exp.length);
-                const parts = line.split("=");
-                if(parts.length != 2)
-                    throw new Error("Illegal data: " + line + " (" + line.length + ")");
-
-                data.push({ key: parts[0], value: parts[1].startsWith('"') ? parts[1].substr(1, parts[1].length - 2) : parts[1] });
+                if(!this.ValidateAny(v[key]))
+                    return false;
             }
-            else
-                data.push(line);
         }
-
-        return data;
+        return true;
     }
 }

@@ -16,10 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-export interface Certificate
+import { SUBMSG_ADD, SUBMSG_LIST } from "../Messages";
+
+const MSG_CERTIFICATES = "/Certificates/";
+
+export namespace CertificatesApi
 {
-    name: string;
-    expiryDate: string;
-    certificatePath: string;
-    privateKeyPath: string;
+    export namespace Add
+    {
+        export const message = MSG_CERTIFICATES + SUBMSG_ADD;
+
+        export interface RequestData
+        {
+            domainName: string;
+            email: string;
+        }
+    }
+
+    export namespace List
+    {
+        export const message = MSG_CERTIFICATES + SUBMSG_LIST;
+
+        export interface Certificate
+        {
+            name: string;
+            expiryDate: string;
+            certificatePath: string;
+            privateKeyPath: string;
+        }
+    }
 }

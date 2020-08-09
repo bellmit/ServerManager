@@ -34,7 +34,6 @@ export interface JsonResponseMessage extends JsonMessage
 }
 
 const MSG_BACKUPS = "/Backups/";
-const MSG_CERTIFICATES = "/Certificates/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
 const MSG_MODULES = "/Modules/";
 const MSG_MYSQL = "/MySQL/";
@@ -57,9 +56,6 @@ export const Messages = {
     BACKUPS_LIST_FILES : MSG_BACKUPS + "ListFiles",
     BACKUPS_RUN: MSG_BACKUPS + "Run",
     BACKUPS_SET: MSG_BACKUPS + SUBMSG_SET,
-
-    CERTIFICATES_ADD: MSG_CERTIFICATES + SUBMSG_ADD,
-    CERTIFICATES_LIST: MSG_CERTIFICATES + SUBMSG_LIST,
 
     EXTERNALCONNECTIONS_DELETE: MSG_EXTERNALCONNECTIONS + SUBMSG_DELETE,
     EXTERNALCONNECTIONS_ISENCRYPTED: MSG_EXTERNALCONNECTIONS + "IsEncrypted",

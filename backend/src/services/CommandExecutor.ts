@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { exec, spawn, ChildProcessWithoutNullStreams } from 'child_process';
+import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { Injectable } from '../Injector';
 import { ProcessTracker } from './ProcessTracker';
 
@@ -31,6 +31,7 @@ export interface CommandOptions
     gid: number;
     uid: number;
     workingDirectory?: string;
+    environmentVariables?: NodeJS.ProcessEnv;
 }
 
 @Injectable
@@ -54,6 +55,7 @@ export class CommandExecutor
         const commandLine = command.join(" ");
         const childProcess = spawn(commandLine, [], {
             cwd: options.workingDirectory,
+            env: options.environmentVariables,
             gid: options.gid,
             shell: true,
             uid: options.uid,

@@ -15,11 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { PluginDefinition } from "../../Model/PluginDefinition";
+import {PluginDefinition} from "../../Model/PluginDefinition";
+import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "Terminal",
-    baseRoute: "/terminal",
+    title: "External connections",
+    baseRoute: "/externalconnections",
 
-    providedIn: "root",
+    icon: <MatIcon>cloud</MatIcon>,
+    providedIn: "settings/network",
 };

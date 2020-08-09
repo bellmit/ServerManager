@@ -17,19 +17,24 @@
  * */
 import * as fs from "fs";
 
-import { BashVarsParser } from "../src/Model/BashVarsParser";
+import { GlobalInjector } from "../src/Injector";
+import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
 
 //TODO: Make real tests
 
 
 async function ASync()
 {
-    const bvp = new BashVarsParser();
+    const session = { uid: 0, gid: 0 };
+    if(fs.existsSync("/etc/openvpn/test"))
+        fs.rmdirSync("/etc/openvpn/test", { recursive: true });
 
-    const input = fs.readFileSync("/etc/openvpn/test/vars", "utf-8");
+    const cm = GlobalInjector.Resolve(CertificateManager);
 
-    const res = bvp.Parse(input);
-    console.log(res);
+    await cm.CreateCa("test", session);
+
+    fs.chmodSync("/etc/openvpn/test", 0o777);
+    return;
 }
 
 ASync();

@@ -25,6 +25,7 @@ import * as JDownloader from "./Plugins/JDownloader/plugin";
 import * as Modules from "./Plugins/Modules/plugin";
 import * as MySQL from "./Plugins/MySQL/plugin";
 import * as Notifications from "./Plugins/Notifications/plugin";
+import * as OpenVPN from "./Plugins/OpenVPN/plugin";
 import * as Services from "./Plugins/Services/plugin";
 import * as Settings from "./Plugins/Settings/plugin";
 import * as SMB from "./Plugins/SMB/plugin";
@@ -43,6 +44,7 @@ export const plugins: PluginDefinition[] = [
     MySQL.plugin,
     MySQL.statusPlugin,
     Notifications.plugin,
+    OpenVPN.plugin,
     Services.plugin,
     Settings.plugin,
     SMB.plugin,

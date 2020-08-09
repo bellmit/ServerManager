@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import {PluginDefinition} from "../../Model/PluginDefinition";
+import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "System settings",
-    baseRoute: "/settings",
+    title: "OpenVPN",
+    baseRoute: "/openvpn",
 
-    providedIn: "root",
+    icon: <MatIcon>vpn_lock</MatIcon>,
+    providedIn: "settings/network",
 };

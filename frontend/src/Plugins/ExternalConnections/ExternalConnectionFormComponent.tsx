@@ -24,12 +24,8 @@ import { WebDavComponent } from "./WebDavComponent";
 import { FilesystemComponent } from "./FilesystemComponent";
 
 @Injectable
-export class ExternalConnectionFormComponent extends Component
+export class ExternalConnectionFormComponent extends Component<{ connectionName?: string; }>
 {
-    input!: {
-        connectionName?: string;
-    }
-
     constructor(private externalConnectionService: ExternalConnectionsService, private router: Router)
     {
         super();

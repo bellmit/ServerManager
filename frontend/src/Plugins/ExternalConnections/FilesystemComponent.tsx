@@ -19,12 +19,8 @@ import { Injectable, Component, RenderNode, JSX_CreateElement, LineEdit } from "
 import { Dictionary } from "acts-util-core";
 
 @Injectable
-export class FilesystemComponent extends Component
+export class FilesystemComponent extends Component<{ options: Dictionary<string>; }>
 {
-    input!: {
-        options: Dictionary<string>;
-    }
-
     //Protected methods
     protected Render(): RenderNode
     {            
