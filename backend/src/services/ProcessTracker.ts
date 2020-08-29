@@ -36,6 +36,7 @@ export class ProcessTracker
     constructor()
     {
         this.processInfo = {};
+        this.processes = {};
         this._processData = new Subject<ProcessInfo>();
         this._processList = new Property<Commands.CommandOverviewData[]>([]);
     }
@@ -66,6 +67,7 @@ export class ProcessTracker
             stdErrBuffered: ""
         };
         this.processInfo[process.pid] = info;
+        this.processes[process.pid] = process;
         this.UpdateProcessList();
 
         process.stdout.on("data", this.OnStdOutDataReceived.bind(this, info));
@@ -73,8 +75,14 @@ export class ProcessTracker
         process.on("close", this.OnProcessClosed.bind(this, info));
     }
 
+    public WriteInput(pid: number, data: string)
+    {
+        this.processes[pid]?.stdin.write(data);
+    }
+
     //Private members
     private processInfo: Dictionary<ProcessInfo>;
+    private processes: Dictionary<ChildProcessWithoutNullStreams>;
     private _processData: Subject<ProcessInfo>;
     private _processList: Property<Commands.CommandOverviewData[]>;
 

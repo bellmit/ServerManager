@@ -15,26 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
+import { Routes } from "acfrontend";
+import { FileManagerComponent } from "./FileManagerComponent";
 
-import { GlobalInjector } from "../src/Injector";
-import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
-
-//TODO: Make real tests
-
-
-async function ASync()
-{
-    const session = { uid: 0, gid: 0 };
-    if(fs.existsSync("/etc/openvpn/test"))
-        fs.rmdirSync("/etc/openvpn/test", { recursive: true });
-
-    const cm = GlobalInjector.Resolve(CertificateManager);
-
-    //await cm.CreateCa("test", session);
-
-    fs.chmodSync("/etc/openvpn/test", 0o777);
-    return;
-}
-
-ASync();
+export const routes : Routes = [
+    { path: "", component: FileManagerComponent},
+];

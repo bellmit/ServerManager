@@ -58,7 +58,9 @@ export class TerminalComponent extends Component<{ command: Commands.CommandOver
             </div>
             <h3>stdin</h3>
             <div class="row">
-                <Textarea value={this.stdin} onChanged={newValue => this.stdin = newValue} columns={160} rows={5} />
+                <Textarea value={this.stdin} columns={160} rows={5}
+                    onKeyDown={this.OnKeyDown.bind(this)}
+                    onChanged={newValue => this.stdin = newValue} />
                 <button type="button" onclick={this.OnSendData.bind(this)}>Send</button>
             </div>
         </fragment>;
@@ -72,6 +74,16 @@ export class TerminalComponent extends Component<{ command: Commands.CommandOver
     private subscribedPid: number | null;
 
     //Event handlers
+    private OnKeyDown(event: KeyboardEvent)
+    {
+        if(event.keyCode === 13)
+        {
+            event.preventDefault();
+            this.stdin += "\n";
+            this.OnSendData();
+        }
+    }
+
     public OnInitiated()
     {
         this.exitCode = this.input.command.exitCode;
@@ -94,6 +106,11 @@ export class TerminalComponent extends Component<{ command: Commands.CommandOver
 
     private OnSendData()
     {
+        this.terminalService.SendInputData({
+            data: this.stdin,
+            pid: this.input.command.pid
+        });
+        this.stdin = "";
     }
 
     public OnUnmounted()

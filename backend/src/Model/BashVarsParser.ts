@@ -49,4 +49,9 @@ export class BashVarsParser
 
         return data;
     }
+
+    public ToString(data: (KeyValuePair | string)[])
+    {
+        return data.Values().Map( x => (typeof x === "string") ? x : "export " + x.key + '="' + x.value + '"').ToArray().join("\n");
+    }
 }

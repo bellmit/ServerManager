@@ -35,6 +35,12 @@ class CommandsApi
         this.subscribedConnectionIds = {};
     }
 
+    @ApiEndpoint({ route: Commands.Api.InputData.message })
+    public async ReceiveInputData(call: ApiCall, data: Commands.Api.InputData.BackendExpectData)
+    {
+        this.processTracker.WriteInput(data.pid, data.data);
+    }
+
     @ApiEndpoint({ route: Commands.Api.ListCommands.message })
     public async ListCommands(call: ApiCall)
     {

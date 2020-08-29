@@ -15,26 +15,17 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
 
-import { GlobalInjector } from "../src/Injector";
-import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
+import { Component, RenderNode, JSX_CreateElement } from "acfrontend";
+import { DirectoryViewComponent } from "./DirectoryViewComponent";
 
-//TODO: Make real tests
-
-
-async function ASync()
+export class FileManagerComponent extends Component
 {
-    const session = { uid: 0, gid: 0 };
-    if(fs.existsSync("/etc/openvpn/test"))
-        fs.rmdirSync("/etc/openvpn/test", { recursive: true });
-
-    const cm = GlobalInjector.Resolve(CertificateManager);
-
-    //await cm.CreateCa("test", session);
-
-    fs.chmodSync("/etc/openvpn/test", 0o777);
-    return;
+    protected Render(): RenderNode
+    {
+        return <div class="row evenly-spaced">
+            <div class="column"><DirectoryViewComponent /></div>
+            <div class="column"><DirectoryViewComponent /></div>
+        </div>;
+    }
 }
-
-ASync();

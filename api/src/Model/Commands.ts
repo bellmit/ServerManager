@@ -51,6 +51,17 @@ export namespace Api
         export type BackendSendData = CommandOverviewData[];
     }
 
+    export namespace InputData
+    {
+        export const message = MSG_COMMANDS + "Input";
+
+        export interface BackendExpectData
+        {
+            pid: number;
+            data: string;
+        }
+    }
+
     export namespace SubscribeCommand
     {
         export const message = MSG_COMMANDS + "Subscribe";

@@ -303,6 +303,7 @@ export class UsersService
                 uid: uid,
                 gid: parseInt(parts[3]),
                 displayName: parts[4],
+                homeDirectory: parts[5],
                 isSystemUser: (uid < 1000) || (uid > 60000), //TODO: specific ranges are defined in /etc/login.defs who is a system user and who is a real one,
                 //on most systems, real users start with uid 1000 and end with 60000. However, these should be read from file
             });

@@ -15,26 +15,28 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
 
-import { GlobalInjector } from "../src/Injector";
-import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
+import { SUBMSG_LIST } from "../Messages";
 
-//TODO: Make real tests
+const MSG_FILESYSTEM = "/FileSystem/";
 
-
-async function ASync()
+export namespace FileSystemApi
 {
-    const session = { uid: 0, gid: 0 };
-    if(fs.existsSync("/etc/openvpn/test"))
-        fs.rmdirSync("/etc/openvpn/test", { recursive: true });
+    export namespace ListDirectoryContents
+    {
+        export const message = MSG_FILESYSTEM + SUBMSG_LIST;
 
-    const cm = GlobalInjector.Resolve(CertificateManager);
+        export interface FileSystemNode
+        {
+            type: "directory" | "file";
+            name: string;
+        }
 
-    //await cm.CreateCa("test", session);
-
-    fs.chmodSync("/etc/openvpn/test", 0o777);
-    return;
+        export type RequestData = string;
+        export interface ResultData
+        {
+            resolvedDirectory: string;
+            nodes: FileSystemNode[];
+        }
+    }
 }
-
-ASync();

@@ -45,6 +45,11 @@ export class TerminalService
     }
 
     //Public methods
+    public SendInputData(data: Commands.Api.InputData.BackendExpectData)
+    {
+        this.webSocketService.SendMessage(Commands.Api.InputData.message, data);
+    }
+
     public SubscribeCommand(pid: number)
     {
         const promise = this.webSocketService.SendRequest<Commands.Api.SubscribeCommand.ResultData>(Commands.Api.SubscribeCommand.message, pid);

@@ -28,5 +28,6 @@ export interface User
     uid: number;
     gid: number;
     displayName: string;
+    homeDirectory: string;
     isSystemUser: boolean;
 }

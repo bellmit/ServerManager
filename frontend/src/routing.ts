@@ -21,6 +21,7 @@ import { routes as apacheRoutes } from "./Plugins/Apache/routing";
 import { routes as backupRoutes } from "./Plugins/Backup/routing";
 import { routes as certificatesRoutes } from "./Plugins/Certificates/routing";
 import { routes as externalConnectionsRoutes } from "./Plugins/ExternalConnections/routing";
+import { routes as filemanagerRoutes } from "./Plugins/Filemanager/routing";
 import { routes as jdownloaderRoutes } from "./Plugins/JDownloader/routing";
 import { routes as modulesRoutes } from "./Plugins/Modules/routing";
 import { routes as mysqlRoutes } from "./Plugins/MySQL/routing";
@@ -47,6 +48,7 @@ const protectedRoutes : Routes = [
     { path: "backup", children: backupRoutes },
     { path: "certs", children: certificatesRoutes },
     { path: "externalconnections", children: externalConnectionsRoutes },
+    { path: "filemanager", children: filemanagerRoutes },
     { path: "jdownloader", children: jdownloaderRoutes },
     { path: "modules", children: modulesRoutes },
     { path: "mysql", component: MySQLSettingsComponent, children: mysqlRoutes },

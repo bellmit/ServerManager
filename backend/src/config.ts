@@ -15,9 +15,11 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import * as os from "os";
 
 export const config = {
     trusted_origins: [
         "http://localhost:8080",
+        "http://" + os.hostname() + ":8080",
     ]
 };

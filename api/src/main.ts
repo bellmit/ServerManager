@@ -33,6 +33,7 @@ import { SystemService, SystemServiceAction, SystemServiceActionData } from "./M
 import { NotificationSettings } from "./Model/Notifications";
 import { CertificatesApi } from "./Model/Certificates";
 import { OpenVPNApi } from "./Model/OpenVPN";
+import { FileSystemApi } from "./Model/FileSystem";
 
 interface OperationStatus
 {
@@ -52,6 +53,7 @@ export {
     ExternalConnectionSettings,
     ExternalConnectionType,
     ExternalConnectionTypes,
+    FileSystemApi,
     JDownloader,
     Group,
     JsonRequestMessage,

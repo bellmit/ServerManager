@@ -15,26 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
 
-import { GlobalInjector } from "../src/Injector";
-import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
+import { Injectable } from "../../Injector";
+import { ApiEndpoint, ApiRequest } from "../../Api";
+import { OpenVPNApi } from "srvmgr-api";
+import { CertificateManager } from "./CertificateManager";
 
-//TODO: Make real tests
-
-
-async function ASync()
+@Injectable
+class LetsEncryptApi
 {
-    const session = { uid: 0, gid: 0 };
-    if(fs.existsSync("/etc/openvpn/test"))
-        fs.rmdirSync("/etc/openvpn/test", { recursive: true });
+    constructor(private certificateManager: CertificateManager)
+    {
+    }
 
-    const cm = GlobalInjector.Resolve(CertificateManager);
-
-    //await cm.CreateCa("test", session);
-
-    fs.chmodSync("/etc/openvpn/test", 0o777);
-    return;
+    @ApiEndpoint({ route: OpenVPNApi.AddCA.message })
+    public async CreateCertificate(request: ApiRequest, data: OpenVPNApi.AddCA.RequestData)
+    {
+        return await this.certificateManager.CreateCa(data, request.session);
+    }
 }
 
-ASync();
+export default LetsEncryptApi;
