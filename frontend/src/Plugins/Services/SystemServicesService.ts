@@ -36,4 +36,9 @@ export class SystemServicesService
     {
         return this.webSocketService.SendRequest<SystemService[]>(Messages.SERVICES_LIST, undefined);
     }
+
+    public QueryServiceStatus(serviceName: string)
+    {
+        return this.webSocketService.SendRequest<string>(Messages.SERVICES_STATUS, serviceName);
+    }
 }

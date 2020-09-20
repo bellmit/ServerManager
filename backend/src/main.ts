@@ -19,14 +19,17 @@ import * as bodyParser from "body-parser";
 import cors from "cors";
 import express from "express";
 import fs from "fs";
+import * as https from "https";
 import * as websocket from "websocket";
+import * as os from "os";
+
 import { ConnectionManager } from "./services/ConnectionManager";
 import { ApiEndpointMetadata } from "./Api";
 import { BackupManager } from "./services/BackupManager";
 import { HttpEndpointMetadata } from "./Http";
 import { SessionManager } from "./services/SessionManager";
 import { GlobalInjector } from "./Injector";
-import { config } from "./config";
+import { ConfigManager } from "./services/ConfigManager";
 
 const port = 8081;
 
@@ -106,15 +109,44 @@ async function SetupApiRoutes()
     }
 }
 
+async function ValidateConfig()
+{
+    const configManager = GlobalInjector.Resolve(ConfigManager);
+    const backendSettings = configManager.Get<any>("backend");
+    if( backendSettings === undefined )
+    {
+        const keyPath = "/etc/ssl/private/servermanager.key";
+        const certPath = "/etc/ssl/certs/servermanager.crt";
+
+        configManager.Set("backend", {
+            keyPath,
+            certPath,
+            trustedOrigins: [
+                "https://localhost:8080",
+                "https://" + os.hostname() + ":8080",
+            ]
+        });
+    }
+}
+
 async function SetupServer()
 {
-    console.log("Setting up http server...");
+    const configManager = GlobalInjector.Resolve(ConfigManager);
+    const backendSettings = configManager.Get<any>("backend");
 
+    console.log("Setting up http server...");
+    
     const app = express();
-    const httpServer = app.listen(port);
+    //const httpServer = app.listen(port);
+    const httpsServer = https.createServer({
+        key: fs.readFileSync(backendSettings.keyPath),
+        cert: fs.readFileSync(backendSettings.certPath)
+    }, app);
+
+    httpsServer.listen(port);
 
     const corsOptions = {
-        origin: config.trusted_origins,
+        origin: backendSettings.trustedOrigins,
     };
 
     app.use(cors(corsOptions));
@@ -159,11 +191,11 @@ async function SetupServer()
 
     const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
     const sessionManager = GlobalInjector.Resolve<SessionManager>(SessionManager);
-    const webSocketServer = new websocket.server({ httpServer: httpServer });
+    const webSocketServer = new websocket.server({ httpServer: httpsServer });
     webSocketServer.on("request", (request) =>
     {
         let match = false;
-        for (const trusted of config.trusted_origins)
+        for (const trusted of backendSettings.trustedOrigins)
         {
             if(request.origin === trusted)
             {
@@ -194,6 +226,7 @@ function SetupBackup()
 async function Init()
 {
     await SetupApiRoutes();
+    await ValidateConfig();
     await SetupServer();
 
     setTimeout(SetupBackup, 1000);

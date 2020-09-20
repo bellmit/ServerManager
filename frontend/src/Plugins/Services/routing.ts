@@ -17,7 +17,9 @@
  * */
 import { Routes } from "acfrontend";
 import { ListServicesComponent } from "./ListServicesComponent";
+import { ShowServiceStatusComponent } from "./ShowServiceStatusComponent";
 
 export const routes : Routes = [
+    { path: "status/:serviceName", component: ShowServiceStatusComponent},
     { path: "", component: ListServicesComponent},
 ];

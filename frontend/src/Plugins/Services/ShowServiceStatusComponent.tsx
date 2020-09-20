@@ -15,46 +15,39 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, JSX_CreateElement, RenderNode, Injectable, ProgressSpinner} from "acfrontend";
-
-import { PluginManager } from "./Services/PluginManager";
-import { PluginDefinition } from "./Model/PluginDefinition";
+import { Component, RenderNode, RouterState, Injectable, JSX_CreateElement, ProgressSpinner, MatIcon } from "acfrontend";
+import { SystemServicesService } from "./SystemServicesService";
 
 @Injectable
-export class ServerStatusComponent extends Component
+export class ShowServiceStatusComponent extends Component
 {
-    constructor(private pluginManager: PluginManager)
+    constructor(routerState: RouterState, private systemServicesService: SystemServicesService)
     {
         super();
 
-        this.plugins = null;
+        this.serviceName = routerState.routeParams.serviceName!;
+        this.status = null;
     }
 
-    //Protected methods
     protected Render(): RenderNode
     {
-        if(this.plugins === null)
+        if(this.status === null)
             return <ProgressSpinner />;
-            
-        return <fragment>
-            <h1>Server Status</h1>
 
-            {this.RenderStatusComponents()}
+        return <fragment>
+            <h1>Status of service: {this.serviceName} <a onclick={this.OnInitiated.bind(this)}><MatIcon>refresh</MatIcon></a></h1>
+            <textarea cols="80" rows="44">{this.status}</textarea>
         </fragment>;
     }
 
-    //Private methods
-    private RenderStatusComponents()
-    {
-        return this.plugins!.map(plugin => JSX_CreateElement(plugin.component!));
-    }
-
     //Private members
-    private plugins: PluginDefinition[] | null;
+    private serviceName: string;
+    private status: string | null;
 
     //Event handlers
     public async OnInitiated()
     {
-        this.plugins = await this.pluginManager.GetPluginsFor("serverstatus");
+        this.status = null;
+        this.status = await this.systemServicesService.QueryServiceStatus(this.serviceName);
     }
 }

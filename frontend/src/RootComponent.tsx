@@ -15,11 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable, MatIcon} from "acfrontend";
+import {Component, RenderNode, Anchor, JSX_CreateElement, RouterComponent, Injectable, MatIcon, ProgressSpinner} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
 import { AuthenticationService } from "./Services/AuthenticationService";
 import { Injector } from "acts-util-core";
+import { PluginDefinition } from "./Model/PluginDefinition";
 
 @Injectable
 export class RootComponent extends Component
@@ -29,12 +30,19 @@ export class RootComponent extends Component
         super();
 
         this.isLoggedIn = this.authenticationService.IsLoggedIn();
-        this.authenticationService.loginInfo.Subscribe(newValue => this.isLoggedIn = newValue !== undefined);
+        this.authenticationService.loginInfo.Subscribe(this.OnLoginInfoChanged.bind(this));
+        this.plugins = null;
     }
 
     //Protected methods
     protected Render(): RenderNode
     {
+        if(!this.isLoggedIn)
+            return <RouterComponent/>;
+
+        if(this.plugins === null)
+            return <ProgressSpinner />;
+            
         return (
             <fragment>
                 {this.RenderNav()}
@@ -45,26 +53,34 @@ export class RootComponent extends Component
 
     //Private members
     private isLoggedIn: boolean;
+    private plugins: PluginDefinition[] | null;
 
     //Private methods
     private RenderGlobals()
     {
-        const pluginManager = this.injector.Resolve(PluginManager);
-        return pluginManager.GetPluginsFor("root").map(plugin => <li><Anchor route={plugin.baseRoute!}>
+        return this.plugins!.map(plugin => <li><Anchor route={plugin.baseRoute!}>
             {plugin.icon ? plugin.icon.Clone() : plugin.title}
         </Anchor></li>);
     }
 
     private RenderNav()
     {
-        if(!this.isLoggedIn)
-            return null;
-
         return <nav>
             <ul>
                 <li><Anchor route="/"><MatIcon>dashboard</MatIcon></Anchor></li>
                 {this.RenderGlobals()}
             </ul>
         </nav>;
+    }
+
+    //Event handlers
+    private async OnLoginInfoChanged(newValue: any)
+    {
+        this.isLoggedIn = newValue !== undefined;
+        if(this.isLoggedIn)
+        {
+            const pluginManager = this.injector.Resolve(PluginManager);
+            this.plugins = await pluginManager.GetPluginsFor("root");
+        }
     }
 }

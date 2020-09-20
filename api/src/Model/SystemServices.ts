@@ -19,10 +19,11 @@
 export interface SystemService
 {
     name: string;
+    enabled: boolean;
     running: boolean;
 }
 
-export type SystemServiceAction = "restart" | "start" | "stop";
+export type SystemServiceAction = "disable" | "enable" | "restart" | "start" | "stop";
 
 export interface SystemServiceActionData
 {

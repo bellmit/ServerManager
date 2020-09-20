@@ -29,20 +29,29 @@ export class PluginManager
     }
 
     //Public methods
-    public GetPluginsFor(section: string): PluginDefinition[]
+    public async GetPluginsFor(section: string)
     {
-        return plugins.filter(plugin => this.IsPluginEnabled(plugin) && (plugin.providedIn === section) );
+        const enabledPlugins = [];
+        for (const plugin of plugins)
+        {
+            const enabled = await this.IsPluginEnabled(plugin);
+            if(!enabled || (plugin.providedIn !== section) )
+                continue;
+            enabledPlugins.push(plugin);
+        }
+        return enabledPlugins;
     }
 
     //Private methods
-    private IsPluginEnabled(plugin: PluginDefinition)
+    private async IsPluginEnabled(plugin: PluginDefinition)
     {
         if(plugin.dependentModules === undefined)
             return true;
 
         for (const moduleName of plugin.dependentModules)
         {
-            if(!this.moduleService.IsModuleInstalled(moduleName))
+            const installed = await this.moduleService.IsModuleInstalled(moduleName);
+            if(!installed)
                 return false;
         }
         return true;

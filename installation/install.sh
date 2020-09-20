@@ -61,6 +61,9 @@ cd ..
 
 cd ..
 
+#generate ssl
+sudo openssl req -x509 -nodes -days 365 -newkey rsa:4096 -keyout /etc/ssl/private/servermanager.key -out /etc/ssl/certs/servermanager.crt
+
 #install for apache
 cd ServerManager/apache
 sudo ./install.sh
@@ -70,12 +73,13 @@ cd ..
 
 #issue update
 ln -s ServerManager/installation/update.sh update.sh
+chmod +x update.sh
 ./update.sh
 
 #install systemd unit
 dirPath=$(dirname "$0")
 absDirPath=$(realpath $dirPath)/ServerManager/backend
-sudo cp servermanager.service /etc/systemd/system/
+sudo cp ServerManager/installation/servermanager.service /etc/systemd/system/
 sudo sed -i -e "s:\\\$TARGETDIR\\\$:$absDirPath:g" /etc/systemd/system/servermanager.service
 
 sudo systemctl enable servermanager.service

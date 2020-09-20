@@ -58,15 +58,15 @@ export class AuthenticationService
     public async Login(userName: string, password: string)
     {
         const httpService = new HttpService();
-        const result = await httpService.Post<AuthResult>("http://" + BACKEND_HOST + Routes.AUTH, {userName: userName, password: password});
+        const result = await httpService.Post<AuthResult>("https://" + BACKEND_HOST + Routes.AUTH, {userName: userName, password: password});
         if(result.success)
         {
+            this._token = result.token!;
             this.ConnectWebsocket();
 
             this._loginInfo.Set({
                 expiryDateTime: new Date(result.expiryDateTime!),
             });
-            this._token = result.token!;
 
             return true;
         }

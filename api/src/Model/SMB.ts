@@ -32,6 +32,7 @@ export function CreateDefaultShare(shareName: string): Share
         browseable: true,
         comment: "",
         createMask: 0o744,
+        directoryMask: 0o744,
         path: "",
         printable: false,
         writable: false
@@ -44,6 +45,7 @@ export interface ShareProperties
     browseable: boolean;
     comment: string;
     createMask: number;
+    directoryMask: number;
     path: string;
     printable: boolean;
     writable: boolean;

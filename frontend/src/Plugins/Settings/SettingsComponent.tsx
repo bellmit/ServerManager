@@ -18,6 +18,8 @@
 import {Component, Injectable, RenderNode, JSX_CreateElement, Anchor, ProgressSpinner} from "acfrontend";
 import { ModuleService } from "../../Services/ModuleService";
 import { PluginManager } from "../../Services/PluginManager";
+import { Dictionary } from "acts-util-core";
+import { PluginDefinition } from "../../Model/PluginDefinition";
 
 interface Section
 {
@@ -25,38 +27,40 @@ interface Section
     section: string;
 }
 
+const sections: Section[] = [
+    {
+        title: "Core",
+        section: "settings/core",
+    },
+    {
+        title: "Network",
+        section: "settings/network"
+    },
+    {
+        title: "Security",
+        section: "settings/security",
+    },
+    {
+        title: "Other",
+        section: "settings/other"
+    }
+];
+
 @Injectable
 export class SettingsComponent extends Component
 {
     constructor(private moduleService: ModuleService, private pluginManager: PluginManager)
     {
         super();
+
+        this.data = null;
     }
     
     //Protected methods
     protected Render(): RenderNode
     {
-        if(this.moduleService.modules.WaitingForValue())
+        if(this.moduleService.modules.WaitingForValue() || (this.data === null))
             return <ProgressSpinner />;
-
-        const sections: Section[] = [
-            {
-                title: "Core",
-                section: "settings/core",
-            },
-            {
-                title: "Network",
-                section: "settings/network"
-            },
-            {
-                title: "Security",
-                section: "settings/security",
-            },
-            {
-                title: "Other",
-                section: "settings/other"
-            }
-        ];
 
         return <fragment>
             <h1>Settings</h1>
@@ -64,10 +68,13 @@ export class SettingsComponent extends Component
         </fragment>;
     }
 
+    //Private members
+    private data: Dictionary<PluginDefinition[]> | null;
+
     //Private methods
     private RenderButtons(sectionName: string)
     {
-        return this.pluginManager.GetPluginsFor(sectionName).map(plugin => <div>
+        return this.data![sectionName]!.map(plugin => <div>
             {plugin.icon?.Clone()}
             <Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor>
         </div>);
@@ -94,8 +101,15 @@ export class SettingsComponent extends Component
     }
 
     //Event handlers
-    public OnInitiated()
+    public async OnInitiated()
     {
+        const data: Dictionary<PluginDefinition[]> = {};
+        for (const section of sections)
+        {
+            data[section.section] = await this.pluginManager.GetPluginsFor(section.section);
+        }
+        this.data = data;
+
         this.moduleService.modules.Subscribe( () => this.Update() );
     }
 }

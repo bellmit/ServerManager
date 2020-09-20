@@ -28,6 +28,16 @@ export class SystemServicesManager
     }
 
     //Public methods
+    public DisableService(serviceName: string, session: POSIXAuthority)
+    {
+        return this.ExecuteServiceAction(serviceName, "disable", session);
+    }
+
+    public EnableService(serviceName: string, session: POSIXAuthority)
+    {
+        return this.ExecuteServiceAction(serviceName, "enable", session);
+    }
+
     public async FetchServicesSnapshot(session: POSIXAuthority)
     {
         const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-unit-files", "--all", "--type", "service"], session);
@@ -44,12 +54,29 @@ export class SystemServicesManager
             if(parts !== null)
             {
                 const serviceName = parts[1];
-                const active = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-active", serviceName], session);
-                services.push({ name: parts[1], running: active.exitCode === 0});
+                const active = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-active", serviceName + ".service"], session);
+                const enabled = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-enabled", serviceName + ".service"], session);
+
+                services.push({
+                    name: parts[1],
+                    enabled: enabled.exitCode === 0,
+                    running: active.exitCode === 0
+                });
             }
         }
 
         return services;
+    }
+
+    public async QueryStatus(serviceName: string, session: POSIXAuthority)
+    {
+        const result = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "status", serviceName + ".service", "--lines", "100"], this.permissionsManager.Sudo(session.uid));
+        return result.stdout;
+    }
+
+    public RestartService(serviceName: string, session: POSIXAuthority)
+    {
+        return this.ExecuteServiceAction(serviceName, "restart", session);
     }
 
     public StartService(serviceName: string, session: POSIXAuthority)
@@ -62,14 +89,9 @@ export class SystemServicesManager
         return this.ExecuteServiceAction(serviceName, "stop", session);
     }
 
-    public RestartService(serviceName: string, session: POSIXAuthority)
-    {
-        return this.ExecuteServiceAction(serviceName, "restart", session);
-    }
-
     //Private methods
     private async ExecuteServiceAction(serviceName: string, action: SystemServiceAction, session: POSIXAuthority)
     {
-        const res = await this.commandExecutor.ExecuteCommand(["service", serviceName, action], this.permissionsManager.Sudo(session.uid));
+        await this.commandExecutor.ExecuteCommand(["systemctl", action, serviceName + ".service"], this.permissionsManager.Sudo(session.uid));
     }
 }

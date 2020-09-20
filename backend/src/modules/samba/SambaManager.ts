@@ -121,7 +121,7 @@ export class SambaManager
 
                 const b = value === true;
                 const s = value.toString();
-                const n = typeof value === "number" ? value : parseInt(s);
+                const n8 = typeof value === "number" ? value : parseInt(s, 8);
 
                 switch(key)
                 {
@@ -129,10 +129,13 @@ export class SambaManager
                         p.browseable = b;
                         break;
                     case "create mask":
-                        p.createMask = n;
+                        p.createMask = n8;
                         break;
                     case "comment":
                         p.comment = s;
+                        break;
+                    case "directory mask":
+                        p.directoryMask = n8;
                         break;
                     case "guest ok":
                         p.allowGuests = b;
@@ -158,6 +161,15 @@ export class SambaManager
         return share;
     }
 
+    private ToOctal(n: number)
+    {
+        let string = n.toString(8);
+        while(string.length < 4)
+            string = "0" + string;
+
+        return string;
+    }
+
     private async WriteSettings(global: SMB.GlobalSettings, shares: SMB.Share[], session: POSIXAuthority)
     {
         const data: any = { global };
@@ -170,7 +182,8 @@ export class SambaManager
                 "guest ok": p.allowGuests,
                 "browseable": p.browseable,
                 comment: p.comment,
-                "create mask": p.createMask,
+                "create mask": this.ToOctal(p.createMask),
+                "directory mask": this.ToOctal(p.directoryMask),
                 path: p.path,
                 printable: p.printable,
                 writable: p.writable,

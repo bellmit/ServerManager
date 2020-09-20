@@ -32,7 +32,10 @@ class UbuntuPackageManager implements DistroPackageManager
     //Public methods
     public async Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
     {
-        await this.commandExecutor.ExecuteCommand(["apt", "-y", "install", this.MapModuleToPackageList(moduleName).join(" ")], this.permissionsManager.Sudo(session.uid));
+        const sudo = this.permissionsManager.Sudo(session.uid);
+        await this.DoDebConfig(moduleName, sudo);
+
+        await this.commandExecutor.ExecuteCommand(["apt", "-y", "install", this.MapModuleToPackageList(moduleName).join(" ")], sudo);
         return true;
     }
 
@@ -50,6 +53,16 @@ class UbuntuPackageManager implements DistroPackageManager
     }
 
     //Private methods
+    private async DoDebConfig(moduleName: ModuleName, sudo: POSIXAuthority)
+    {
+        switch(moduleName)
+        {
+            case "samba":
+                await this.SetDebConfValue("samba-common", "samba-common/dhcp", false, sudo);
+                break;
+        }
+    }
+    
     private async FetchInstalledPackages(session: POSIXAuthority)
     {
         const aptResult = await this.commandExecutor.ExecuteCommand(["apt", "list", "--installed"], session);
@@ -87,6 +100,12 @@ class UbuntuPackageManager implements DistroPackageManager
             case "samba":
                 return ["samba"];
         }
+    }
+
+    private async SetDebConfValue(packageName: string, key: string, value: boolean, sudo: POSIXAuthority)
+    {
+        const input = packageName + " " + key + " boolean " + value.toString();
+        await this.commandExecutor.ExecuteCommand(["echo", '"' + input + '"', "|", "debconf-set-selections"], sudo);
     }
 }
 

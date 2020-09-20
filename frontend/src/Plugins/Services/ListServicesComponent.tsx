@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, ProgressSpinner, JSX_CreateElement, MatIcon } from "acfrontend";
+import { Injectable, Component, RenderNode, ProgressSpinner, JSX_CreateElement, MatIcon, Switch, RouterButton } from "acfrontend";
 import { SystemServicesService } from "./SystemServicesService";
 import { SystemService, SystemServiceAction } from "srvmgr-api";
 
@@ -37,7 +37,7 @@ export class ListServicesComponent extends Component
         return <table>
             <tr>
                 <th>Service</th>
-                <th>Running</th>
+                <th>Autostart on boot</th>
                 <th>Actions</th>
             </tr>
             {...this.data.map(this.RenderServiceRow.bind(this))}
@@ -52,8 +52,9 @@ export class ListServicesComponent extends Component
     {
         return <tr>
             <td>{systemService.name}</td>
-            <td>{systemService.running ? <MatIcon>check</MatIcon> : ""}</td>
+            <td><Switch checked={systemService.enabled} onChanged={this.OnServiceActionClicked.bind(this, systemService.name, !systemService.enabled ? "enable" : "disable")} /></td>
             <td>
+                <RouterButton route={"/services/status/" + systemService.name}><MatIcon>description</MatIcon></RouterButton>
                 <button disabled={systemService.running} type="button" title="Start" onclick={this.OnServiceActionClicked.bind(this, systemService.name, "start")}><MatIcon>play_arrow</MatIcon></button>
                 <button disabled={!systemService.running} type="button" class="danger" title="Stop" onclick={this.OnServiceActionClicked.bind(this, systemService.name, "stop")}><MatIcon>stop</MatIcon></button>
                 <button disabled={!systemService.running} type="button" title="Restart" onclick={this.OnServiceActionClicked.bind(this, systemService.name, "restart")}><MatIcon>refresh</MatIcon></button>

@@ -38,7 +38,7 @@ export class WebSocketService
         this.onOpen = new ObservableEvent();
         this.responseCounter = 0;
         
-        this.webSocketConnection = new WebSocket("ws://" + BACKEND_HOST);
+        this.webSocketConnection = new WebSocket("wss://" + BACKEND_HOST);
 
         this.webSocketConnection.onclose = () =>
         {

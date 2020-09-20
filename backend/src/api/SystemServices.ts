@@ -33,6 +33,12 @@ class SystemServicesApi
     {
         switch(data.action)
         {
+            case "disable":
+                await this.systemServicesManager.DisableService(data.serviceName, request.session);
+                break;
+            case "enable":
+                await this.systemServicesManager.EnableService(data.serviceName, request.session);
+                break;
             case "start":
                 await this.systemServicesManager.StartService(data.serviceName, request.session);
                 break;
@@ -51,6 +57,12 @@ class SystemServicesApi
     {
         const result = await this.systemServicesManager.FetchServicesSnapshot(request.session);
         this.connectionManager.Respond(request, result);
+    }
+
+    @ApiEndpoint({ route: Messages.SERVICES_STATUS })
+    public async QueryServiceStatus(request: ApiRequest, serviceName: string)
+    {
+        return await this.systemServicesManager.QueryStatus(serviceName, request.session);
     }
 }
 

@@ -22,6 +22,7 @@ export const plugin: PluginDefinition = {
     title: "OpenVPN",
     baseRoute: "/openvpn",
 
+    dependentModules: ["openvpn"],
     icon: <MatIcon>vpn_lock</MatIcon>,
     providedIn: "settings/network",
 };

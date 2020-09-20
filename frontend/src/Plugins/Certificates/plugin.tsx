@@ -22,6 +22,7 @@ export const plugin: PluginDefinition = {
     title: "Certificates",
     baseRoute: "/certs",
 
+    dependentModules: ["letsencrypt"],
     providedIn: "settings/security",
     icon: <MatIcon>verified</MatIcon>,
 };
