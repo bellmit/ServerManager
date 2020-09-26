@@ -15,21 +15,34 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, RouterComponent, Anchor } from "acfrontend";
+import { Component, RenderNode, JSX_CreateElement, TabHeader, TabGroup, Tab, Stack, StackChild } from "acfrontend";
+import { ListCADirsComponent } from "./ListCADirsComponent";
+import { ListConfigsComponent } from "./ListConfigsComponent";
 
 export class OpenVPNComponent extends Component
 {
+    constructor()
+    {
+        super();
+        this.activeKey = "configs";
+    }
+
     protected Render(): RenderNode
     {
-        return <div class="row">
-            <div class="vertNav">
-                <ul>
-                    <li><Anchor route="/openvpn/addcadir">Add certificate authority</Anchor></li>
-                </ul>
-            </div>
-            <div class="stack">
-                <RouterComponent />
-            </div>
-        </div>;
+        return <fragment>
+            <TabHeader>
+                <TabGroup activeKey={this.activeKey} activeKeyChanged={newValue => this.activeKey = newValue}>
+                    <Tab key="configs">VPN Servers</Tab>
+                    <Tab key="cadirs">Certificate stores</Tab>
+                </TabGroup>
+            </TabHeader>
+            <Stack activeKey={this.activeKey}>
+                <StackChild key="configs"><ListConfigsComponent /></StackChild>
+                <StackChild key="cadirs"><ListCADirsComponent /></StackChild>
+            </Stack>
+        </fragment>;
     }
+
+    //Private members
+    private activeKey: string;
 }

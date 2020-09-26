@@ -15,13 +15,12 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
+import { promises as fs, existsSync, rmdirSync } from "fs";
 
 import { Injectable } from "../../Injector";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
 import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
 import { OpenVPNApi } from "srvmgr-api";
-import { BashVarsParser } from "../../Model/BashVarsParser";
 
 @Injectable
 export class CertificateManager
@@ -31,9 +30,24 @@ export class CertificateManager
     }
 
     //Public methods
+    public async AddClient(data: OpenVPNApi.AddClient.RequestData, session: POSIXAuthority)
+    {
+        const cadir = "/etc/easy-rsa/" + data.caDirName;
+
+        const sudo = this.permissionsManager.Sudo(session.uid);
+
+        const commandOptions: CommandOptions = {
+            gid: sudo.gid,
+            uid: sudo.uid,
+            workingDirectory: cadir,
+        };
+
+        await this.commandExecutor.ExecuteCommand(["./easyrsa", "--batch", "--req-cn=" + data.clientName, "build-client-full", data.clientName, "nopass"], commandOptions);
+    }
+
     public async CreateCa(data: OpenVPNApi.AddCA.RequestData, session: POSIXAuthority)
     {
-        const cadir = "/etc/openvpn/" + data.name;
+        const cadir = "/etc/easy-rsa/" + data.name;
 
         const sudo = this.permissionsManager.Sudo(session.uid);
         await this.commandExecutor.ExecuteCommand(["make-cadir", cadir], sudo);
@@ -44,31 +58,45 @@ export class CertificateManager
             workingDirectory: cadir,
         };
 
-        const children = fs.readdirSync(cadir, "utf-8").filter(child => child.endsWith(".cnf"));
-        children.sort();
+        await this.commandExecutor.ExecuteCommand(["./easyrsa init-pki"], commandOptions);
+        await this.commandExecutor.ExecuteCommand(["./easyrsa", "--batch", "--keysize=" + data.keySize, "--req-cn=" + data.name, "build-ca", "nopass"], commandOptions);
+        await this.commandExecutor.ExecuteCommand(["./easyrsa", "--batch", "--keysize=" + data.keySize, "build-server-full", data.domainName, "nopass"], commandOptions);
 
-        await this.commandExecutor.ExecuteCommand(["ln", "-s", children[children.length - 1], "openssl.cnf"], commandOptions);
+        return this.commandExecutor.CreateChildProcess(["./easyrsa", "--batch", "--keysize=" + data.keySize, "gen-dh"], commandOptions).pid;
+    }
 
-        this.WriteVars(data);
+    public DeleteCADir(caDirName: string)
+    {
+        const cadir = "/etc/easy-rsa/" + caDirName;
+        rmdirSync(cadir, { recursive: true });
+    }
 
-        const commandOptionsWithEnv: CommandOptions = {
-            gid: sudo.gid,
-            uid: sudo.uid,
-            workingDirectory: cadir,
-            environmentVariables: await this.ReadVars(data.name, commandOptions),
-        };
+    public async ListCaDirs()
+    {
+        if(!existsSync("/etc/easy-rsa/"))
+            return [];
 
-        await this.commandExecutor.ExecuteCommand(["./clean-all"], commandOptionsWithEnv);
-        await this.ExecCertificateCreationCommand(["./build-ca", "--batch"], commandOptionsWithEnv);
-        await this.ExecCertificateCreationCommand(["./build-key-server", "--batch", "server"], commandOptionsWithEnv, data.domainName);
+        const cadirs = [];
+        const children = await fs.readdir("/etc/easy-rsa/", "utf-8");
+        for (const child of children)
+        {
+            if(existsSync("/etc/easy-rsa/" + child + "/easyrsa"))
+            {
+                cadirs.push(child);
+            }
+        }
 
-        await this.commandExecutor.ExecuteCommand(["openvpn", "--genkey", "--secret", cadir + "/keys/ta.key"], commandOptions);
+        return cadirs;
+    }
 
-        return this.commandExecutor.CreateChildProcess(["./build-dh"], commandOptionsWithEnv).pid;
+    public async ListClients(caDirName: string)
+    {
+        const children = await fs.readdir("/etc/easy-rsa/" + caDirName + "/pki/issued/", "utf-8");
+        return children.map(child => child.substring(0, child.lastIndexOf(".")));
     }
 
     //Private methods
-    private async ExecCertificateCreationCommand(command: string[], options: CommandOptions, commonName?: string)
+    /*private async ExecCertificateCreationCommand(command: string[], options: CommandOptions, commonName?: string)
     {
         const clonedOptions = options.DeepClone();
         if(commonName)
@@ -87,10 +115,10 @@ export class CertificateManager
             .ToDictionary(x => x[0], x => x[1]);
     }
 
-    private WriteVars(data: OpenVPNApi.AddCA.RequestData)
+    private async WriteVars(data: OpenVPNApi.AddCA.RequestData)
     {
         const varsPath = "/etc/openvpn/" + data.name + "/vars";
-        const input = fs.readFileSync(varsPath, "utf-8");
+        const input = await fs.readFile(varsPath, "utf-8");
 
         const parser = new BashVarsParser();
         const lines = parser.Parse(input);
@@ -129,6 +157,6 @@ export class CertificateManager
         }
 
         const dataToWrite = parser.ToString(lines);
-        fs.writeFileSync(varsPath, dataToWrite, "utf-8");
-    }
+        await fs.writeFile(varsPath, dataToWrite, "utf-8");
+    }*/
 }

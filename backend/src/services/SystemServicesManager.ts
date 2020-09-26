@@ -50,7 +50,7 @@ export class SystemServicesManager
         {
             if(!line)
                 break;
-            const parts = line.trim().match(/^([a-z]+)\.service[ \t]+([a-z]+)$/);
+            const parts = line.trim().match(/^([a-z]+)\.service[ \t]+[a-z]+[ \t]+[a-z]+$/);
             if(parts !== null)
             {
                 const serviceName = parts[1];

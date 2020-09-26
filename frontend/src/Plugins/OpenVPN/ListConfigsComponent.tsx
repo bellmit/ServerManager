@@ -15,17 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Routes } from "acfrontend";
-import { AddCADirComponent } from "./AddCADirComponent";
-import { AddClientComponent } from "./AddClientComponent";
-import { AddConfigComponent } from "./AddConfigComponent";
-import { ListCADirClientsComponent } from "./ListCADirClientsComponent";
-import { OpenVPNComponent } from "./OpenVPNComponent";
+import { Component, JSX_CreateElement, MatIcon, RenderNode, RouterButton } from "acfrontend";
 
-export const routes : Routes = [
-    { path: "addcadir", component: AddCADirComponent },
-    { path: "addclient/:caDirName", component: AddClientComponent },
-    { path: "addconfig", component: AddConfigComponent },
-    { path: "clients/:caDirName", component: ListCADirClientsComponent },
-    { path: "", component: OpenVPNComponent },
-];
+export class ListConfigsComponent extends Component
+{
+    protected Render(): RenderNode
+    {
+        return <fragment>
+        <table>
+        </table>
+        <div class="box">
+            <RouterButton route="/openvpn/addconfig"><MatIcon>add</MatIcon> Add VPN server</RouterButton>
+        </div>
+    </fragment>;
+    }
+}

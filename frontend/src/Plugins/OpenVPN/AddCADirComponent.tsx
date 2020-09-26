@@ -54,7 +54,7 @@ export class AddCADirComponent extends Component
             <h1>Create new certificate authority</h1>
             <ObjectEditorComponent object={this.data} onObjectUpdated={this.Update.bind(this)} />
 
-            <button disabled={!(ObjectValidator.Validate(this.data) && this.Validate())} type="button" onclick={this.OnCreate.bind(this)}>Create</button>
+            <button disabled={!this.Validate()} type="button" onclick={this.OnCreate.bind(this)}>Create</button>
         </fragment>
     }
 
@@ -67,7 +67,8 @@ export class AddCADirComponent extends Component
     {
         const data = this.data!;
 
-        return (data.countryCode.trim().length === 2);
+        //return (data.countryCode.trim().length === 2);
+        return ObjectValidator.Validate(this.data);
     }
 
     //Event handlers
@@ -81,17 +82,9 @@ export class AddCADirComponent extends Component
 
     public async OnInitiated()
     {
-        const settings = await this.notificationsService.QuerySettings();
-
         this.data = {
-            city: "",
-            countryCode: "US",
-            email: settings.email,
             keySize: 2048,
             name: "",
-            organization: "",
-            organizationalUnit: "",
-            province: "",
             domainName: "",
         };
     }

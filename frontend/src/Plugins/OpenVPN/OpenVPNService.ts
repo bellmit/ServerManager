@@ -28,8 +28,33 @@ export class OpenVPNService
     }
 
     //Public methods
+    public AddClient(data: OpenVPNApi.AddClient.RequestData)
+    {
+        return this.websocketService.SendRequest(OpenVPNApi.AddClient.message, data);
+    }
+
+    public AddConfig(data: OpenVPNApi.AddConfig.RequestData)
+    {
+        return this.websocketService.SendRequest(OpenVPNApi.AddConfig.message, data);
+    }
+
     public CreateCADir(data: OpenVPNApi.AddCA.RequestData)
     {
         return this.websocketService.SendRequest<number>(OpenVPNApi.AddCA.message, data);
+    }
+
+    public DeleteCADir(caDirName: OpenVPNApi.DeleteCADir.RequestData)
+    {
+        return this.websocketService.SendRequest(OpenVPNApi.DeleteCADir.message, caDirName);
+    }
+
+    public ListCADirs()
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.ListCADirs.ResultData>(OpenVPNApi.ListCADirs.message);
+    }
+
+    public ListClients(caDirName: OpenVPNApi.ListClients.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.ListClients.ResultData>(OpenVPNApi.ListClients.message, caDirName);
     }
 }

@@ -20,18 +20,49 @@ import { Injectable } from "../../Injector";
 import { ApiEndpoint, ApiRequest } from "../../Api";
 import { OpenVPNApi } from "srvmgr-api";
 import { CertificateManager } from "./CertificateManager";
+import { OpenVPNManager } from "./OpenVPNManager";
 
 @Injectable
 class LetsEncryptApi
 {
-    constructor(private certificateManager: CertificateManager)
+    constructor(private certificateManager: CertificateManager, private openVPNManager: OpenVPNManager)
     {
+    }
+
+    @ApiEndpoint({ route: OpenVPNApi.AddClient.message })
+    public async AddClient(request: ApiRequest, data: OpenVPNApi.AddClient.RequestData)
+    {
+        return await this.certificateManager.AddClient(data, request.session);
+    }
+
+    @ApiEndpoint({ route: OpenVPNApi.AddConfig.message })
+    public async AddConfig(request: ApiRequest, data: OpenVPNApi.AddConfig.RequestData)
+    {
+        return await this.openVPNManager.AddConfig(data, request.session);
     }
 
     @ApiEndpoint({ route: OpenVPNApi.AddCA.message })
     public async CreateCertificate(request: ApiRequest, data: OpenVPNApi.AddCA.RequestData)
     {
         return await this.certificateManager.CreateCa(data, request.session);
+    }
+
+    @ApiEndpoint({ route: OpenVPNApi.DeleteCADir.message })
+    public async DeleteCADir(request: ApiRequest, caDirName: OpenVPNApi.DeleteCADir.RequestData)
+    {
+        return this.certificateManager.DeleteCADir(caDirName);
+    }
+
+    @ApiEndpoint({ route: OpenVPNApi.ListCADirs.message })
+    public async ListCADirs(): Promise<OpenVPNApi.ListCADirs.ResultData>
+    {
+        return await this.certificateManager.ListCaDirs();
+    }
+
+    @ApiEndpoint({ route: OpenVPNApi.ListClients.message })
+    public async ListClients(request: ApiRequest, caDirName: OpenVPNApi.ListClients.RequestData): Promise<OpenVPNApi.ListClients.ResultData>
+    {
+        return await this.certificateManager.ListClients(caDirName);
     }
 }
 

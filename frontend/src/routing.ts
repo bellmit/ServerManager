@@ -41,7 +41,6 @@ import { LoginComponent } from "./LoginComponent";
 import { ApacheComponent } from "./Plugins/Apache/ApacheComponent";
 import { SMBComponent } from "./Plugins/SMB/SMBComponent";
 import { MySQLSettingsComponent } from "./Plugins/MySQL/MySQLSettingsComponent";
-import { OpenVPNComponent } from "./Plugins/OpenVPN/OpenVPNComponent";
 
 const protectedRoutes : Routes = [
     { path: "apache", component: ApacheComponent, children: apacheRoutes },
@@ -53,7 +52,7 @@ const protectedRoutes : Routes = [
     { path: "modules", children: modulesRoutes },
     { path: "mysql", component: MySQLSettingsComponent, children: mysqlRoutes },
     { path: "notifications", children: notificationsRoutes },
-    { path: "openvpn", component: OpenVPNComponent, children: openvpnRoutes },
+    { path: "openvpn", children: openvpnRoutes },
     { path: "services", children: servicesRoutes },
     { path: "settings", children: settingsRoutes },
     { path: "smb", component: SMBComponent, children: smbRoutes },
