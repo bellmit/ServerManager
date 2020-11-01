@@ -58,7 +58,7 @@ export class AuthenticationService
     public async Login(userName: string, password: string)
     {
         const httpService = new HttpService();
-        const result = await httpService.Post<AuthResult>("https://" + BACKEND_HOST + Routes.AUTH, {userName: userName, password: password});
+        const result = await httpService.DataRequest<AuthResult>("https://" + BACKEND_HOST + Routes.AUTH, "POST", {userName: userName, password: password});
         if(result.success)
         {
             this._token = result.token!;

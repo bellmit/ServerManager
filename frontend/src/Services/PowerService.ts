@@ -15,18 +15,26 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderValue } from "acfrontend";
-import { Instantiatable } from "acts-util-core";
-import { ModuleName } from "srvmgr-api";
+import { Injectable } from "acfrontend";
+import { PowerApi } from "srvmgr-api";
 
-export interface PluginDefinition
+import { WebSocketService } from "./WebSocketService";
+
+@Injectable
+export class PowerService
 {
-    title: string;
-    providedIn: string;
+    constructor(private webSocketService: WebSocketService)
+    {
+    }
 
-    baseRoute?: string;
-    component?: Instantiatable<Component>;
+    //Public methods
+    public Reboot()
+    {
+        return this.webSocketService.SendRequest(PowerApi.Reboot.message);
+    }
 
-    dependentModules?: Array<ModuleName>;
-    icon?: RenderValue;
+    public Shutdown()
+    {
+        return this.webSocketService.SendRequest(PowerApi.Shutdown.message);
+    }
 }

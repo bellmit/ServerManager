@@ -15,18 +15,18 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderValue } from "acfrontend";
-import { Instantiatable } from "acts-util-core";
-import { ModuleName } from "srvmgr-api";
 
-export interface PluginDefinition
+const MSG_POWER = "/Power/";
+
+export namespace PowerApi
 {
-    title: string;
-    providedIn: string;
+    export namespace Reboot
+    {
+        export const message = MSG_POWER + "Reboot";
+    }
 
-    baseRoute?: string;
-    component?: Instantiatable<Component>;
-
-    dependentModules?: Array<ModuleName>;
-    icon?: RenderValue;
+    export namespace Shutdown
+    {
+        export const message = MSG_POWER + "Shutdown";
+    }
 }

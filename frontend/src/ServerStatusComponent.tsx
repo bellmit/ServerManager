@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, JSX_CreateElement, RenderNode, Injectable, ProgressSpinner} from "acfrontend";
+import {Component, JSX_CreateElement, Injectable, ProgressSpinner, RenderValue} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
 import { PluginDefinition } from "./Model/PluginDefinition";
@@ -31,7 +31,7 @@ export class ServerStatusComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.plugins === null)
             return <ProgressSpinner />;

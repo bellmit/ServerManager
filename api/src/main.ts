@@ -34,6 +34,7 @@ import { NotificationSettings } from "./Model/Notifications";
 import { CertificatesApi } from "./Model/Certificates";
 import { OpenVPNApi } from "./Model/OpenVPN";
 import { FileSystemApi } from "./Model/FileSystem";
+import { PowerApi } from "./Model/Power";
 
 interface OperationStatus
 {
@@ -66,6 +67,7 @@ export {
     NotificationSettings,
     OpenVPNApi,
     OperationStatus,
+    PowerApi,
     Routes,
     User,
     SMB,
