@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner, CheckBox, LineEdit, Router, Select } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, ProgressSpinner, CheckBox, LineEdit, Router, Select } from "acfrontend";
 
 import { ExternalConnectionConfig, ExternalConnectionTypes, ExternalConnectionType } from "srvmgr-api";
 
@@ -40,7 +40,7 @@ export class ExternalConnectionFormComponent extends Component<{ connectionName?
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.waiting)
             return <ProgressSpinner />;

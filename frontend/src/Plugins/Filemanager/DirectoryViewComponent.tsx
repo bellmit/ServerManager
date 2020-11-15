@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon } from "acfrontend";
+import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon } from "acfrontend";
 import { FileSystemService } from "./FileSystemService";
 import { FileSystemApi } from "srvmgr-api";
 
@@ -31,7 +31,7 @@ export class DirectoryViewComponent extends Component
         this.entries = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.entries === null)
             return <ProgressSpinner />;

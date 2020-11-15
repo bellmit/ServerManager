@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, JSX_CreateElement, RouterComponent, Anchor, Stack } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, RouterComponent, Anchor, Stack } from "acfrontend";
 
 @Injectable
 export class ApacheComponent extends Component
 {
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <div class="vertNav">

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, ProgressSpinner, JSX_CreateElement, Injectable, MatIcon, Switch, PopupManager } from "acfrontend";
+import { Component, ProgressSpinner, JSX_CreateElement, Injectable, MatIcon, Switch, PopupManager } from "acfrontend";
 import { SMBService } from "./SMBService";
 import { SMB } from "srvmgr-api";
 import { AddSMBUserComponent } from "./AddSMBUserComponent";
@@ -32,7 +32,7 @@ export class ListUsersComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;
@@ -69,7 +69,7 @@ export class ListUsersComponent extends Component
     //Event handlers
     private OnAddUserActivated()
     {
-        this.popupManager.OpenDialog(AddSMBUserComponent, { title: "Add user" });
+        this.popupManager.OpenDialog(<AddSMBUserComponent />, { title: "Add user" });
     }
 
     public async OnInitiated()

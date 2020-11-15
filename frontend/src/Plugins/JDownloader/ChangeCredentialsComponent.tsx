@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, Injectable, RenderNode, ProgressSpinner, JSX_CreateElement } from "acfrontend";
+import { Component, Injectable, ProgressSpinner, JSX_CreateElement } from "acfrontend";
 import { JDownloader } from "srvmgr-api";
 import { ObjectEditorComponent } from "../../ObjectEditorComponent";
 import { JDownloaderService } from "./JDownloaderService";
@@ -31,7 +31,7 @@ export class ChangeCredentialsComponent extends Component
         this.data = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

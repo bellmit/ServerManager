@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement, LineEdit, Switch, CheckBox, NumberSpinner } from "acfrontend";
+import { Component, JSX_CreateElement, LineEdit, Switch, CheckBox, NumberSpinner } from "acfrontend";
 
 export class ObjectEditorComponent extends Component<{
     object: any;
@@ -24,7 +24,7 @@ export class ObjectEditorComponent extends Component<{
 }>
 {
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return this.AddObjectMembers(this.input.object);
     }

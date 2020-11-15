@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, Router, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+import { Injectable, Component, Router, JSX_CreateElement, ProgressSpinner } from "acfrontend";
 
 import { Routes } from "srvmgr-api";
 
@@ -34,7 +34,7 @@ export class BackupListComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <h1>Backups for: {this.backupName}</h1>

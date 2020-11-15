@@ -40,29 +40,30 @@ export class SystemServicesManager
 
     public async FetchServicesSnapshot(session: POSIXAuthority)
     {
-        const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-unit-files", "--all", "--type", "service"], session);
+        const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-units", "--all", "--type", "service", "--no-legend"], session);
         const lines = result.stdout.split("\n");
 
         const services: SystemService[] = [];
 
-        lines.Remove(0); //column names only
         for (let line of lines)
         {
             if(!line)
                 break;
-            const parts = line.trim().match(/^([a-z]+)\.service[ \t]+[a-z]+[ \t]+[a-z]+$/);
+            const parts = line.trim().match(/^([a-zA-Z0-9\-_@.]+)\.service[ \t]+(?:loaded|not-found|masked)[ \t]+(active|inactive|failed|activating)[ \t]+[a-z]+.*$/);
             if(parts !== null)
             {
                 const serviceName = parts[1];
-                const active = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-active", serviceName + ".service"], session);
+                const active = !(parts[2] === "inactive");
                 const enabled = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-enabled", serviceName + ".service"], session);
 
                 services.push({
                     name: parts[1],
                     enabled: enabled.exitCode === 0,
-                    running: active.exitCode === 0
+                    running: active
                 });
             }
+            else
+                throw new Error("Couldn't parse line: " + line);
         }
 
         return services;

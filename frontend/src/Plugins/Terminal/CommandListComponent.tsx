@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, Injectable, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement, ProgressSpinner } from "acfrontend";
 import { TerminalComponent } from "./TerminalComponent";
 import { TerminalService } from "./TerminalService";
 import { Commands } from "srvmgr-api";
@@ -33,7 +33,7 @@ export class CommandListComponent extends Component
         this.selectedCommand = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <div class="row">
             <div class="column">

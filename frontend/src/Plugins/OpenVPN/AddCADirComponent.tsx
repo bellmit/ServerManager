@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, ProgressSpinner, Injectable } from "acfrontend";
+import { Component, JSX_CreateElement, ProgressSpinner, Injectable } from "acfrontend";
 import { OpenVPNApi } from "srvmgr-api";
 import { ObjectEditorComponent } from "../../ObjectEditorComponent";
 import { NotificationsService } from "../Notifications/NotificationsService";
@@ -34,7 +34,7 @@ export class AddCADirComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.dhPid !== null)
         {

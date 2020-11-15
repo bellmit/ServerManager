@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, TabHeader, TabGroup, Tab, Stack, StackChild } from "acfrontend";
+import { Component, JSX_CreateElement, TabHeader, TabGroup, Tab, Stack, StackChild } from "acfrontend";
 import { ListCADirsComponent } from "./ListCADirsComponent";
 import { ListConfigsComponent } from "./ListConfigsComponent";
 
@@ -27,7 +27,7 @@ export class OpenVPNComponent extends Component
         this.activeKey = "configs";
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <TabHeader>

@@ -36,6 +36,12 @@ export class AuthGuard implements RouteGuard
 
     public OnActivationFailure(routerState: RouterState)
     {
-        this.router.RouteTo( new Url("/login", { returnUrl: routerState.ToUrl().ToString() }) );
+        const url = RouterState.CreateAbsoluteUrl("/login");
+        this.router.RouteTo( new Url({
+            authority: url.authority,
+            path: url.path,
+            protocol: url.protocol,
+            queryParams: { returnUrl: routerState.ToUrl().ToString() }
+        }));
     }
 }

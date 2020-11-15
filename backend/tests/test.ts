@@ -19,12 +19,15 @@ import * as fs from "fs";
 
 import { GlobalInjector } from "../src/Injector";
 import { CertificateManager } from "../src/modules/openvpn/CertificateManager";
+import { SystemServicesManager } from "../src/services/SystemServicesManager";
 
 //TODO: Make real tests
 
 
 async function ASync()
 {
+    await GlobalInjector.Resolve(SystemServicesManager).FetchServicesSnapshot({ gid: 0, uid: 0 });
+
     const session = { uid: 0, gid: 0 };
     if(fs.existsSync("/etc/openvpn/test"))
         fs.rmdirSync("/etc/openvpn/test", { recursive: true });

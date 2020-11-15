@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner, MatIcon, PopupManager } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, ProgressSpinner, MatIcon, PopupManager } from "acfrontend";
 import { User } from "srvmgr-api";
 
 import { UsersService } from "./UsersService";
@@ -35,7 +35,7 @@ export class UserListComponent extends Component<{ showSystemUsers: boolean; }>
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.users === null)
             return <ProgressSpinner />;
@@ -87,17 +87,17 @@ export class UserListComponent extends Component<{ showSystemUsers: boolean; }>
     //Event handlers
     private OnAddUserActivated()
     {
-        this.popupManager.OpenDialog(AddUserComponent, { title: "Add user" });
+        this.popupManager.OpenDialog(<AddUserComponent />, { title: "Add user" });
     }
 
     private OnChangePasswordActivated(userName: string)
     {
-        this.popupManager.OpenDialog(ChangePasswordComponent, { title: "Change password", input: { userName } });
+        this.popupManager.OpenDialog(<ChangePasswordComponent />, { title: "Change password" });
     }
 
     private OnManageGroupsActivated(userName: string)
     {
-        this.popupManager.OpenDialog(ManageUserGroupsComponent, { title: "Manage groups", input: { userName } });
+        this.popupManager.OpenDialog(<ManageUserGroupsComponent userName={userName} />, { title: "Manage groups" });
     }
 
     private async OnDeleteActivated(userName: string)

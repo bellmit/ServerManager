@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, JSX_CreateElement, RenderNode, FormField, LineEdit, Injectable, Router} from "acfrontend";
+import {Component, JSX_CreateElement, FormField, LineEdit, Injectable, Router} from "acfrontend";
 import { AuthenticationService } from "./Services/AuthenticationService";
 
 @Injectable
@@ -31,7 +31,7 @@ export class LoginComponent extends Component
     }
     
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <div class="box">
             <h1>Login</h1>

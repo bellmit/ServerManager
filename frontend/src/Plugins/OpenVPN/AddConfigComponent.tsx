@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, Injectable, JSX_CreateElement, ProgressSpinner, RenderNode, Router } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement, ProgressSpinner, Router } from "acfrontend";
 import { OpenVPNApi } from "srvmgr-api";
 import { ObjectEditorComponent } from "../../ObjectEditorComponent";
 import { ObjectValidator } from "../../ObjectValidator";
@@ -48,7 +48,7 @@ export class AddConfigComponent extends Component
         this.saving = false;
     }
     
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.saving)
             return <ProgressSpinner />;

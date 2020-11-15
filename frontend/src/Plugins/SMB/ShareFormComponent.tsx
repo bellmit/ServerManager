@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, Router, Injectable } from "acfrontend";
+import { Component, JSX_CreateElement, Router, Injectable } from "acfrontend";
 import { ObjectEditorComponent } from "../../ObjectEditorComponent";
 import { SMB } from "srvmgr-api";
 import { SMBService } from "./SMBService";
@@ -31,7 +31,7 @@ export class ShareFormComponent extends Component<{
         super();
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <form onsubmit={this.OnSave.bind(this)}>
             <ObjectEditorComponent object={this.input.share} />

@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, Injectable, JSX_CreateElement } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement } from "acfrontend";
 import { SMB } from "srvmgr-api";
 import { ShareFormComponent } from "./ShareFormComponent";
 
@@ -29,7 +29,7 @@ export class AddShareComponent extends Component
         this.share = SMB.CreateDefaultShare("");
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <h1>Create share</h1>

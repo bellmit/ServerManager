@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, Injectable, JSX_CreateElement, MatIcon, ProgressSpinner, RenderNode, RouterButton, RouterState } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement, MatIcon, ProgressSpinner, RouterButton, RouterState } from "acfrontend";
 import { OpenVPNService } from "./OpenVPNService";
 
 @Injectable
@@ -29,7 +29,7 @@ export class ListCADirClientsComponent extends Component
         this.clients = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.clients === null)
             return <ProgressSpinner />;

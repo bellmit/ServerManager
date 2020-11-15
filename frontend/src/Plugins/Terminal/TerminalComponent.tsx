@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, Injectable, JSX_CreateElement, Textarea, ProgressSpinner } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement, Textarea, ProgressSpinner } from "acfrontend";
 import { Commands } from "srvmgr-api";
 import { TerminalService } from "./TerminalService";
 
@@ -34,7 +34,7 @@ export class TerminalComponent extends Component<{ command: Commands.CommandOver
         this.subscribedPid = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <h2>{this.input.command.commandline}</h2>

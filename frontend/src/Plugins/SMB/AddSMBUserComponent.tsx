@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, JSX_CreateElement, FormField, LineEdit, DialogRef, Injectable, Select, ProgressSpinner } from "acfrontend";
+import { Component, JSX_CreateElement, FormField, LineEdit, DialogRef, Injectable, Select, ProgressSpinner } from "acfrontend";
 import { SMBService } from "./SMBService";
 import { UsersService } from "../Users/UsersService";
 
@@ -32,7 +32,7 @@ export class AddSMBUserComponent extends Component
         this.newPasswordConfirmation = "";
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.userNames === null)
             return <ProgressSpinner />;

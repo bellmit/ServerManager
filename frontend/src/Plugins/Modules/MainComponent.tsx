@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, ProgressSpinner } from "acfrontend";
 
 import { Module } from "srvmgr-api";
 
@@ -33,7 +33,7 @@ export class MainComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.moduleService.modules.WaitingForValue())
             return <ProgressSpinner />;

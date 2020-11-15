@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, Router, ProgressSpinner, CheckBox, LineEdit, IntegerSpinner, Select } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, Router, ProgressSpinner, CheckBox, LineEdit, IntegerSpinner, Select } from "acfrontend";
 import { BackupTask, ExternalConnectionConfig } from "srvmgr-api";
 
 import { BackupService } from "./BackupService";
@@ -38,7 +38,7 @@ export class BackupFormComponent extends Component<{ backupName?: string; }>
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if( this.waiting )
             return <ProgressSpinner />;

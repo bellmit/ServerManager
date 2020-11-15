@@ -15,17 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, Injectable, ProgressSpinner, JSX_CreateElement, MatIcon, Select, DialogRef } from "acfrontend";
+import { Component, Injectable, ProgressSpinner, JSX_CreateElement, MatIcon, Select, DialogRef } from "acfrontend";
 import { UsersService } from "./UsersService";
 import { Group } from "srvmgr-api";
 
 @Injectable
-export class ManageUserGroupsComponent extends Component
+export class ManageUserGroupsComponent extends Component<{ userName: string; }>
 {
-    input!: {
-        userName: string;
-    }
-
     constructor(private usersService: UsersService, private dialogRef: DialogRef)
     {
         super();
@@ -36,7 +32,7 @@ export class ManageUserGroupsComponent extends Component
         this.selectedGroup = null;
     }
     
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if( (this.userGroups === null) || (this.allGroups === null) )
             return <ProgressSpinner />;

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, JSX_CreateElement, LineEdit, Router, ProgressSpinner } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, LineEdit, Router, ProgressSpinner } from "acfrontend";
 import { CertificatesService } from "./CertificatesService";
 import { NotificationsService } from "../Notifications/NotificationsService";
 
@@ -31,7 +31,7 @@ export class AddCertificateComponent extends Component
         this.email = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.email === null)
             return <ProgressSpinner />;

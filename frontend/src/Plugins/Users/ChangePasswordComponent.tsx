@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, FormField, JSX_CreateElement, LineEdit, Injectable, DialogRef } from "acfrontend";
+import { Component, FormField, JSX_CreateElement, LineEdit, Injectable, DialogRef } from "acfrontend";
 import { UsersService } from "./UsersService";
 
 @Injectable
@@ -35,7 +35,7 @@ export class ChangePasswordComponent extends Component
         this.newPasswordConfirmation = "";
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <FormField hint="Old password">

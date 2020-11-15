@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, Anchor, JSX_CreateElement, RouterComponent, Injectable, MatIcon, ProgressSpinner, RenderValue} from "acfrontend";
+import {Component, Anchor, JSX_CreateElement, RouterComponent, Injectable, MatIcon, ProgressSpinner} from "acfrontend";
 
 import { PluginManager } from "./Services/PluginManager";
 import { AuthenticationService } from "./Services/AuthenticationService";

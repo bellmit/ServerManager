@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import {Component, Injectable, RenderNode, JSX_CreateElement, Anchor, ProgressSpinner} from "acfrontend";
+import {Component, Injectable, JSX_CreateElement, Anchor, ProgressSpinner} from "acfrontend";
 import { ModuleService } from "../../Services/ModuleService";
 import { PluginManager } from "../../Services/PluginManager";
 import { Dictionary } from "acts-util-core";
@@ -57,7 +57,7 @@ export class SettingsComponent extends Component
     }
     
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.moduleService.modules.WaitingForValue() || (this.data === null))
             return <ProgressSpinner />;
@@ -75,7 +75,7 @@ export class SettingsComponent extends Component
     private RenderButtons(sectionName: string)
     {
         return this.data![sectionName]!.map(plugin => <div>
-            {plugin.icon?.Clone()}
+            {plugin.icon}
             <Anchor route={plugin.baseRoute!}>{plugin.title}</Anchor>
         </div>);
     }

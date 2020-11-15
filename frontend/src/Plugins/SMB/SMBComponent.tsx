@@ -16,11 +16,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement, Anchor, RouterComponent } from "acfrontend";
+import { Component, JSX_CreateElement, Anchor, RouterComponent } from "acfrontend";
 
 export class SMBComponent extends Component
 {
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <div class="vertNav">

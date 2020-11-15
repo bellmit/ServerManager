@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, ProgressSpinner, JSX_CreateElement, Switch, Anchor, MatIcon } from "acfrontend";
+import { Injectable, Component, ProgressSpinner, JSX_CreateElement, Switch, Anchor, MatIcon } from "acfrontend";
 import { ApacheService } from "./ApacheService";
 import { Apache } from "srvmgr-api";
 
@@ -30,7 +30,7 @@ export class ListSitesComponent extends Component
         this.data = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

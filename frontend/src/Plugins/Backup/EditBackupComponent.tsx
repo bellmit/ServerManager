@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, JSX_CreateElement, Router } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, Router } from "acfrontend";
 
 import { BackupFormComponent } from "./BackupFormComponent";
 
@@ -30,7 +30,7 @@ export class EditBackupComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <h1>Backup: {this.backupName}</h1>

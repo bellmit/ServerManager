@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, ProgressSpinner, JSX_CreateElement, Injectable, Anchor, MatIcon, RouterButton } from "acfrontend";
+import { Component, ProgressSpinner, JSX_CreateElement, Injectable, Anchor, MatIcon, RouterButton } from "acfrontend";
 import { SMBService } from "./SMBService";
 import { SMB } from "srvmgr-api";
 
@@ -31,7 +31,7 @@ export class ListSharesComponent extends Component
     }
 
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, FormField, Injectable, JSX_CreateElement, LineEdit, RenderNode, Router, RouterState } from "acfrontend";
+import { Component, FormField, Injectable, JSX_CreateElement, LineEdit, Router, RouterState } from "acfrontend";
 import { OpenVPNService } from "./OpenVPNService";
 
 @Injectable
@@ -30,7 +30,7 @@ export class AddClientComponent extends Component
         this.clientName = "";
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <fragment>
             <h1>Add client for certificate authority: {this.caDirName}</h1>

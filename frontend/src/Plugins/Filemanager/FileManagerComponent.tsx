@@ -16,12 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, RenderNode, JSX_CreateElement } from "acfrontend";
+import { Component, JSX_CreateElement } from "acfrontend";
 import { DirectoryViewComponent } from "./DirectoryViewComponent";
 
 export class FileManagerComponent extends Component
 {
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         return <div class="row evenly-spaced">
             <div class="column"><DirectoryViewComponent /></div>

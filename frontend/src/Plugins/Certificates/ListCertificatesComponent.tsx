@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, JSX_CreateElement, RouterButton, MatIcon, ProgressSpinner } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, RouterButton, MatIcon, ProgressSpinner } from "acfrontend";
 import { CertificatesService } from "./CertificatesService";
 import { CertificatesApi } from "srvmgr-api";
 
@@ -30,7 +30,7 @@ export class ListCertificatesComponent extends Component
         this.data = null;
     }
 
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

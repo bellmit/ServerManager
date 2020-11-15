@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable, Component, RenderNode, ProgressSpinner, JSX_CreateElement, MatIcon, Switch, RouterButton } from "acfrontend";
+import { Injectable, Component, ProgressSpinner, JSX_CreateElement, MatIcon, Switch, RouterButton } from "acfrontend";
 import { SystemServicesService } from "./SystemServicesService";
 import { SystemService, SystemServiceAction } from "srvmgr-api";
 
@@ -29,7 +29,7 @@ export class ListServicesComponent extends Component
         this.data = null;
     }
     
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

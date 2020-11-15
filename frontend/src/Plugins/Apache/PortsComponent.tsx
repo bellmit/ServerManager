@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, RenderNode, JSX_CreateElement, ProgressSpinner, Textarea } from "acfrontend";
+import { Injectable, Component, JSX_CreateElement, ProgressSpinner, Textarea } from "acfrontend";
 import { ApacheService } from "./ApacheService";
 
 @Injectable
@@ -29,7 +29,7 @@ export class PortsComponent extends Component
         this.data = null;
     }
     
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.data === null)
             return <ProgressSpinner />;

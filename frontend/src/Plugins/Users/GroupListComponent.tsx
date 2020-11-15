@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Component, RenderNode, ProgressSpinner, JSX_CreateElement, Injectable } from "acfrontend";
+import { Component, ProgressSpinner, JSX_CreateElement, Injectable } from "acfrontend";
 import { UsersService } from "./UsersService";
 import { Group } from "srvmgr-api";
 
@@ -31,7 +31,7 @@ export class GroupListComponent extends Component
     }
     
     //Protected methods
-    protected Render(): RenderNode
+    protected Render(): RenderValue
     {
         if(this.groups === null)
             return <ProgressSpinner />;
