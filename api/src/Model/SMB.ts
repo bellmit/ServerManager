@@ -35,6 +35,7 @@ export function CreateDefaultShare(shareName: string): Share
         directoryMask: 0o744,
         path: "",
         printable: false,
+        validUsers: [],
         writable: false
     } };
 }
@@ -48,6 +49,7 @@ export interface ShareProperties
     directoryMask: number;
     path: string;
     printable: boolean;
+    validUsers: string[];
     writable: boolean;
 }
 

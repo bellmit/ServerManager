@@ -17,7 +17,7 @@
  * */
 import express from "express";
 
-import { Messages, BackupSaveRequest, DownloadFileRequest, Routes } from "srvmgr-api";
+import { Messages, BackupSaveRequest, Routes } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";

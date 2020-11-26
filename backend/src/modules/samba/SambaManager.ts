@@ -149,6 +149,9 @@ export class SambaManager
                     case "read only":
                         p.writable = !b;
                         break;
+                    case "valid users":
+                        p.validUsers = s.split(" ");
+                        break;
                     case "writable":
                         p.writable = b;
                         break;
@@ -186,6 +189,7 @@ export class SambaManager
                 "directory mask": this.ToOctal(p.directoryMask),
                 path: p.path,
                 printable: p.printable,
+                "valid users": p.validUsers.join(" "),
                 writable: p.writable,
             };
         }

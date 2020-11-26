@@ -27,6 +27,7 @@ import { SystemServicesManager } from "../src/services/SystemServicesManager";
 async function ASync()
 {
     await GlobalInjector.Resolve(SystemServicesManager).FetchServicesSnapshot({ gid: 0, uid: 0 });
+    return;
 
     const session = { uid: 0, gid: 0 };
     if(fs.existsSync("/etc/openvpn/test"))

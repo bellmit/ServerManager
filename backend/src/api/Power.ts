@@ -1,5 +1,3 @@
-import { PowerApi } from "srvmgr-api";
-import { ApiEndpoint, ApiRequest } from "../Api";
 /**
  * ServerManager
  * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
@@ -17,14 +15,16 @@ import { ApiEndpoint, ApiRequest } from "../Api";
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-
+import { PowerApi } from "srvmgr-api";
+import { ApiEndpoint, ApiRequest } from "../Api";
 import { Injectable } from "../Injector";
-import { CommandExecutor, CommandOptions } from "../services/CommandExecutor";
+import { CommandExecutor } from "../services/CommandExecutor";
+import { PermissionsManager, POSIXAuthority } from "../services/PermissionsManager";
 
 @Injectable
 class Api
 {
-    constructor(private commandExecutor: CommandExecutor)
+    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
     {
     }
 
@@ -41,9 +41,10 @@ class Api
     }
 
     //Private methods
-    private IssueShutdown(additionalArgs: string[], commandOptions: CommandOptions)
+    private IssueShutdown(additionalArgs: string[], authority: POSIXAuthority)
     {
-        setTimeout(() => this.commandExecutor.ExecuteCommand(["shutdown"].concat(additionalArgs).concat(["0"]), commandOptions), 5000);
+        const sudo = this.permissionsManager.Sudo(authority.uid);
+        setTimeout(() => this.commandExecutor.ExecuteCommand(["shutdown"].concat(additionalArgs).concat(["0"]), sudo), 5000);
     }
 }
 

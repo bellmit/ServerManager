@@ -49,7 +49,7 @@ export class SystemServicesManager
         {
             if(!line)
                 break;
-            const parts = line.trim().match(/^([a-zA-Z0-9\-_@.]+)\.service[ \t]+(?:loaded|not-found|masked)[ \t]+(active|inactive|failed|activating)[ \t]+[a-z]+.*$/);
+            const parts = line.trim().match(/^([a-zA-Z0-9\-_@.\\]+)\.service[ \t]+(?:loaded|not-found|masked)[ \t]+(active|inactive|failed|activating)[ \t]+[a-z]+.*$/);
             if(parts !== null)
             {
                 const serviceName = parts[1];
