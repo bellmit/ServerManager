@@ -10,3 +10,9 @@ wget https://raw.githubusercontent.com/aczwink/ServerManager/master/installation
 chmod +x install.sh
 ./install.sh
 ```
+
+# Configuration
+Upon first start ServerManager will create the main config file at /etc/ServerManager.json
+
+Open that file and set the "trustedOrigins" to the origins that the backend should accept requests from.
+Logins from other origins are rejected.
