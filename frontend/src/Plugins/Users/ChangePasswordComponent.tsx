@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,8 @@ import { Component, FormField, JSX_CreateElement, LineEdit, Injectable, DialogRe
 import { UsersService } from "./UsersService";
 
 @Injectable
-export class ChangePasswordComponent extends Component
+export class ChangePasswordComponent extends Component<{ userName: string; }>
 {
-    input!: {
-        userName: string;
-    }
-
     constructor(private dialogRef: DialogRef, private usersService: UsersService)
     {
         super();

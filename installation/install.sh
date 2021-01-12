@@ -1,3 +1,5 @@
+sudo apt update
+
 #install npm
 sudo apt install npm
 sudo npm install -g npm@latest
