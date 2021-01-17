@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,7 +31,7 @@ class Api
     }
 
     @ApiEndpoint({ route: FileSystemApi.ListDirectoryContents.message })
-    public ListDirectoryContents(request: ApiRequest, data: FileSystemApi.ListDirectoryContents.RequestData): FileSystemApi.ListDirectoryContents.ResultData
+    public async ListDirectoryContents(request: ApiRequest, data: FileSystemApi.ListDirectoryContents.RequestData): Promise<FileSystemApi.ListDirectoryContents.ResultData>
     {
         let dirPath: string;
         if(data === "~")
@@ -42,15 +42,19 @@ class Api
 
         const children = fs.readdirSync(dirPath, "utf-8");
 
-        const nodes = children.Values().Map(child => {
-            const stat = fs.statSync(path.join(dirPath, child));
+        const nodes = await children.Values().Map(async child => {
+            const stat = await fs.promises.lstat(path.join(dirPath, child));
 
             const result: FileSystemApi.ListDirectoryContents.FileSystemNode = {
                 type: stat.isDirectory() ? "directory" : "file",
-                name: child
+                name: child,
+                mode: stat.mode,
+                size: stat.size,
+                uid: stat.uid,
+                gid: stat.gid,
             };
             return result;
-        }).ToArray();
+        }).PromiseAll();
 
         return {
             resolvedDirectory: dirPath,

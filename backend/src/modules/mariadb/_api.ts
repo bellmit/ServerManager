@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -37,7 +37,7 @@ class MySQLApi
     @ApiEndpoint({ route: MySQL.Api.SaveMysqldSettings.message })
     public async SaveMysqldSettings(request: ApiRequest, data: MySQL.Api.SaveMysqldSettings.RequestData)
     {
-        this.mariaDBManager.SetMysqldSettings(data);
+        await this.mariaDBManager.SetMysqldSettings(data);
     }
 }
 

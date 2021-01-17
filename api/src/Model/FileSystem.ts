@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -30,6 +30,10 @@ export namespace FileSystemApi
         {
             type: "directory" | "file";
             name: string;
+            size: number;
+            mode: number;
+            uid: number;
+            gid: number;
         }
 
         export type RequestData = string;

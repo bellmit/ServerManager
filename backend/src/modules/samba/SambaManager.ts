@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,14 +15,15 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
-
 import { Injectable } from "../../Injector";
-import { IniParser, Section } from "../../Model/IniParser";
 import { SMB } from "srvmgr-api";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { PermissionsManager, POSIXAuthority } from "../../services/PermissionsManager";
-import { IniWriter } from "../../Model/IniWriter";
+import { SambaConfigParser } from "./SambaConfigParser";
+import { ConfigModel } from "../../core/ConfigModel";
+import { Dictionary } from "acts-util-core";
+import { PropertyType } from "../../core/ConfigParser";
+import { ConfigWriter } from "../../core/ConfigWriter";
 
 @Injectable
 export class SambaManager
@@ -34,7 +35,7 @@ export class SambaManager
     //Public methods
     public async AddShare(share: SMB.Share, session: POSIXAuthority)
     {
-        const settings = this.QuerySettings();
+        const settings = await this.QuerySettings();
         settings.shares.push(share);
 
         await this.WriteSettings(settings.global!, settings.shares, session);
@@ -52,12 +53,14 @@ export class SambaManager
         return exitCode === 0;
     }
 
-    public QuerySettings()
+    public async QuerySettings()
     {
-        const data = fs.readFileSync("/etc/samba/smb.conf", "utf-8");
-        const parser = new IniParser(data, ["#", ";"], { "no": false, "yes": true });
+        const parser = new SambaConfigParser;
+        const data = await parser.Parse("/etc/samba/smb.conf");
 
-        const sections = parser.Parse();
+        const mdl = new ConfigModel(data);
+
+        const sections = mdl.AsDictionary();
         const global = sections["global"];
         delete sections["global"];
 
@@ -98,7 +101,7 @@ export class SambaManager
 
     public async SetShare(oldShareName: string, share: SMB.Share, session: POSIXAuthority)
     {
-        const settings = this.QuerySettings();
+        const settings = await this.QuerySettings();
         const index = settings.shares.findIndex(share => share.name === oldShareName);
         settings.shares.Remove(index);
 
@@ -108,7 +111,7 @@ export class SambaManager
     }
 
     //Private methods
-    private MapSectionToShare(sectionName: string, section: Section): SMB.Share
+    private MapSectionToShare(sectionName: string, section: Dictionary<PropertyType>): SMB.Share
     {
         const share: SMB.Share = SMB.CreateDefaultShare(sectionName);
         const p = share.properties;
@@ -175,13 +178,16 @@ export class SambaManager
 
     private async WriteSettings(global: SMB.GlobalSettings, shares: SMB.Share[], session: POSIXAuthority)
     {
-        const data: any = { global };
+        const parser = new SambaConfigParser;
+        const cfgEntries = await parser.Parse("/etc/samba/smb.conf");
 
+        const mdl = new ConfigModel(cfgEntries);
+
+        mdl.SetProperties("global", global);
         for (const share of shares)
         {
             const p = share.properties;
-
-            data[share.name] = {
+            mdl.SetProperties(share.name, {
                 "guest ok": p.allowGuests,
                 "browseable": p.browseable,
                 comment: p.comment,
@@ -191,11 +197,11 @@ export class SambaManager
                 printable: p.printable,
                 "valid users": p.validUsers.join(" "),
                 writable: p.writable,
-            };
+            });
         }
 
-        const writer = new IniWriter("no", "yes");
-        fs.writeFileSync("/etc/samba/smb.conf", writer.Write(data), "utf-8");
+        const writer = new ConfigWriter( x => x, "no", "yes");
+        await writer.Write("/etc/samba/smb.conf", cfgEntries);
 
         await this.commandExecutor.ExecuteCommand(["smbcontrol", "smbd", "reload-config"], this.permissionsManager.Sudo(session.uid));
     }

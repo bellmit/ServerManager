@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,51 +18,49 @@
 
 import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon } from "acfrontend";
 import { FileSystemService } from "./FileSystemService";
-import { FileSystemApi } from "srvmgr-api";
+import { FileSystemApi, Group, User } from "srvmgr-api";
+import { UsersService } from "../Users/UsersService";
+import { Dictionary } from "acts-util-core";
 
 @Injectable
 export class DirectoryViewComponent extends Component
 {
-    constructor(private fileSystemService: FileSystemService)
+    constructor(private fileSystemService: FileSystemService, private usersService: UsersService)
     {
         super();
 
         this.dirPath = "~";
         this.entries = null;
+        this.groups = null;
+        this.users = null;
     }
 
     protected Render(): RenderValue
     {
-        if(this.entries === null)
+        if( (this.entries === null) || (this.groups === null) || (this.users === null) )
             return <ProgressSpinner />;
 
         return <fragment>
             <h2>{this.dirPath}</h2>
-            <ul>{this.entries.map(this.RenderEntry.bind(this))}</ul>
+            <table>
+                <tr>
+                    <th> </th>
+                    <th>Name</th>
+                    <th>Size</th>
+                    <th>Owner</th>
+                    <th>Group</th>
+                    <th>Others</th>
+                </tr>
+                {this.entries.map(this.RenderEntry.bind(this))}
+            </table>
         </fragment>;
     }
 
     //Private methods
     private dirPath: string;
     private entries: FileSystemApi.ListDirectoryContents.FileSystemNode[] | null;
-
-    //Private methods
-    private RenderEntry(entry: FileSystemApi.ListDirectoryContents.FileSystemNode)
-    {
-        if(entry.type === "directory")
-        {
-            return <li>
-                <a onclick={ this.OnDirChanged.bind(this, this.dirPath + "/" + entry.name) }>
-                    <MatIcon>folder</MatIcon>
-                    {entry.name}
-                </a>
-            </li>;
-        }
-        return <li>
-            <MatIcon>note</MatIcon>
-            {entry.name}
-        </li>;
-    }
+    private groups: Dictionary<Group> | null;
+    private users: Dictionary<User> | null;
 
     //Private methods
     private async QueryEntries(path: string)
@@ -76,8 +74,71 @@ export class DirectoryViewComponent extends Component
             this.entries.unshift({
                 name: "..",
                 type: "directory",
+                //TODO:
+                mode: 0,
+                size: 0,
+                gid: 0,
+                uid: 0,
             });
         }
+    }
+
+    private RenderEntry(entry: FileSystemApi.ListDirectoryContents.FileSystemNode)
+    {
+        return <tr>
+            <td><MatIcon>{entry.type === "directory" ? "folder" : "note"}</MatIcon></td>
+            <td>{this.RenderTitle(entry)}</td>
+            <td>{entry.size.FormatBinaryPrefixed("B")}</td>
+            <td>{this.RenderUser(entry.uid) + " (" + this.RenderPermissions( (entry.mode >> 6) & 7, entry.type === "directory" ) + ")"}</td>
+            <td>{this.RenderGroup(entry.gid) + " (" + this.RenderPermissions( (entry.mode >> 3) & 7, entry.type === "directory" ) + ")"}</td>
+            <td>{this.RenderPermissions(entry.mode & 7, entry.type === "directory")}</td>
+        </tr>;
+    }
+
+    private RenderGroup(gid: number)
+    {
+        return this.groups![gid]?.name;
+    }
+    
+    private RenderPermissions(permissions: number, isDir: boolean)
+    {
+        if(permissions == 0)
+            return "no access";
+
+        const parts = [];
+
+        if(isDir)
+        {
+            if(permissions & 4)
+                parts.push("list");
+            if(permissions & 2)
+                parts.push("modify");
+            if(permissions & 1)
+                parts.push("access");
+        }
+        else
+        {
+            if(permissions & 4)
+                parts.push("read");
+            if(permissions & 2)
+                parts.push("write");
+            if(permissions & 1)
+                parts.push("execute");
+        }
+
+        return parts.join("-");
+    }
+
+    private RenderTitle(entry: FileSystemApi.ListDirectoryContents.FileSystemNode)
+    {
+        if(entry.type === "directory")
+            return <a onclick={ this.OnDirChanged.bind(this, this.dirPath + "/" + entry.name) }>{entry.name}</a>;
+        return entry.name;
+    }
+
+    private RenderUser(uid: number)
+    {
+        return this.users![uid]?.name;
     }
 
     //Event handlers
@@ -90,5 +151,8 @@ export class DirectoryViewComponent extends Component
     public OnInitiated()
     {
         this.QueryEntries(this.dirPath);
+
+        this.usersService.users.Subscribe( newUsers => this.users = newUsers.Values().ToDictionary(user => user.uid, user => user) );
+        this.usersService.groups.Subscribe( newGroups => this.groups = newGroups.Values().ToDictionary(group => group.gid, group => group) );
     }
 }

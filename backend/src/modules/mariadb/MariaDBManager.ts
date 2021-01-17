@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,42 +15,48 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as fs from "fs";
-
 import { Injectable } from "../../Injector";
-import { ImportResolver } from "../../Model/ImportResolver";
-import { IniParser } from "../../Model/IniParser";
 import { MySQL } from "srvmgr-api";
-import { IniWriter } from "../../Model/IniWriter";
+import { MariaDBConfigParser } from "./MariaDBConfigParser";
+import { ConfigModel } from "../../core/ConfigModel";
+import { ConfigWriter } from "../../core/ConfigWriter";
 
 @Injectable
 export class MariaDBManager
 {
     //Public methods
-    public QueryMysqldSettings(): MySQL.MysqldSettings
+    public async QueryMysqldSettings(): Promise<MySQL.MysqldSettings>
     {
-        const settings = this.QuerySettings().mysqld!;
+        const settings = await this.QuerySettings();
 
-        return settings;
+        return settings.mysqld!;
     }
 
-    public QuerySettings()
+    public async QuerySettings()
     {
-        const importResolver = new ImportResolver(/\!includedir ([a-z./]+)$/);
-        const data = importResolver.Resolve("/etc/mysql/my.cnf");
+        const data = await this.ParseConfig();
 
-        const iniParser = new IniParser(data, ["#"], {});
-
-        return iniParser.Parse();
+        const configModel = new ConfigModel(data);
+        return configModel.AsDictionary();
     }
 
-    public SetMysqldSettings(settings: MySQL.MysqldSettings)
+    public async SetMysqldSettings(settings: MySQL.MysqldSettings)
     {
-        const iniWriter = new IniWriter("false", "true");
+        const cfg = await this.ParseConfig();
 
-        const allSettings: any = this.QuerySettings();
-        allSettings.mysqld = settings;
+        const configModel = new ConfigModel(cfg);
+        configModel.SetProperties("mysqld", settings as any);
 
-        fs.writeFileSync("/etc/mysql/my.cnf", iniWriter.Write(allSettings));
+        const cfgWriter = new ConfigWriter( path => "!includedir " + path, "false", "true" );
+        await cfgWriter.Write("/etc/mysql/my.cnf", cfg);
+    }
+
+    //Private methods
+    private async ParseConfig()
+    {
+        const parser = new MariaDBConfigParser();
+        const data = await parser.Parse("/etc/mysql/my.cnf");
+
+        return data;
     }
 }

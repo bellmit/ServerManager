@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,25 +15,24 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ConfigModel } from "../src/core/ConfigModel";
-import { GlobalInjector } from "../src/Injector";
-import { SambaConfigParser } from "../src/modules/samba/SambaConfigParser";
-import { SambaManager } from "../src/modules/samba/SambaManager";
 
-//TODO: Make real tests
+import { ConfigParser } from "../../core/ConfigParser";
 
-
-async function ASync()
+export class SambaConfigParser extends ConfigParser
 {
-    const cfgp = new SambaConfigParser;
-    const e = await cfgp.Parse("/etc/samba/smb.conf");
-    const mdl = new ConfigModel(e);
+    constructor()
+    {
+        super(["#", ";"], { "no": false, "yes": true });
+    }
+    
+    //Protected methods
+    protected FileNameMatchesIncludeDir(fileName: string): boolean
+    {
+        return false;
+    }
 
-    console.log(mdl.AsDictionary());
-
-    console.log("NEW");
-    const data = await GlobalInjector.Resolve(SambaManager).QuerySettings();
-    console.log(data.shares);
+    protected ParseIncludeDir(line: string): string | undefined
+    {
+        return undefined;
+    }
 }
-
-ASync();
