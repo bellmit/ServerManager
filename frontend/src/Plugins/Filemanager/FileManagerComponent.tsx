@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,35 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, JSX_CreateElement } from "acfrontend";
+import { Component, JSX_CreateElement, MatIcon, Switch } from "acfrontend";
 import { DirectoryViewComponent } from "./DirectoryViewComponent";
 
 export class FileManagerComponent extends Component
 {
+    constructor()
+    {
+        super();
+
+        this.showTwoColumns = false;
+    }
+    
     protected Render(): RenderValue
     {
-        return <div class="row evenly-spaced">
-            <div class="column"><DirectoryViewComponent /></div>
-            <div class="column"><DirectoryViewComponent /></div>
-        </div>;
+        return <fragment>
+            <div class="row evenly-spaced">
+                <div class="column">
+                    <Switch checked={this.showTwoColumns} onChanged={newValue => this.showTwoColumns = newValue} />
+                    <MatIcon>view_week</MatIcon>
+                </div>
+            </div>
+
+            <div class="row evenly-spaced">
+                <div class="column"><DirectoryViewComponent /></div>
+                {this.showTwoColumns ? <div class="column"><DirectoryViewComponent /></div> : null}
+            </div>
+        </fragment>;
     }
+
+    //Private methods
+    private showTwoColumns: boolean;
 }

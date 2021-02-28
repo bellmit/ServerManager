@@ -61,6 +61,18 @@ class Api
             nodes: nodes
         };
     }
+
+    @ApiEndpoint({ route: FileSystemApi.QueryFileContent.message })
+    public async QueryFileContent(request: ApiRequest, data: FileSystemApi.QueryFileContent.RequestData): Promise<FileSystemApi.QueryFileContent.ResultData>
+    {
+        return fs.promises.readFile(data, "utf-8");
+    }
+
+    @ApiEndpoint({ route: FileSystemApi.SetFileContent.message })
+    public async SetFileContent(request: ApiRequest, data: FileSystemApi.SetFileContent.RequestData)
+    {
+        return fs.promises.writeFile(data.path, data.content, "utf-8");
+    }
 }
 
 export default Api;

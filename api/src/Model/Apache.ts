@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,7 +20,6 @@ import { SUBMSG_QUERY, SUBMSG_LIST, SUBMSG_ENABLE, SUBMSG_SET } from "../Message
 
 const MSG_APACHE = "/Apache/";
 const MSG_APACHE_MODULES = MSG_APACHE + "Modules/";
-const MSG_APACHE_PORTS = MSG_APACHE + "Ports/";
 const MSG_APACHE_SITES = MSG_APACHE + "Sites/";
 
 interface ChangeEnabledStatusData
@@ -77,11 +76,6 @@ export namespace Api
         export const message = MSG_APACHE_MODULES + SUBMSG_LIST;
     }
 
-    export namespace ListPorts
-    {
-        export const message = MSG_APACHE_PORTS + SUBMSG_LIST;
-    }
-
     export namespace ListSites
     {
         export const message = MSG_APACHE_SITES + SUBMSG_LIST;
@@ -95,11 +89,6 @@ export namespace Api
 
         export type RequestData = string;
         export type ResultData = VirtualHost;
-    }
-
-    export namespace SetPorts
-    {
-        export const message = MSG_APACHE_PORTS + SUBMSG_SET;
     }
 
     export namespace SetSite

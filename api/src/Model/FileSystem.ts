@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { SUBMSG_LIST } from "../Messages";
+import { SUBMSG_LIST, SUBMSG_QUERY, SUBMSG_SET } from "../Messages";
 
 const MSG_FILESYSTEM = "/FileSystem/";
 
@@ -41,6 +41,23 @@ export namespace FileSystemApi
         {
             resolvedDirectory: string;
             nodes: FileSystemNode[];
+        }
+    }
+
+    export namespace QueryFileContent
+    {
+        export const message = MSG_FILESYSTEM + SUBMSG_QUERY;
+        export type RequestData = string;
+        export type ResultData = string;
+    }
+
+    export namespace SetFileContent
+    {
+        export const message = MSG_FILESYSTEM + SUBMSG_SET;
+        export interface RequestData
+        {
+            path: string;
+            content: string;
         }
     }
 }

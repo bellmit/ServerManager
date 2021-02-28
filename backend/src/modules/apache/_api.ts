@@ -58,13 +58,6 @@ class ApacheApi
         this.connectionManager.Respond(request, result);
     }
 
-    @ApiEndpoint({ route: Apache.Api.ListPorts.message })
-    public async ListPorts(request: ApiRequest)
-    {
-        const result = await this.apacheManager.QueryPorts(request.session);
-        this.connectionManager.Respond(request, result);
-    }
-
     @ApiEndpoint({ route: Apache.Api.ListSites.message })
     public async ListSites(request: ApiRequest)
     {
@@ -82,13 +75,6 @@ class ApacheApi
         res.addresses = vHost.addresses;
 
         return res;
-    }
-
-    @ApiEndpoint({ route: Apache.Api.SetPorts.message })
-    public async SetPorts(request: ApiRequest, data: string)
-    {
-        await this.apacheManager.SetPorts(data, request.session);
-        this.connectionManager.Respond(request, undefined);
     }
 
     @ApiEndpoint({ route: Apache.Api.SetSite.message })

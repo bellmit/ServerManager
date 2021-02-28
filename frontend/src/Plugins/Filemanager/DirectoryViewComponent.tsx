@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon } from "acfrontend";
+import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon, Anchor } from "acfrontend";
 import { FileSystemService } from "./FileSystemService";
 import { FileSystemApi, Group, User } from "srvmgr-api";
 import { UsersService } from "../Users/UsersService";
@@ -131,8 +131,13 @@ export class DirectoryViewComponent extends Component
 
     private RenderTitle(entry: FileSystemApi.ListDirectoryContents.FileSystemNode)
     {
-        if(entry.type === "directory")
-            return <a onclick={ this.OnDirChanged.bind(this, this.dirPath + "/" + entry.name) }>{entry.name}</a>;
+        switch(entry.type)
+        {
+            case "directory":
+                return <a onclick={ this.OnDirChanged.bind(this, this.dirPath + "/" + entry.name) }>{entry.name}</a>;
+            case "file":
+                return <Anchor route={"/filemanager/editfile?filePath=" + this.dirPath + "/" + entry.name}>{entry.name}</Anchor>;
+        }
         return entry.name;
     }
 

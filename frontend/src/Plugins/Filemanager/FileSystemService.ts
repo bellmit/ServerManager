@@ -32,4 +32,14 @@ export class FileSystemService
     {
         return this.websocketService.SendRequest<FileSystemApi.ListDirectoryContents.ResultData>(FileSystemApi.ListDirectoryContents.message, dirPath);
     }
+
+    public QueryFileContent(path: FileSystemApi.QueryFileContent.RequestData)
+    {
+        return this.websocketService.SendRequest<FileSystemApi.QueryFileContent.ResultData>(FileSystemApi.QueryFileContent.message, path);
+    }
+
+    public SetFileContent(data: FileSystemApi.SetFileContent.RequestData)
+    {
+        return this.websocketService.SendRequest<undefined>(FileSystemApi.SetFileContent.message, data);
+    }
 }

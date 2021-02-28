@@ -18,7 +18,7 @@
 
 import { Injectable } from "acfrontend";
 import { WebSocketService } from "../../Services/WebSocketService";
-import { Messages, Apache } from "srvmgr-api";
+import { Apache } from "srvmgr-api";
 
 @Injectable
 export class ApacheService
@@ -43,11 +43,6 @@ export class ApacheService
         return this.websocketService.SendRequest<Apache.EntityOverviewInfo[]>(Apache.Api.ListModules.message);
     }
 
-    public QueryPorts()
-    {
-        return this.websocketService.SendRequest<string>(Apache.Api.ListPorts.message);
-    }
-
     public QuerySite(siteName: Apache.Api.QuerySite.RequestData)
     {
         return this.websocketService.SendRequest<Apache.Api.QuerySite.ResultData>(Apache.Api.QuerySite.message, siteName);
@@ -56,11 +51,6 @@ export class ApacheService
     public QuerySites()
     {
         return this.websocketService.SendRequest<Apache.EntityOverviewInfo[]>(Apache.Api.ListSites.message);
-    }
-
-    public SetPorts(data: string)
-    {
-        return this.websocketService.SendRequest(Apache.Api.SetPorts.message, data);
     }
 
     public SetSite(data: Apache.Api.SetSite.RequestData)

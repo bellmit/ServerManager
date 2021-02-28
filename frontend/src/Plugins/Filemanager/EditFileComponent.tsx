@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,11 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Routes } from "acfrontend";
-import { EditFileComponent } from "./EditFileComponent";
-import { FileManagerComponent } from "./FileManagerComponent";
 
-export const routes : Routes = [
-    { path: "editfile", component: EditFileComponent},
-    { path: "", component: FileManagerComponent},
-];
+import { Component, Injectable, JSX_CreateElement, RouterState } from "acfrontend";
+import { FileEditorComponent } from "./FileEditorComponent";
+
+@Injectable
+export class EditFileComponent extends Component
+{
+    constructor(private routerState: RouterState)
+    {
+        super();
+    }
+    
+    protected Render(): RenderValue
+    {
+        return <FileEditorComponent path={this.routerState.queryParams.filePath!} />;
+    }
+}

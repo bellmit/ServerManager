@@ -81,11 +81,6 @@ export class ApacheManager
         return this.QueryEntities("sites-available", "-s", session);
     }
 
-    public SetPorts(data: string, session: POSIXAuthority)
-    {
-        fs.writeFileSync("/etc/apache2/ports.conf", data, "utf-8");
-    }
-
     public SetSite(siteName: string, vHost: VirtualHost)
     {
         fs.writeFileSync("/etc/apache2/sites-available/" + siteName + ".conf", vHost.ToConfigString(), "utf-8");

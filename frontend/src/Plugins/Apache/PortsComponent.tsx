@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,46 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, JSX_CreateElement, ProgressSpinner, Textarea } from "acfrontend";
-import { ApacheService } from "./ApacheService";
+import { Injectable, Component, JSX_CreateElement } from "acfrontend";
+import { FileEditorComponent } from "../Filemanager/FileEditorComponent";
 
 @Injectable
 export class PortsComponent extends Component
 {
-    constructor(private apacheService: ApacheService)
-    {
-        super();
-
-        this.data = null;
-    }
-    
     protected Render(): RenderValue
     {
-        if(this.data === null)
-            return <ProgressSpinner />;
-
-        return <fragment>
-            <Textarea value={this.data} onChanged={newValue => this.data = newValue} />
-            <button type="button" onclick={this.OnSave.bind(this)}>Save</button>
-        </fragment>;
-    }
-
-    //Private members
-    private data: string | null;
-
-    //Event handlers
-    public async OnInitiated()
-    {
-        this.data = await this.apacheService.QueryPorts();
-    }
-
-    private async OnSave()
-    {
-        const data = this.data;
-        this.data = null;
-
-        await this.apacheService.SetPorts(data!);
-
-        this.data = data;
+        return <FileEditorComponent path="/etc/apache2/ports.conf" />;
     }
 }
