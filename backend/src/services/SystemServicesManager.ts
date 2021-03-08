@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,10 @@
  * */
 import { Injectable } from "../Injector";
 import { CommandExecutor } from "./CommandExecutor";
-import { POSIXAuthority, PermissionsManager } from "./PermissionsManager";
+import { PermissionsManager } from "./PermissionsManager";
+import { POSIXAuthority } from "./POSIXAuthority";
 import { SystemService, SystemServiceAction } from "srvmgr-api";
+import { Dictionary } from "acts-util-core";
 
 @Injectable
 export class SystemServicesManager
@@ -40,33 +42,52 @@ export class SystemServicesManager
 
     public async FetchServicesSnapshot(session: POSIXAuthority)
     {
-        const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-units", "--all", "--type", "service", "--no-legend"], session);
-        const lines = result.stdout.split("\n");
+        const unitFiles = await this.ListUnitFiles(session);
+        const units = await this.ListUnits(session);
 
-        const services: SystemService[] = [];
-
-        for (let line of lines)
+        const result: SystemService[] = [];
+        const dict: Dictionary<SystemService> = {};
+        for (const unitFile of unitFiles)
         {
-            if(!line)
-                break;
-            const parts = line.trim().match(/^([a-zA-Z0-9\-_@.\\]+)\.service[ \t]+(?:loaded|not-found|masked)[ \t]+(active|inactive|failed|activating)[ \t]+[a-z]+.*$/);
-            if(parts !== null)
-            {
-                const serviceName = parts[1];
-                const active = !(parts[2] === "inactive");
-                const enabled = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-enabled", serviceName + ".service"], session);
+            const service = {
+                name: unitFile.name,
+                enabled: unitFile.enabled,
+                running: false,
+                loaded: false,
+            };
+            result.push(service);
+            dict[unitFile.name] = service;
+        }
 
-                services.push({
-                    name: parts[1],
-                    enabled: enabled.exitCode === 0,
-                    running: active
+        for (const unit of units)
+        {
+            const service = dict[unit.name];
+            if(service === undefined)
+            {
+                result.push({
+                    name: unit.name,
+                    enabled: await this.IsServiceEnabled(unit.name, session),
+                    running: unit.running,
+                    loaded: true,
                 });
             }
             else
-                throw new Error("Couldn't parse line: " + line);
+            {
+                service.running = unit.running;
+                service.loaded = unit.loaded;
+            }
         }
+        return result;
+    }
 
-        return services;
+    public async QueryServiceInfo(serviceName: string, session: POSIXAuthority): Promise<SystemService | undefined>
+    {
+        return {
+            name: serviceName,
+            enabled: await this.IsServiceEnabled(serviceName, session),
+            running: await this.IsServiceActive(serviceName, session),
+            loaded: true, //TODO: not correct
+        };
     }
 
     public async QueryStatus(serviceName: string, session: POSIXAuthority)
@@ -94,5 +115,65 @@ export class SystemServicesManager
     private async ExecuteServiceAction(serviceName: string, action: SystemServiceAction, session: POSIXAuthority)
     {
         await this.commandExecutor.ExecuteCommand(["systemctl", action, serviceName + ".service"], this.permissionsManager.Sudo(session.uid));
+    }
+
+    private async ListUnitFiles(session: POSIXAuthority)
+    {
+        const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-unit-files", "--all", "--type", "service"], session);
+        const lines = result.stdout.split("\n");
+
+        lines.Remove(0); //column names only
+        while(!lines[lines.length -1]) //remove empty lines
+            lines.Remove(lines.length-1);
+        lines.Remove(lines.length-1); //remove sum of found unit files
+
+        return lines.Values().Filter(line => !!line).Map(line => {
+            const parts = line.trim().split(/[ \t]+/);
+            if(parts.length === 3)
+            {
+                const name = parts[0];
+                return {
+                    name: name.substr(0, name.length - ".service".length),
+                    enabled: parts[1] === "enabled"
+                };
+            }
+
+            throw new Error("Couldn't parse line: " + line);
+        });
+    }
+
+    private async ListUnits(session: POSIXAuthority)
+    {
+        const result = await this.commandExecutor.ExecuteCommand(["systemctl", "list-units", "--all", "--type", "service", "--no-legend"], session);
+        const lines = result.stdout.split("\n");
+
+        return lines.Values().Filter(line => !!line).Map(line => {
+            const parts = line.trim().match(/^([a-zA-Z0-9\-_@.\\]+)\.service[ \t]+(loaded|not-found|masked)[ \t]+(active|inactive|failed|activating)[ \t]+[a-z]+.*$/);
+            if(parts !== null)
+            {
+                const serviceName = parts[1];
+                const active = !(parts[3] === "inactive");
+
+                return {
+                    name: serviceName,
+                    loaded: parts[2] === "loaded",
+                    running: active
+                };
+            }
+            
+            throw new Error("Couldn't parse line: " + line);
+        });
+    }
+
+    private async IsServiceEnabled(serviceName: string, session: POSIXAuthority)
+    {
+        const enabled = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-enabled", serviceName + ".service"], session);
+        return enabled.exitCode === 0;
+    }
+
+    private async IsServiceActive(serviceName: string, session: POSIXAuthority)
+    {
+        const enabled = await this.commandExecutor.ExecuteCommandWithExitCode(["systemctl", "is-active", serviceName + ".service"], session);
+        return enabled.exitCode === 0;
     }
 }

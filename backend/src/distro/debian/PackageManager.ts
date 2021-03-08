@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,22 +15,23 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { ModuleName } from "srvmgr-api";
+import { Module } from "srvmgr-api";
 
 import { DistroPackageManager } from "../../Model/DistroPackageManager";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { Injectable } from "../../Injector";
-import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
+import { PermissionsManager } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 
 @Injectable
-class UbuntuPackageManager implements DistroPackageManager
+class DebianPackageManager implements DistroPackageManager
 {
     constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
     {
     }
 
     //Public methods
-    public async Install(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
+    public async Install(moduleName: Module.ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         const sudo = this.permissionsManager.Sudo(session.uid);
         await this.DoDebConfig(moduleName, sudo);
@@ -39,7 +40,7 @@ class UbuntuPackageManager implements DistroPackageManager
         return true;
     }
 
-    public async IsModuleInstalled(moduleName: ModuleName, session: POSIXAuthority): Promise<boolean>
+    public async IsModuleInstalled(moduleName: Module.ModuleName, session: POSIXAuthority): Promise<boolean>
     {
         const packages = this.MapModuleToPackageList(moduleName);
         const allPackages = await this.FetchInstalledPackages(session);
@@ -52,8 +53,16 @@ class UbuntuPackageManager implements DistroPackageManager
         return true;
     }
 
+    public async Uninstall(moduleName: Module.ModuleName, session: POSIXAuthority): Promise<boolean>
+    {
+        const sudo = this.permissionsManager.Sudo(session.uid);
+        await this.commandExecutor.ExecuteCommand(["apt", "-y", "purge", this.MapModuleToPackageList(moduleName).join(" ")], sudo);
+        await this.commandExecutor.ExecuteCommand(["apt", "-y", "autoremove"], sudo);
+        return true;
+    }
+
     //Private methods
-    private async DoDebConfig(moduleName: ModuleName, sudo: POSIXAuthority)
+    private async DoDebConfig(moduleName: Module.ModuleName, sudo: POSIXAuthority)
     {
         switch(moduleName)
         {
@@ -79,7 +88,7 @@ class UbuntuPackageManager implements DistroPackageManager
         return result;
     }
 
-    private MapModuleToPackageList(moduleName: ModuleName)
+    private MapModuleToPackageList(moduleName: Module.ModuleName)
     {
         switch(moduleName)
         {
@@ -92,7 +101,7 @@ class UbuntuPackageManager implements DistroPackageManager
             case "mariadb":
                 return ["mariadb-server"];
             case "nextcloud":
-                return [];
+                return ["php"];
             case "openvpn":
                 return ["openvpn", "easy-rsa"];
             case "phpmyadmin":
@@ -109,4 +118,4 @@ class UbuntuPackageManager implements DistroPackageManager
     }
 }
 
-export default UbuntuPackageManager;
+export default DebianPackageManager;

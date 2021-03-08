@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,30 +16,33 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import * as fs from "fs";
+import * as path from "path";
 
 import { Injectable } from "../../Injector";
 import { ModuleInstaller } from "../../Model/ModuleInstaller";
-import { POSIXAuthority } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
-import { UsersService } from "../../services/UsersService";
 import { jdDir, userAndGroupName } from "./shared";
+import { FileSystemService } from "../../services/FileSystemService";
+import { UserAndPrimaryGroupService } from "../../services/UserAndPrimaryGroupService";
+import { SystemServicesManager } from "../../services/SystemServicesManager";
 
 @Injectable
 class JDownloaderInstaller implements ModuleInstaller
 {
-    constructor(private commandExecutor: CommandExecutor, private usersService: UsersService)
+    constructor(private commandExecutor: CommandExecutor, private userAndPrimaryGroupService: UserAndPrimaryGroupService, private fsService: FileSystemService, private systemServicesManager: SystemServicesManager)
     {
     }
 
+    //Public methods
     public async Install(session: POSIXAuthority): Promise<boolean>
     {
-        const uid = await this.CreateUser(session);
-        const gid = await this.CreateGroup(session);
+        const authority = await this.userAndPrimaryGroupService.CreateUserAndGroup(userAndGroupName, session);
 
         fs.mkdirSync(jdDir);
-        fs.chownSync(jdDir, uid, gid);
+        fs.chownSync(jdDir, authority.uid, authority.gid);
         
-        const cmdOptions: CommandOptions = { gid, uid, workingDirectory: jdDir };
+        const cmdOptions: CommandOptions = { gid: authority.gid, uid: authority.uid, workingDirectory: jdDir };
         await this.commandExecutor.ExecuteCommand(["wget", "http://installer.jdownloader.org/JDownloader.jar"], cmdOptions);
         await this.commandExecutor.ExecuteCommand(["java", "-Djava.awt.headless=true", "-jar", "JDownloader.jar", "-norestart"], cmdOptions);
 
@@ -68,45 +71,28 @@ WantedBy=multi-user.target`
         return fs.existsSync(jdDir);
     }
 
-    //Private methods
-    private async CreateGroup(session: POSIXAuthority)
+    public async Uninstall(session: POSIXAuthority): Promise<boolean>
     {
-        await this.usersService.CreateGroup(userAndGroupName, session);
+        const serviceName = "jdownloader";
+        const info = await this.systemServicesManager.QueryServiceInfo(serviceName, session);
+        if(info !== undefined)
+        {
+            if(info.running)
+                await this.systemServicesManager.StopService(serviceName, session);
+            if(info.enabled)
+                await this.systemServicesManager.DisableService(serviceName, session);
+            await this.fsService.DeleteFile("/etc/systemd/system/jdownloader.service", session);
+        }
 
-        let subscription: any = null;
-        const userWaitPromise = new Promise<number>( resolve => {
-            subscription = this.usersService.groups.Subscribe({next: () => {
-                const result = this.usersService.GetGroupByName(userAndGroupName);
+        const children = await this.fsService.ListDirectoryContents(jdDir, session);
+        await children.Values().Filter(p => p !== "Downloads").Map(p => this.fsService.RemoveDirectoryRecursive(path.join(jdDir, p), session)).PromiseAll();
+        if(await this.fsService.Exists(path.join(jdDir, "Downloads"), session))
+            await this.fsService.RemoveDirectoryIfEmpty(path.join(jdDir, "Downloads"), session);
+        await this.fsService.RemoveDirectoryIfEmpty(jdDir, session);
 
-                if(result !== undefined)
-                    resolve(result.gid);
-            }});
-        });
+        await this.userAndPrimaryGroupService.DeleteUserAndGroup(userAndGroupName, session);
 
-        const result = await userWaitPromise;
-        subscription!.Unsubscribe();
-
-        return result;
-    }
-
-    private async CreateUser(session: POSIXAuthority)
-    {
-        await this.usersService.CreateSystemUser(userAndGroupName, session);
-
-        let subscription: any = null;
-        const userWaitPromise = new Promise<number>( resolve => {
-            subscription = this.usersService.users.Subscribe({next: () => {
-                const result = this.usersService.GetUserByName(userAndGroupName);
-
-                if(result !== undefined)
-                    resolve(result.uid);
-            }});
-        });
-
-        const result = await userWaitPromise;
-        subscription!.Unsubscribe();
-
-        return result;
+        return true;
     }
 }
 

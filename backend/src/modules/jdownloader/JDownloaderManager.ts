@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,30 +15,57 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import * as os from "os";
 
 import { Injectable } from "../../Injector";
-import { ConfigManager } from "../../services/ConfigManager";
 import { JDownloader } from "srvmgr-api";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
-import { UsersService } from "../../services/UsersService";
+import { UsersManager } from "../../services/UsersManager";
+import { UsersGroupsManager } from "../../services/UserGroupsManager";
+import { FileSystemService } from "../../services/FileSystemService";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { jdDir, userAndGroupName } from "./shared";
 
-const CONFIG_KEY = "jdownloader";
+const configPath = "/srv/jdownloader/cfg/org.jdownloader.api.myjdownloader.MyJDownloaderSettings.json";
 
 @Injectable
 export class JDownloaderManager
 {
-    constructor(private configManager: ConfigManager, private commandExecutor: CommandExecutor, private usersService: UsersService)
+    constructor(private fileSystemService: FileSystemService, private commandExecutor: CommandExecutor,
+        private usersManager: UsersManager, private groupsManager: UsersGroupsManager)
     {
     }
 
     //Public methods
-    public async Login()
+    public async QuerySettings(session: POSIXAuthority): Promise<JDownloader.MyJDownloaderCredentials>
     {
-        const uid = this.usersService.GetUserByName(userAndGroupName)!.uid;
-        const gid = this.usersService.GetGroupByName(userAndGroupName)!.gid;
+        const myjd = await this.QueryMyJDownloaderSettings(session);
+        
+        return {
+            userName: myjd.email,
+            password: myjd.password,
+        };
+    }
 
-        const settings = this.QuerySettings();
+    public async SetSettings(settings: JDownloader.MyJDownloaderCredentials, session: POSIXAuthority)
+    {
+        const myjd = await this.QueryMyJDownloaderSettings(session);
+        myjd.email = settings.userName;
+        myjd.password = settings.password;
+        await this.fileSystemService.WriteTextFile(configPath, JSON.stringify(myjd), session);
+
+        const uid = (await this.usersManager.GetUser(userAndGroupName))!.uid;
+        const gid = (await this.groupsManager.GetGroup(userAndGroupName))!.gid;
+        await this.fileSystemService.ChangeOwner(configPath, { uid, gid }, session);
+    }
+
+    //Private methods
+    private async Login(session: POSIXAuthority)
+    {
+        const uid = (await this.usersManager.GetUser(userAndGroupName))!.uid;
+        const gid = (await this.groupsManager.GetGroup(userAndGroupName))!.gid;
+
+        const settings = await this.QuerySettings(session);
 
         const cmdOptions: CommandOptions = { gid, uid, workingDirectory: jdDir };
         const childProcess = this.commandExecutor.CreateChildProcess(["java", "-Djava.awt.headless=true", "-jar", "JDownloader.jar", "-norestart", "-myjd"], cmdOptions);
@@ -48,25 +75,23 @@ export class JDownloaderManager
 
         setTimeout(() => childProcess.kill("SIGINT"), 60 * 1000);
     }
-
-    public QuerySettings()
+    
+    private async QueryMyJDownloaderSettings(session: POSIXAuthority)
     {
-        let settings = this.configManager.Get<JDownloader.MyJDownloaderCredentials>(CONFIG_KEY);
-        if(settings === undefined)
+        const exists = await this.fileSystemService.Exists(configPath, session);
+        if(exists)
         {
-            settings = {
-                userName: "",
-                password: "",
-            };
+            const data = await this.fileSystemService.ReadTextFile(configPath, session);
+            const json = JSON.parse(data);
+
+            return json;
         }
 
-        return settings;
-    }
-
-    public SetSettings(settings: JDownloader.MyJDownloaderCredentials)
-    {
-        this.configManager.Set(CONFIG_KEY, settings);
-
-        this.Login();
+        return {
+            email: "",
+            password: "",
+            autoconnectenabledv2: true,
+            devicename: os.hostname(),
+        };
     }
 }

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -27,7 +27,8 @@ import { ConfigManager } from "./ConfigManager";
 import { CommandExecutor } from "./CommandExecutor";
 import { ExternalConnectionManager } from "./ExternalConnectionManager";
 import { TemporaryFilesService } from "./TemporaryFilesService";
-import { POSIXAuthority, PermissionsManager } from "./PermissionsManager";
+import { PermissionsManager } from "./PermissionsManager";
+import { POSIXAuthority } from "./POSIXAuthority";
 import { TaskScheduler } from "./TaskScheduler";
 
 interface BackupConfig

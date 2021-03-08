@@ -19,21 +19,16 @@ import { ConfigModel } from "../src/core/ConfigModel";
 import { GlobalInjector } from "../src/Injector";
 import { SambaConfigParser } from "../src/modules/samba/SambaConfigParser";
 import { SambaManager } from "../src/modules/samba/SambaManager";
+import { ProcessesManager } from "../src/services/ProcessesManager";
 
 //TODO: Make real tests
 
 
 async function ASync()
 {
-    const cfgp = new SambaConfigParser;
-    const e = await cfgp.Parse("/etc/samba/smb.conf");
-    const mdl = new ConfigModel(e);
-
-    console.log(mdl.AsDictionary());
-
-    console.log("NEW");
-    const data = await GlobalInjector.Resolve(SambaManager).QuerySettings();
-    console.log(data.shares);
+    const s = GlobalInjector.Resolve(ProcessesManager);
+    const result = await s.QueryProcessesSnapshot({gid: 1000, uid: 1000});
+    console.log(result);
 }
 
 ASync();

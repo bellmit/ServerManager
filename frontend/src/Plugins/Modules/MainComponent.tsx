@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -54,7 +54,7 @@ export class MainComponent extends Component
                     <th>Install / Uninstall</th>
                 </tr>
                 {
-                    this.modules.map( (module: Module) => <tr>
+                    this.modules.map( (module: Module.Module) => <tr>
                         <td>{module.name}</td>
                         <td>
                             <button type="button" onclick={this.OnInstallModule.bind(this, module)} disabled={module.installed}>Install</button>
@@ -67,24 +67,26 @@ export class MainComponent extends Component
     }
 
     //Private members
-    private modules: Module[];
+    private modules: Module.Module[];
     private installingModule: string | null;
 
     //Event handlers
     public OnInitiated()
     {
-        this.moduleService.modules.Subscribe( (newModules: Module[]) => this.modules = newModules );
+        this.moduleService.modules.Subscribe( (newModules: Module.Module[]) => this.modules = newModules );
     }
     
-    private async OnInstallModule(module: Module)
+    private async OnInstallModule(module: Module.Module)
     {
         this.installingModule = module.name;
         await this.moduleService.Install(module.name);
         this.installingModule = null;
     }
 
-    private OnUninstallModule(module: Module)
+    private async OnUninstallModule(module: Module.Module)
     {
-        throw new Error("Method not implemented.");
+        this.installingModule = module.name;
+        await this.moduleService.Uninstall(module.name);
+        this.installingModule = null;
     }
 }

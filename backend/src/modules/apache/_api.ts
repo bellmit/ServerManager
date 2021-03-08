@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -73,6 +73,7 @@ class ApacheApi
         const p = vHost.properties.DeepClone();
         const res = p as Apache.Api.QuerySite.ResultData;
         res.addresses = vHost.addresses;
+        res.directories = vHost.directories;
 
         return res;
     }
@@ -80,7 +81,7 @@ class ApacheApi
     @ApiEndpoint({ route: Apache.Api.SetSite.message })
     public async SetSite(request: ApiRequest, data: Apache.Api.SetSite.RequestData): Promise<Apache.Api.SetSite.ResultData>
     {
-        const vHost = new VirtualHost(data.addresses, data);
+        const vHost = new VirtualHost(data.addresses, data, data.directories);
 
         await this.apacheManager.SetSite(data.siteName, vHost);
         return true;

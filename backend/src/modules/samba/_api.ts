@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -33,6 +33,12 @@ class SambaApi
     {
         const result = await this.sambaManager.AddUser(data.userName, data.password, request.session);
         return result;
+    }
+
+    @ApiEndpoint({ route: SMB.Api.DeleteShare.message })
+    public async DeleteShare(request: ApiRequest, data: SMB.Api.DeleteShare.RequestData)
+    {
+        this.sambaManager.DeleteShare(data.shareName, request.session);
     }
 
     @ApiEndpoint({ route: SMB.Api.ListShares.message })

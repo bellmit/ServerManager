@@ -1,7 +1,6 @@
-import { OpenVPNApi } from "srvmgr-api";
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,9 +17,11 @@ import { OpenVPNApi } from "srvmgr-api";
  * */
 import { promises as fs } from "fs";
 
+import { OpenVPNApi } from "srvmgr-api";
 import { Injectable } from "../../Injector";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
-import { PermissionsManager, POSIXAuthority } from "../../services/PermissionsManager";
+import { PermissionsManager } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 
 @Injectable
 export class OpenVPNManager

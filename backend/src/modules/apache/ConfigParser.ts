@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,16 +21,31 @@ import { Dictionary } from "acts-util-core";
 
 enum TokenType
 {
+    Comment,
+    EndElement,
     Identifier,
     Text,
-    VirtualHostBegin,
-    VirtualHostEnd,
 }
 
-interface Token
+interface StandardToken
 {
     type: TokenType;
     data: string;
+}
+
+interface BeginElementToken
+{
+    type: "BeginElement";
+    name: string;
+    attribute: string;
+}
+
+type Token = StandardToken | BeginElementToken;
+
+export interface ParsedDirectory
+{
+    path: string;
+    properties: Dictionary<string>;
 }
 
 export class ConfigParser
@@ -48,26 +63,36 @@ export class ConfigParser
     //Private methods
     private FetchNextToken(): Token
     {
-        const vh = "<VirtualHost ";
-        const vhEnd = "</VirtualHost>";
-
         this.input = this.input.trimLeft();
 
-        if(this.input.startsWith(vh))
+        if(this.input.startsWith("</"))
         {
-            this.input = this.input.substring(vh.length);
             const pos = this.input.indexOf(">");
-            const hostData = this.input.substring(0, pos).trim();
+            const tag = this.input.substring(2, pos);
+            this.input = this.input.substring(pos + 2);
+
+            return { type: TokenType.EndElement, data: tag };
+        }
+        else if(this.input.startsWith("<"))
+        {
+            const pos = this.input.indexOf(">");
+            const elemData = this.input.substring(1, pos).trim();
+            const nameMatch = elemData.match(/.+[ \t]/);
+            const nameEndPos = nameMatch![0].length - 1;
+            const name = elemData.substr(0, nameEndPos);
+
             this.input = this.input.substring(pos+1);
 
-            return { type: TokenType.VirtualHostBegin, data: hostData };
+            return { type: "BeginElement", name, attribute: this.ParseAttribute(elemData.substr(nameEndPos + 1))};
         }
 
-        if(this.input.startsWith(vhEnd))
+        if(this.input.startsWith("#"))
         {
-            this.input = this.input.substring(vhEnd.length);
-
-            return { type: TokenType.VirtualHostEnd, data: "" };
+            const commentMatch = this.input.match(/#.+[\r\n]/);
+            const data = commentMatch![0];
+            this.input = this.input.substring(data.length);
+        
+            return { type: TokenType.Comment, data: data.substr(1) };
         }
 
         const identifierMatch = this.input.match(/^[a-zA-Z]+[ \t]/);
@@ -84,43 +109,103 @@ export class ConfigParser
         return { type: TokenType.Text, data: data.trimRight() };
     }
 
-    private ParseNextTopLevelElement()
+    private ParseAttribute(text: string): string
     {
-        const token = this.FetchNextToken();
-
-        switch(token.type)
-        {
-            case TokenType.VirtualHostBegin:
-                return this.ParseVirtualHostBody(token.data);
-            default:
-                throw new Error("Method not implemented.");
-        }
+        if(text.startsWith('"'))
+            return text.substr(1, text.length - 2);
+        return text;
     }
 
-    private ParseVirtualHostBody(address: string)
+    private ParseDirectoryContents(path: string): ParsedDirectory
     {
         const data: Dictionary<string> = {};
 
         while(true)
         {
             const token = this.FetchNextToken();
-
-            if(token.type === TokenType.Identifier)
+            if(token.type === TokenType.EndElement)
             {
-                const valueToken = this.FetchNextToken();
-                if(valueToken.type !== TokenType.Text)
-                    throw new Error("Wrong data: " + valueToken.data);
-
-                data[token.data] = valueToken.data;
-            }
-            else if(token.type === TokenType.VirtualHostEnd)
+                if(token.data !== "Directory")
+                    throw new Error("Expected Directory end element but got: " + token.data);
                 break;
-            else
+            }
+
+            switch(token.type)
             {
-                throw new Error("Method not implemented.");
+                case TokenType.Identifier:
+                    const kv = this.ParseKeyValue(token);
+                    data[kv.key] = kv.value;
+                    break;
+                default:
+                    throw new Error("Unhandled token: " + token.type);
             }
         }
 
-        return VirtualHost.FromConfigObject(address, data);
+        return {
+            path,
+            properties: data
+        };
+    }
+
+    private ParseKeyValue(token: StandardToken)
+    {
+        const valueToken = this.FetchNextToken();
+        if(valueToken.type !== TokenType.Text)
+            throw new Error("Wrong data: " + valueToken);
+
+        return { key: token.data, value: valueToken.data };
+    }
+
+    private ParseNextTopLevelElement()
+    {
+        const token = this.FetchNextToken();
+
+        if( (token.type === "BeginElement") && (token.name === "VirtualHost") )
+            return this.ParseVirtualHostBody(token.attribute);
+        else
+        {
+            console.log(token);
+            throw new Error("Method not implemented: " + token.type);
+        }
+    }
+
+    private ParseVirtualHostBody(address: string)
+    {
+        const data: Dictionary<string> = {};
+        const dirs = [];
+
+        while(true)
+        {
+            const token = this.FetchNextToken();
+            if(token.type === TokenType.EndElement)
+            {
+                if(token.data !== "VirtualHost")
+                    throw new Error("Expected VirtualHost end element but got: " + token.data);
+                break;
+            }
+
+            switch(token.type)
+            {
+                case "BeginElement":
+                    if(token.name === "Directory")
+                    {
+                        const dir = this.ParseDirectoryContents(token.attribute);
+                        dirs.push(dir);
+                    }
+                    else
+                        throw new Error("Method not implemented");
+                    break
+                case TokenType.Comment:
+                    break;
+                case TokenType.Identifier:
+                    const kv = this.ParseKeyValue(token);
+                    data[kv.key] = kv.value;
+                    break;
+                default:
+                    throw new Error("Unhandled token: " + token.data);
+            }
+        }
+
+        return VirtualHost.FromConfigObject(address, data, dirs);
     }
 }

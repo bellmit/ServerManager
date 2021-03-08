@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -26,9 +26,11 @@ import * as Modules from "./Plugins/Modules/plugin";
 import * as MySQL from "./Plugins/MySQL/plugin";
 import * as Notifications from "./Plugins/Notifications/plugin";
 import * as OpenVPN from "./Plugins/OpenVPN/plugin";
+import * as ProcessList from "./Plugins/ProcessList/plugin";
 import * as Services from "./Plugins/Services/plugin";
 import * as Settings from "./Plugins/Settings/plugin";
 import * as SMB from "./Plugins/SMB/plugin";
+import * as SystemResourcesMonitor from "./Plugins/SystemResourcesMonitor/plugin";
 import * as SystemUpdate from "./Plugins/SystemUpdate/plugin";
 import * as Terminal from "./Plugins/Terminal/plugin";
 import * as Users from "./Plugins/Users/plugin";
@@ -45,9 +47,11 @@ export const plugins: PluginDefinition[] = [
     MySQL.statusPlugin,
     Notifications.plugin,
     OpenVPN.plugin,
+    ProcessList.plugin,
     Services.plugin,
     Settings.plugin,
     SMB.plugin,
+    SystemResourcesMonitor.plugin,
     SystemUpdate.plugin,
     Terminal.plugin,
     Users.plugin,

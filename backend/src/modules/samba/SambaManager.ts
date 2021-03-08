@@ -18,7 +18,8 @@
 import { Injectable } from "../../Injector";
 import { SMB } from "srvmgr-api";
 import { CommandExecutor } from "../../services/CommandExecutor";
-import { PermissionsManager, POSIXAuthority } from "../../services/PermissionsManager";
+import { PermissionsManager } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { SambaConfigParser } from "./SambaConfigParser";
 import { ConfigModel } from "../../core/ConfigModel";
 import { Dictionary } from "acts-util-core";
@@ -51,6 +52,17 @@ export class SambaManager
 
         const exitCode = await this.commandExecutor.ChildProcessToPromise(childProcess);
         return exitCode === 0;
+    }
+
+    public async DeleteShare(shareName: string, session: POSIXAuthority)
+    {
+        const settings = await this.QuerySettings();
+        const idx = settings.shares.findIndex(share => share.name === shareName);
+        if(idx === -1)
+            throw new Error("Share '" + shareName + "' does not exist.");
+        settings.shares.Remove(idx);
+
+        await this.WriteSettings(settings.global!, settings.shares, session);
     }
 
     public async QuerySettings()
@@ -184,6 +196,8 @@ export class SambaManager
         const mdl = new ConfigModel(cfgEntries);
 
         mdl.SetProperties("global", global);
+        const shareNamesToDelete = mdl.sectionNames.Filter(x => x !== "global").ToSet();
+
         for (const share of shares)
         {
             const p = share.properties;
@@ -198,6 +212,13 @@ export class SambaManager
                 "valid users": p.validUsers.join(" "),
                 writable: p.writable,
             });
+
+            shareNamesToDelete.delete(share.name);
+        }
+
+        for (const shareNameToDelete of shareNamesToDelete)
+        {
+            mdl.DeleteSection(shareNameToDelete.toString());
         }
 
         const writer = new ConfigWriter( x => x, "no", "yes");

@@ -21,12 +21,12 @@ import * as path from "path";
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiRequest } from "../Api";
 import { FileSystemApi } from "srvmgr-api";
-import { UsersService } from "../services/UsersService";
+import { UsersManager } from "../services/UsersManager";
 
 @Injectable
 class Api
 {
-    constructor(private usersService: UsersService)
+    constructor(private usersManager: UsersManager)
     {
     }
 
@@ -35,7 +35,7 @@ class Api
     {
         let dirPath: string;
         if(data === "~")
-            dirPath = this.usersService.GetUserById(request.session.uid)!.homeDirectory;
+            dirPath = (await this.usersManager.GetUserById(request.session.uid))!.homeDirectory;
         else
             dirPath = data;
         dirPath = path.normalize(dirPath);

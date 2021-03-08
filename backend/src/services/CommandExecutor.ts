@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,6 +17,8 @@
  * */
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
 import { Injectable } from '../Injector';
+import { PermissionsManager } from './PermissionsManager';
+import { POSIXAuthority } from './POSIXAuthority';
 import { ProcessTracker } from './ProcessTracker';
 
 interface CommandExecutionResult
@@ -37,7 +39,7 @@ export interface CommandOptions
 @Injectable
 export class CommandExecutor
 {
-    constructor(private processTracker: ProcessTracker)
+    constructor(private processTracker: ProcessTracker, private permissionsManager: PermissionsManager)
     {
     }
 
@@ -52,13 +54,20 @@ export class CommandExecutor
 
     public CreateChildProcess(command: string[], options: CommandOptions)
     {
+        let auth: POSIXAuthority = options;
+        if(command[0] === "sudo")
+        {
+            auth = this.permissionsManager.Sudo(options.uid);
+            command.Remove(0);
+        }
+
         const commandLine = command.join(" ");
         const childProcess = spawn(commandLine, [], {
             cwd: options.workingDirectory,
             env: options.environmentVariables,
-            gid: options.gid,
+            gid: auth.gid,
             shell: true,
-            uid: options.uid,
+            uid: auth.uid,
         });
 
         this.processTracker.RegisterProcess(childProcess, commandLine);

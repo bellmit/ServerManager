@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -39,7 +39,7 @@ export class CommandListComponent extends Component
             <div class="column">
                 Recent commands:
                 <ul>
-                    {...this.commands.map(this.RenderCommand.bind(this))}
+                    {...this.commands.reverse().map(this.RenderCommand.bind(this))}
                 </ul>
             </div>
             <div class="column expanding">

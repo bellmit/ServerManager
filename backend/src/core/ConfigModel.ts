@@ -19,6 +19,13 @@ import "acts-util-core";
 import { Dictionary } from "acts-util-core";
 import { ConfigEntry, KeyValueEntry, PropertyType } from "./ConfigParser";
 
+interface SectionRange
+{
+    from: ConfigEntry;
+    to: ConfigEntry;
+    source: ConfigEntry[];
+}
+
 export type Section = Dictionary<KeyValueEntry>;
 
 interface SectionInsertPosition
@@ -33,8 +40,19 @@ export class ConfigModel
     {
         this.sections = {};
         this.sectionInsertPositions = {};
+        this.newSectionInsertPos = {
+            entries,
+            before: undefined,
+        };
+        this.sectionRanges = {};
 
         this.FindKeyValueEntries(entries);
+    }
+
+    //Properties
+    public get sectionNames()
+    {
+        return this.sections.OwnKeys();
     }
 
     //Public methods
@@ -43,6 +61,30 @@ export class ConfigModel
         return this.sections.Entries().ToDictionary(kv => kv.key,
             kv => kv.value!.Values().ToDictionary(kvEntry => kvEntry!.key, kvEntry => kvEntry!.value)
         );
+    }
+
+    public DeleteSection(sectionName: string)
+    {
+        const section = this.sections[sectionName];
+        if(section === undefined)
+            return;
+
+        const ranges = this.sectionRanges[sectionName];
+        if(ranges !== undefined)
+        {
+            for (const range of ranges)
+            {
+                const from = range.source.indexOf(range.from);
+                const to = range.source.lastIndexOf(range.to);
+                for(let i = to; i >= from; i--)
+                    range.source.Remove(i);
+            }
+
+            delete this.sectionRanges[sectionName];
+        }
+
+        delete this.sections[sectionName];
+        delete this.sectionInsertPositions[sectionName];
     }
 
     public SetProperties(sectionName: string, props: Dictionary<PropertyType>)
@@ -58,9 +100,9 @@ export class ConfigModel
 
     public SetProperty(sectionName: string, propertyName: string, value: PropertyType)
     {
-        const section = this.sections[sectionName];
+        let section = this.sections[sectionName];
         if(section === undefined)
-            throw new Error("Section does not exist");
+            section = this.InsertNewSection(sectionName);
 
         const entry = section[propertyName];
         if(entry === undefined)
@@ -78,13 +120,7 @@ export class ConfigModel
                 value
             };
 
-            if(insertPos.before === undefined)
-                insertPos.entries.push(newEntry);
-            else
-            {
-                const index = insertPos.entries.indexOf(insertPos.before);
-                insertPos.entries.splice(index, 0, newEntry);
-            }
+            this.InsertEntry(insertPos, newEntry);
         }
         else
             entry.value = value;
@@ -93,13 +129,18 @@ export class ConfigModel
     //Private members
     private sections: Dictionary<Section>;
     private sectionInsertPositions: Dictionary<SectionInsertPosition>;
+    private newSectionInsertPos: SectionInsertPosition;
+    private sectionRanges: Dictionary<SectionRange[]>;
 
     //Private methods
-    private EndSection(sectionName: string, before: ConfigEntry | undefined, entries: ConfigEntry[])
+    private EndSection(sectionName: string, before: ConfigEntry | undefined, entries: ConfigEntry[], from: ConfigEntry, to: ConfigEntry)
     {
         if(sectionName in this.sectionInsertPositions)
-            console.log("Duplicate insert pos for ", sectionName);
+        {
+            throw new Error("Duplicate insert pos for " + sectionName);
+        }
 
+        let beforeNext = undefined;
         if(before !== undefined)
         {
             let index = entries.indexOf(before);
@@ -107,36 +148,109 @@ export class ConfigModel
                 index--;
 
             before = entries[index];
+            beforeNext = entries[index+1];
         }
 
         this.sectionInsertPositions[sectionName] = {
             entries,
             before
         };
+
+        this.newSectionInsertPos = {
+            entries,
+            before: beforeNext,
+        };
+
+        let ranges = this.sectionRanges[sectionName];
+        if(ranges === undefined)
+            ranges = this.sectionRanges[sectionName] = [];
+        ranges.push({
+            from,
+            to,
+            source: entries
+        });
     }
 
     private FindKeyValueEntries(entries: ConfigEntry[])
     {
         let currentSectionName = "";
+        let firstEntry: ConfigEntry | undefined = undefined;
+        let prevEntry: ConfigEntry | undefined = undefined;
+
         for (const entry of entries)
         {
             switch(entry.type)
             {
                 case "BeginSection":
-                    this.EndSection(currentSectionName, entry, entries);
+                    this.EndSection(currentSectionName, entry, entries, firstEntry!, prevEntry!);
 
                     currentSectionName = entry.textValue;
                     this.sections[currentSectionName] = {};
+                    firstEntry = entry;
                     break;
                 case "IncludeDir":
                     entry.entries.forEach(fileEntries => this.FindKeyValueEntries(fileEntries.entries));
                     break;
                 case "KeyValue":
-                    const section = this.sections[currentSectionName]!;
-                    section[entry.key] = entry;
+                    let section = this.sections[currentSectionName];
+                    if((section === undefined) && (currentSectionName === ""))
+                    {
+                        section = this.sections[currentSectionName] = {};
+                        firstEntry = entry;
+                    }
+                    section![entry.key] = entry;
                     break;
             }
+
+            prevEntry = entry;
         }
-        this.EndSection(currentSectionName, undefined, entries);
+        this.EndSection(currentSectionName, undefined, entries, firstEntry!, prevEntry!);
+    }
+
+    private InsertEntries(insertPos: SectionInsertPosition, ...newEntries: ConfigEntry[])
+    {
+        for (const entry of newEntries)
+            this.InsertEntry(insertPos, entry);
+    }
+
+    private InsertEntry(insertPos: SectionInsertPosition, newEntry: ConfigEntry)
+    {
+        if(insertPos.before === undefined)
+            insertPos.entries.push(newEntry);
+        else
+        {
+            const index = insertPos.entries.indexOf(insertPos.before);
+            insertPos.entries.splice(index, 0, newEntry);
+        }
+    }
+
+    private InsertNewSection(sectionName: string): Section
+    {
+        this.InsertEntries(this.newSectionInsertPos,
+            {
+                type: "Text",
+                textValue: ""
+            },
+            {
+                type: "BeginSection",
+                textValue: sectionName
+            }
+        );
+
+        const newEntry: ConfigEntry = {
+            type: "Text",
+            textValue: ""
+        };
+        this.InsertEntry(this.newSectionInsertPos, newEntry);
+
+        const pos: SectionInsertPosition = {
+            entries: this.newSectionInsertPos.entries,
+            before: newEntry
+        };
+
+        const section = {};
+        this.sections[sectionName] = section;
+        this.sectionInsertPositions[sectionName] = pos;
+        return section;
     }
 }

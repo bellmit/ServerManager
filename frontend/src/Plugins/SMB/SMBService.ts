@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -31,6 +31,11 @@ export class SMBService
     public AddUser(data: SMB.Api.AddUser.RequestData)
     {
         return this.websocketService.SendRequest<SMB.Api.AddUser.ResponseData>(SMB.Api.AddUser.message, data);
+    }
+
+    public DeleteShare(data: SMB.Api.DeleteShare.RequestData)
+    {
+        return this.websocketService.SendRequest(SMB.Api.DeleteShare.message, data);
     }
 
     public QueryShares()

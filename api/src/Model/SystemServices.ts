@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,6 +21,7 @@ export interface SystemService
     name: string;
     enabled: boolean;
     running: boolean;
+    loaded: boolean;
 }
 
 export type SystemServiceAction = "disable" | "enable" | "restart" | "start" | "stop";

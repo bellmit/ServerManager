@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@
 import { Injectable } from "../../Injector";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { NotificationsManager } from "../../services/NotificationsManager";
-import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
+import { PermissionsManager } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { CertificatesApi } from "srvmgr-api";
 
 @Injectable

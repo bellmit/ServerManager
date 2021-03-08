@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,7 +19,8 @@ import * as fs from "fs";
 
 import { Injectable } from "../../Injector";
 import { ModuleInstaller } from "../../Model/ModuleInstaller";
-import { POSIXAuthority, PermissionsManager } from "../../services/PermissionsManager";
+import { PermissionsManager } from "../../services/PermissionsManager";
+import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
 import { SystemServicesManager } from "../../services/SystemServicesManager";
 import { ApacheManager } from "../apache/ApacheManager";
@@ -65,6 +66,11 @@ class NextcloudInstaller implements ModuleInstaller
     public async IsModuleInstalled(session: POSIXAuthority): Promise<boolean>
     {
         return fs.existsSync("/var/www/nextcloud");
+    }
+
+    public Uninstall(session: POSIXAuthority): Promise<boolean>
+    {
+        throw new Error("Method not implemented.");
     }
 }
 

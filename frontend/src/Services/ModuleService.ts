@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
  * */
 import { Injectable } from "acfrontend";
 
-import { Module, ModuleName, Messages } from "srvmgr-api";
+import { Module } from "srvmgr-api";
 
 import { WebSocketService } from "./WebSocketService";
 import { ApiProperty } from "../API/ApiProperty";
@@ -27,7 +27,7 @@ export class ModuleService
 {
     constructor(private webSocketService: WebSocketService)
     {
-        this._modules = new ApiProperty<Module[]>(Messages.MODULES_LIST, webSocketService);
+        this._modules = new ApiProperty<Module.Module[]>(Module.API.List.message, webSocketService);
     }
 
     //Properties
@@ -37,17 +37,22 @@ export class ModuleService
     }
 
     //Public methods
-    public Install(moduleName: ModuleName)
+    public Install(moduleName: Module.ModuleName)
     {
-        return this.webSocketService.SendRequest(Messages.MODULES_INSTALL, moduleName);
+        return this.webSocketService.SendRequest(Module.API.Install.message, moduleName);
     }
 
-    public async IsModuleInstalled(moduleName: ModuleName)
+    public async IsModuleInstalled(moduleName: Module.ModuleName)
     {
         const modules = await this.modules.Get();
         return modules.find( mod => (mod.name == moduleName) && mod.installed ) !== undefined;
     }
 
+    public Uninstall(moduleName: Module.ModuleName)
+    {
+        return this.webSocketService.SendRequest(Module.API.Uninstall.message, moduleName);
+    }
+
     //Private members
-    private _modules: ApiProperty<Module[]>;
+    private _modules: ApiProperty<Module.Module[]>;
 }

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,13 +21,13 @@ import { Routes, AuthResult } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 import { HttpEndpoint } from "../Http";
-import { UsersService } from "../services/UsersService";
 import { SessionManager } from "../services/SessionManager";
+import { AuthenticationService } from "../services/AuthenticationService";
 
 @Injectable
 class AuthApi
 {
-    constructor(private usersService: UsersService, private sessionManager: SessionManager)
+    constructor(private authService: AuthenticationService, private sessionManager: SessionManager)
     {
     }
 
@@ -36,7 +36,7 @@ class AuthApi
     {
         const data = request.body;
         const result:AuthResult = {
-            success: await this.usersService.Authenticate(data.userName, data.password)
+            success: await this.authService.Authenticate(data.userName, data.password)
         };
 
         if(result.success)

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,14 +19,16 @@ import * as Apache from "./Model/Apache";
 import * as Commands from "./Model/Commands";
 import * as JDownloader from "./Model/JDownloader";
 import * as MySQL from "./Model/MySQL";
+import * as Processes from "./Model/Processes";
 import * as SMB from "./Model/SMB";
+import * as SystemInfo from "./Model/SystemInfo";
 import * as SystemUpdate from "./Model/SystemUpdate";
 
 import { Messages, JsonRequestMessage, JsonResponseMessage } from "./Messages";
 import { User, Group } from "./Model/User";
 import { BackupTask, BackupSaveRequest, DownloadFileRequest } from "./Model/BackupTask";
 import { ExternalConnectionConfig, ExternalConnectionType, ExternalConnectionTypes, ExternalConnectionSettings } from "./Model/ExternalConnection";
-import { Module, ModuleName, moduleNames } from "./Model/Module";
+import * as Module from "./Model/Module";
 import { Routes } from "./Http";
 import { AuthResult } from "./Model/Auth";
 import { SystemService, SystemServiceAction, SystemServiceActionData } from "./Model/SystemServices";
@@ -60,17 +62,17 @@ export {
     JsonRequestMessage,
     JsonResponseMessage,
     Messages,
-    ModuleName,
-    moduleNames,
     Module,
     MySQL,
     NotificationSettings,
     OpenVPNApi,
     OperationStatus,
     PowerApi,
+    Processes,
     Routes,
     User,
     SMB,
+    SystemInfo,
     SystemService,
     SystemServiceAction,
     SystemServiceActionData,

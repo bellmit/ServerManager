@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
  * */
 import { Component } from "acfrontend";
 import { Instantiatable } from "acts-util-core";
-import { ModuleName } from "srvmgr-api";
+import { Module } from "srvmgr-api";
 
 export interface PluginDefinition
 {
@@ -27,6 +27,6 @@ export interface PluginDefinition
     baseRoute?: string;
     component?: Instantiatable<Component>;
 
-    dependentModules?: Array<ModuleName>;
+    dependentModules?: Array<Module.ModuleName>;
     icon?: RenderValue;
 }

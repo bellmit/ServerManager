@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,7 +17,7 @@
  * */
 
 import { Dictionary } from "acts-util-core";
-import { SUBMSG_LIST, SUBMSG_ADD } from "../Messages";
+import { SUBMSG_LIST, SUBMSG_ADD, SUBMSG_DELETE } from "../Messages";
 
 const MSG_SMB = "/SMB/";
 const MSG_SMB_USERS = MSG_SMB + "Users/";
@@ -77,6 +77,16 @@ export namespace Api
             password: string;
         }
         export type ResponseData = boolean;
+    }
+
+    export namespace DeleteShare
+    {
+        export const message = MSG_SMB_SHARES + SUBMSG_DELETE;
+
+        export interface RequestData
+        {
+            shareName: string;
+        }
     }
 
     export namespace ListShares

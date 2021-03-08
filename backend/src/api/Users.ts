@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,12 +20,16 @@ import { Messages, User, Group, OperationStatus } from "srvmgr-api";
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
-import { UsersService } from "../services/UsersService";
+import { UserDataProviderService } from "../services/UserDataProviderService";
+import { UsersManager } from "../services/UsersManager";
+import { UsersGroupsManager } from "../services/UserGroupsManager";
+import { AuthenticationService } from "../services/AuthenticationService";
 
 @Injectable
 class UsersApi
 {
-    constructor(private connectionManager: ConnectionManager, private usersService: UsersService)
+    constructor(private connectionManager: ConnectionManager, private usersService: UserDataProviderService,
+        private usersManager: UsersManager, private groupsManager: UsersGroupsManager, private authService: AuthenticationService)
     {
         this.groups = [];
         this.users = [];
@@ -36,21 +40,21 @@ class UsersApi
     @ApiEndpoint({ route: Messages.USERS_ADD })
     public async AddUser(request: ApiRequest, data: any)
     {
-        const result = await this.usersService.CreateUser(data.userName, data.createHomeDir, request.session);
-        this.connectionManager.Respond(request, result);
+        const result = await this.usersManager.CreateUser(data.userName, data.createHomeDir, request.session);
+        this.connectionManager.Respond(request, result === undefined ? true : false);
     }
 
     @ApiEndpoint({ route: Messages.USERS_GROUPS_ADD })
     public async AddUserToGroup(request: ApiRequest, data: any)
     {
-        const result = await this.usersService.AddUserToGroup(data.userName, data.groupName, request.session);
-        this.connectionManager.Respond(request, result);
+        const result = await this.groupsManager.AddUserToGroup(data.userName, data.groupName, request.session);
+        this.connectionManager.Respond(request, result === undefined ? true : false);
     }
 
     @ApiEndpoint({ route: Messages.USERS_CHANGE_PASSWORD })
     public async ChangePassword(request: ApiRequest, data: any)
     {
-        const result = await this.usersService.ChangePassword(data.userName, data.oldPassword, data.newPassword, request.session);
+        const result = await this.authService.ChangePassword(data.userName, data.oldPassword, data.newPassword, request.session);
         this.connectionManager.Respond(request, result);
     }
 
@@ -60,7 +64,7 @@ class UsersApi
         let response: OperationStatus = { success: true };
         try
         {
-            await this.usersService.DeleteUser(userName, request.session)
+            await this.usersManager.DeleteUser(userName, request.session)
         }
         catch(error)
         {
@@ -79,7 +83,7 @@ class UsersApi
     public async ListUserGroups(request: ApiRequest, userName: string)
     {
         const user = this.users.find(user => user.name === userName);
-        const groups = user === undefined ? [] : this.usersService.GetGroupsOf(user.uid);
+        const groups = user === undefined ? [] : this.usersManager.GetGroupsOf(user.name);
         this.connectionManager.Respond(request, groups || []);
     }
 
@@ -92,8 +96,8 @@ class UsersApi
     @ApiEndpoint({ route: Messages.USERS_GROUPS_REMOVE })
     public async RemoveUserFromGroup(request: ApiRequest, data: any)
     {
-        const result = await this.usersService.RemoveUserFromGroup(data.userName, data.groupName, request.session);
-        this.connectionManager.Respond(request, result);
+        const result = await this.groupsManager.RemoveUserFromGroup(data.userName, data.groupName, request.session);
+        this.connectionManager.Respond(request, result === undefined ? true : false);
     }
 
     //Private members

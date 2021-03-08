@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -29,15 +29,15 @@ class JDownloaderApi
     }
 
     @ApiEndpoint({ route: JDownloader.Api.QuerySettings.message })
-    public QuerySettings(request: ApiRequest): JDownloader.Api.QuerySettings.ResultData
+    public async QuerySettings(request: ApiRequest): Promise<JDownloader.Api.QuerySettings.ResultData>
     {
-        return this.jdownloaderManager.QuerySettings();
+        return this.jdownloaderManager.QuerySettings(request.session);
     }
 
     @ApiEndpoint({ route: JDownloader.Api.SetSettings.message })
     public async SetSettings(request: ApiRequest, data: JDownloader.Api.SetSettings.RequestData)
     {
-        this.jdownloaderManager.SetSettings(data);
+        return this.jdownloaderManager.SetSettings(data, request.session);
     }
 }
 

@@ -76,6 +76,25 @@ export abstract class ConfigParser
     protected abstract FileNameMatchesIncludeDir(fileName: string): boolean;
     protected abstract ParseIncludeDir(line: string): string | undefined;
 
+    //Protected methods
+    protected ParseKeyValue(line: string): KeyValueEntry
+    {
+        const parts = line.split("=");
+        let value: PropertyType;
+        if(parts.length === 1)
+            value = null;
+        else if(parts.length != 2)
+            throw new Error("Illegal data: " + line);
+        else
+            value = parts[1].trimLeft();
+
+        return {
+            type: "KeyValue",
+            key: parts[0].trim(),
+            value
+        };
+    }
+
     //Private members
     private entriesStack: ConfigEntry[][];
 
@@ -95,17 +114,11 @@ export abstract class ConfigParser
         return false;
     }
 
-    private ParseKeyValue(line: string): KeyValueEntry
+    private ParseKeyValueEntry(line: string): KeyValueEntry
     {
-        const parts = line.split("=");
-        let value: PropertyType;
-        if(parts.length === 1)
-            value = null;
-        else if(parts.length != 2)
-            throw new Error("Illegal data: " + line);
-        else
-            value = parts[1].trimLeft();
+        const entry = this.ParseKeyValue(line);
 
+        let value = entry.value;
         const asNum = typeof value === "string" ? parseInt(value) : NaN;
         if( !isNaN(asNum) && (asNum.toString() === value))
             value = asNum;
@@ -121,7 +134,7 @@ export abstract class ConfigParser
 
         return {
             type: "KeyValue",
-            key: parts[0].trim(),
+            key: entry.key,
             value
         };
     }
@@ -143,7 +156,7 @@ export abstract class ConfigParser
             if(dirPath !== undefined)
                 await this.ResolveDir(dirPath);
             else
-                this.AddEntry(this.ParseKeyValue(line));
+                this.AddEntry(this.ParseKeyValueEntry(line));
         }
     }
 

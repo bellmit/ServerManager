@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,8 +22,8 @@ import { Dictionary } from "acts-util-core";
 import { User } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
-import { POSIXAuthority } from "./PermissionsManager";
-import { UsersService } from "./UsersService";
+import { POSIXAuthority } from "./POSIXAuthority";
+import { UserDataProviderService } from "./UserDataProviderService";
 
 export interface SessionData
 {
@@ -41,7 +41,7 @@ interface Session extends POSIXAuthority
 @Injectable
 export class SessionManager
 {
-    constructor(private usersService: UsersService)
+    constructor(private usersService: UserDataProviderService)
     {
         this.sessions = {};
         this.userData = {};

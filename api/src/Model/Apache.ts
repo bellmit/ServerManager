@@ -40,6 +40,12 @@ export interface SSLModuleProperties
     keyFile: string;
 }
 
+export interface VirtualHostDirectory
+{
+    path: string;
+    fallbackResource?: string;
+}
+
 export interface VirtualHostProperties
 {
     serverAdmin: string;
@@ -53,6 +59,7 @@ export interface VirtualHostProperties
 interface VirtualHost extends VirtualHostProperties
 {
     addresses: string;
+    directories: VirtualHostDirectory[];
 }
 
 export namespace Api

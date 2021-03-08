@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,19 +18,26 @@
 
 import { Apache } from "srvmgr-api";
 import { Dictionary } from "acts-util-core";
+import { ParsedDirectory } from "./ConfigParser";
 
 export class VirtualHost
 {
-    constructor(addresses: string, properties: Apache.VirtualHostProperties)
+    constructor(addresses: string, properties: Apache.VirtualHostProperties, directories: Apache.VirtualHostDirectory[])
     {
         this._addresses = addresses;
         this._properties = properties;
+        this._directories = directories;
     }
 
     //Properties
     public get addresses()
     {
         return this._addresses;
+    }
+
+    public get directories()
+    {
+        return this._directories;
     }
     
     public get properties()
@@ -55,6 +62,13 @@ export class VirtualHost
             result += "\tSSLCertificateKeyFile " + this._properties.mod_ssl.keyFile + "\n";
         }
 
+        for (const dir of this._directories)
+        {
+            result += '\n\t<Directory "' + dir.path + '">\n';
+            result += this.DirectoryContentsToConfigString(dir);
+            result += '\n\t</Directory>\n';
+        }
+
         result += `
 </VirtualHost>
 
@@ -71,10 +85,10 @@ export class VirtualHost
             documentRoot: "/usr/local/apache/htdocs",
             errorLog: "${APACHE_LOG_DIR}/error.log",
             customLog: "${APACHE_LOG_DIR}/access.log combined",
-        });
+        }, []);
     }
 
-    public static FromConfigObject(addresses: string, properties: Dictionary<string>)
+    public static FromConfigObject(addresses: string, properties: Dictionary<string>, dirs: ParsedDirectory[])
     {
         const vh = this.Default(addresses, properties.ServerAdmin!);
         const p = vh.properties;
@@ -92,10 +106,30 @@ export class VirtualHost
             };
         }
 
+        vh._directories = dirs.map(this.ParsedDirectoryToDirectory.bind(this));
+
         return vh;
     }
 
     //Private members
     private _addresses: string;
     private _properties: Apache.VirtualHostProperties;
+    private _directories: Apache.VirtualHostDirectory[];
+
+    //Private methods
+    private DirectoryContentsToConfigString(dir: Apache.VirtualHostDirectory)
+    {
+        if(dir.fallbackResource)
+            return "\t\tFallbackResource " + dir.fallbackResource;
+        return "";
+    }
+
+    //Class functions
+    private static ParsedDirectoryToDirectory(dir: ParsedDirectory): Apache.VirtualHostDirectory
+    {
+        return {
+            path: dir.path,
+            fallbackResource: dir.properties.FallbackResource,
+        };
+    }
 }

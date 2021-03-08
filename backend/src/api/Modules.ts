@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,12 +15,13 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Messages } from "srvmgr-api";
+import { Messages, Module } from "srvmgr-api";
 
 import { Injectable } from "../Injector";
 import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { ModuleManager } from "../services/ModuleManager";
+import { POSIXAuthority } from "../services/POSIXAuthority";
 
 @Injectable
 class ModulesApi
@@ -30,7 +31,7 @@ class ModulesApi
     }
 
     //Api Endpoints
-    @ApiEndpoint({ route: Messages.MODULES_INSTALL })
+    @ApiEndpoint({ route: Module.API.Install.message })
     public async Install(request: ApiRequest, moduleName: string)
     {
         const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
@@ -38,13 +39,31 @@ class ModulesApi
         {
             await this.moduleManager.Install(moduleNameMapped, request.session);
         }
+        this.NotifyAboutChangedModules(request.session);
         this.connectionManager.Respond(request, true);
     }
 
-    @ApiEndpoint({ route: Messages.MODULES_LIST })
+    @ApiEndpoint({ route: Module.API.List.message })
     public async ListAllModules(call: ApiCall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules(call.session));
+    }
+
+    @ApiEndpoint({ route: Module.API.Uninstall.message })
+    public async Uninstall(request: ApiRequest, moduleName: string)
+    {
+        const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
+        if(moduleNameMapped != null)
+        {
+            await this.moduleManager.Uninstall(moduleNameMapped, request.session);
+        }
+        this.NotifyAboutChangedModules(request.session);
+        this.connectionManager.Respond(request, true);
+    }
+
+    private async NotifyAboutChangedModules(session: POSIXAuthority)
+    {
+        this.connectionManager.Broadcast(Module.API.List.message, await this.moduleManager.FetchModules(session));
     }
 }
 

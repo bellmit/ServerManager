@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -87,6 +87,16 @@ export class ProcessTracker
     private _processList: Property<Commands.CommandOverviewData[]>;
 
     //Private methods
+    private AddChunkToBuffer(buffer: string, chunk: string)
+    {
+        const maxCharsPerBufferedStream = 3 * 1024 * 1024; //3 MiB
+
+        let result = buffer + chunk;
+        if(result.length > maxCharsPerBufferedStream)
+            return result.substr(result.length - maxCharsPerBufferedStream);
+        return result;
+    }
+
     private UpdateProcessList()
     {
         const list: Commands.CommandOverviewData[] = [];
@@ -121,14 +131,14 @@ export class ProcessTracker
 
     private OnStdErrDataReceived(processInfo: ProcessInfo, chunk: string)
     {
-        processInfo.stdErrBuffered += chunk;
+        processInfo.stdErrBuffered = this.AddChunkToBuffer(processInfo.stdErrBuffered, chunk);
 
         this._processData.Next(processInfo);
     }
 
     private OnStdOutDataReceived(processInfo: ProcessInfo, chunk: string)
     {
-        processInfo.stdOutBuffered += chunk;
+        processInfo.stdOutBuffered = this.AddChunkToBuffer(processInfo.stdOutBuffered, chunk);
 
         this._processData.Next(processInfo);
     }

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -55,18 +55,38 @@ export class ListSharesComponent extends Component
     private data: SMB.Share[] | null;
 
     //Private methods
+    private async QueryShares()
+    {
+        this.data = await this.smbService.QueryShares();
+        this.data.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
     private RenderShare(share: SMB.Share)
     {
         return <tr>
             <td>{share.name}</td>
-            <td><Anchor route={"/smb/shares/edit/" + share.name}><MatIcon>edit</MatIcon></Anchor></td>
+            <td>
+                <Anchor route={"/smb/shares/edit/" + share.name}><MatIcon>edit</MatIcon></Anchor>
+                <a onclick={this.OnDeleteShare.bind(this, share.name)}><MatIcon>delete_forever</MatIcon></a>
+            </td>
         </tr>;
     }
 
     //Event handlers
-    public async OnInitiated()
+    private async OnDeleteShare(shareName: string)
     {
-        this.data = await this.smbService.QueryShares();
-        this.data.sort((a, b) => a.name.localeCompare(b.name));
+        if(confirm("Are you sure that you PERMANENTLY want to delete the share '" + shareName + "'?"))
+        {
+            const share = this.data!.find(share => share.name === shareName)!;
+            this.data = null;
+
+            await this.smbService.DeleteShare({ shareName });
+            this.QueryShares();
+        }
+    }
+
+    public OnInitiated()
+    {
+        this.QueryShares();
     }
 }

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -27,9 +27,11 @@ import { routes as modulesRoutes } from "./Plugins/Modules/routing";
 import { routes as mysqlRoutes } from "./Plugins/MySQL/routing";
 import { routes as notificationsRoutes } from "./Plugins/Notifications/routing";
 import { routes as openvpnRoutes } from "./Plugins/OpenVPN/routing";
+import { routes as processListRoutes } from "./Plugins/ProcessList/routing";
 import { routes as servicesRoutes } from "./Plugins/Services/routing";
 import { routes as settingsRoutes } from "./Plugins/Settings/routing";
 import { routes as smbRoutes } from "./Plugins/SMB/routing";
+import { routes as systemResourcesMonitorRoutes } from "./Plugins/SystemResourcesMonitor/routing";
 import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
 import { routes as terminalRoutes } from "./Plugins/Terminal/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
@@ -53,9 +55,11 @@ const protectedRoutes : Routes = [
     { path: "mysql", component: MySQLSettingsComponent, children: mysqlRoutes },
     { path: "notifications", children: notificationsRoutes },
     { path: "openvpn", children: openvpnRoutes },
+    { path: "processes", children: processListRoutes },
     { path: "services", children: servicesRoutes },
     { path: "settings", children: settingsRoutes },
     { path: "smb", component: SMBComponent, children: smbRoutes },
+    { path: "resourcesmonitor", children: systemResourcesMonitorRoutes },
     { path: "systemupdate", children: systemUpdateRoutes },
     { path: "terminal", children: terminalRoutes },
     { path: "users", children: usersRoutes },

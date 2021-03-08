@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -35,7 +35,6 @@ export interface JsonResponseMessage extends JsonMessage
 
 const MSG_BACKUPS = "/Backups/";
 const MSG_EXTERNALCONNECTIONS = "/ExternalConnections/";
-const MSG_MODULES = "/Modules/";
 const MSG_MYSQL = "/MySQL/";
 const MSG_NOTIFICATIONS = "/Notifications/";
 const MSG_SERVICES = "/Services/";
@@ -61,9 +60,6 @@ export const Messages = {
     EXTERNALCONNECTIONS_ISENCRYPTED: MSG_EXTERNALCONNECTIONS + "IsEncrypted",
     EXTERNALCONNECTIONS_LIST: MSG_EXTERNALCONNECTIONS + SUBMSG_LIST,
     EXTERNALCONNECTIONS_SET: MSG_EXTERNALCONNECTIONS + SUBMSG_SET,
-
-    MODULES_INSTALL: MSG_MODULES + "Install",
-    MODULES_LIST: MSG_MODULES + SUBMSG_LIST,
 
     MYSQL_SHOW_STATUS: MSG_MYSQL + "ShowStatus",
 

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -37,6 +37,7 @@ export class ListServicesComponent extends Component
         return <table>
             <tr>
                 <th>Service</th>
+                <th>Loaded</th>
                 <th>Autostart on boot</th>
                 <th>Actions</th>
             </tr>
@@ -48,10 +49,17 @@ export class ListServicesComponent extends Component
     private data: SystemService[] | null;
 
     //Private methods
+    private async LoadServices()
+    {
+        const data = await this.systemServicesService.ListSystemServices();
+        this.data = data.OrderBy(s => s.name, true);
+    }
+
     private RenderServiceRow(systemService: SystemService)
     {
         return <tr>
             <td>{systemService.name}</td>
+            <td><MatIcon>{systemService.loaded ? "check" : "close"}</MatIcon></td>
             <td><Switch checked={systemService.enabled} onChanged={this.OnServiceActionClicked.bind(this, systemService.name, !systemService.enabled ? "enable" : "disable")} /></td>
             <td>
                 <RouterButton route={"/services/status/" + systemService.name}><MatIcon>description</MatIcon></RouterButton>
@@ -63,9 +71,9 @@ export class ListServicesComponent extends Component
     }
 
     //Event handlers
-    public async OnInitiated()
+    public OnInitiated()
     {
-        this.data = await this.systemServicesService.ListSystemServices();
+        this.LoadServices();
     }
 
     private async OnServiceActionClicked(serviceName: string, serviceAction: SystemServiceAction)
@@ -74,6 +82,6 @@ export class ListServicesComponent extends Component
 
         await this.systemServicesService.ExecuteAction(serviceName, serviceAction);
 
-        this.data = await this.systemServicesService.ListSystemServices();
+        this.LoadServices();
     }
 }

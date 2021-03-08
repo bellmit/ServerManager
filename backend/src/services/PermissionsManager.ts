@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,14 +17,10 @@
  * */
 import { Injectable } from "../Injector";
 import { FileSystemWatcher } from "./FileSystemWatcher";
-import { Dictionary, Injector } from "acts-util-core";
-import { UsersService } from "./UsersService";
-
-export interface POSIXAuthority
-{
-    gid: number;
-    uid: number;
-}
+import { Dictionary } from "acts-util-core";
+import { POSIXAuthority } from "./POSIXAuthority";
+import { UserDataProviderService } from "./UserDataProviderService";
+import { Group, User } from "srvmgr-api";
 
 interface GroupRule
 {
@@ -37,10 +33,15 @@ interface UserRule
 @Injectable
 export class PermissionsManager
 {
-    constructor(private fileSystemWatcher: FileSystemWatcher, private injector: Injector)
+    constructor(private fileSystemWatcher: FileSystemWatcher, userDataProviderService: UserDataProviderService)
     {
         this.groupRules = {};
         this.userRules = {};
+        this.groupMemberMap = {};
+        this.usersIdMap = {};
+
+        userDataProviderService.users.Subscribe({ next: this.OnUsersChanged.bind(this) });
+        userDataProviderService.groups.Subscribe({ next: this.OnGroupsChanged.bind(this) });
 
         this.ObserveSudoersFile();
     }
@@ -54,16 +55,14 @@ export class PermissionsManager
     //Public methods
     public CanSudo(uid: number)
     {
-        const usersService = this.injector.Resolve(UsersService);
-
-        const user = usersService.GetUserById(uid);
+        const user = this.usersIdMap[uid];
         if(user === undefined)
             return false;
         const userRule = this.userRules[user.name];
         if(userRule !== undefined)
             return true;
 
-        const groups = usersService.GetGroupsOf(user.uid);
+        const groups = this.groupMemberMap[user.name];
         if(groups === undefined)
             return false;
 
@@ -77,19 +76,43 @@ export class PermissionsManager
         return false;
     }
 
+    public MatchesGroupIdWithAuthority(gid: number, session: POSIXAuthority)
+    {
+        if(session.gid === gid)
+            return true;
+        const groups = this.GetGroups(session.uid);
+        return groups.Values().Filter(x => x.gid === gid).Any();
+    }
+
     public Sudo(uid: number): POSIXAuthority
     {
-        if(!this.CanSudo(uid))
+        const can = this.CanSudo(uid);
+        if(!can)
             throw new Error("Permission denied");
             
         return this.root;
     }
 
     //Private members
+    private groupMemberMap: Dictionary<Group[]>;
+    private usersIdMap: Dictionary<User>;
     private groupRules: Dictionary<GroupRule>;
     private userRules: Dictionary<UserRule>;
 
     //Private methods
+    private GetGroups(uid: number)
+    {
+        const user = this.usersIdMap[uid];
+        if(user === undefined)
+            return [];
+
+        const groups = this.groupMemberMap[user.name];
+        if(groups === undefined)
+            return [];
+
+        return groups;
+    }
+
     private ObserveSudoersFile()
     {
         return this.fileSystemWatcher.ObserveTextFile("/etc/sudoers", (data: string) => this.ParseSudoersFile(data) );
@@ -142,4 +165,19 @@ export class PermissionsManager
         this.groupRules = groupRules;
         this.userRules = userRules;
     } 
+
+    //Event handlers
+    private OnGroupsChanged(newGroups: Group[])
+    {
+        this.groupMemberMap = UserDataProviderService.CreateUserToGroupMap(newGroups);
+    }
+
+    private OnUsersChanged(newUsers: User[])
+    {
+        this.usersIdMap = {};
+        for (const user of newUsers)
+        {
+            this.usersIdMap[user.uid] = user;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -100,16 +100,22 @@ export class SettingsComponent extends Component
         return ret;
     }
 
-    //Event handlers
-    public async OnInitiated()
+    private async UpdateEnabledPlugins()
     {
+        this.data = null;
+
         const data: Dictionary<PluginDefinition[]> = {};
         for (const section of sections)
         {
             data[section.section] = await this.pluginManager.GetPluginsFor(section.section);
         }
+        
         this.data = data;
+    }
 
-        this.moduleService.modules.Subscribe( () => this.Update() );
+    //Event handlers
+    public async OnInitiated()
+    {
+        this.moduleService.modules.Subscribe( this.UpdateEnabledPlugins.bind(this) );
     }
 }
