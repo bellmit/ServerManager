@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { SMB } from "srvmgr-api";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { PermissionsManager } from "../../services/PermissionsManager";

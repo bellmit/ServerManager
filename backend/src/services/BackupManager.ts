@@ -22,7 +22,7 @@ import { FileSystem, Promisify } from "acts-util-node";
 
 import { BackupTask } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { ConfigManager } from "./ConfigManager";
 import { CommandExecutor } from "./CommandExecutor";
 import { ExternalConnectionManager } from "./ExternalConnectionManager";

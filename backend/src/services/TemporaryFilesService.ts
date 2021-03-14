@@ -20,7 +20,7 @@ import * as fs from "fs";
 import * as os from "os";
 import * as path from "path";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "./CommandExecutor";
 import { POSIXAuthority } from "./POSIXAuthority";
 

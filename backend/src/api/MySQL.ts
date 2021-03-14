@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,8 +17,8 @@
  * */
 import { Messages } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { CommandExecutor } from "../services/CommandExecutor";
 import { PermissionsManager } from "../services/PermissionsManager";
@@ -31,7 +31,7 @@ class MySQLApi
     }
 
     //Api Endpoints
-    @ApiEndpoint({ route: Messages.MYSQL_SHOW_STATUS })
+    @WebSocketAPIEndpoint({ route: Messages.MYSQL_SHOW_STATUS })
     public async ShowStatus(request: ApiRequest)
     {
         const sudo = this.permissionsManager.Sudo(request.session.uid);

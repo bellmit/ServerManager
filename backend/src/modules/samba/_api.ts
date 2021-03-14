@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../../Injector";
-import { ApiEndpoint, ApiRequest } from "../../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../../Api";
 import { SMB } from "srvmgr-api";
 import { SambaManager } from "./SambaManager";
 
@@ -28,34 +28,34 @@ class SambaApi
     {
     }
 
-    @ApiEndpoint({ route: SMB.Api.AddUser.message })
+    @WebSocketAPIEndpoint({ route: SMB.Api.AddUser.message })
     public async AddUser(request: ApiRequest, data: SMB.Api.AddUser.RequestData): Promise<SMB.Api.AddUser.ResponseData>
     {
         const result = await this.sambaManager.AddUser(data.userName, data.password, request.session);
         return result;
     }
 
-    @ApiEndpoint({ route: SMB.Api.DeleteShare.message })
+    @WebSocketAPIEndpoint({ route: SMB.Api.DeleteShare.message })
     public async DeleteShare(request: ApiRequest, data: SMB.Api.DeleteShare.RequestData)
     {
         this.sambaManager.DeleteShare(data.shareName, request.session);
     }
 
-    @ApiEndpoint({ route: SMB.Api.ListShares.message })
+    @WebSocketAPIEndpoint({ route: SMB.Api.ListShares.message })
     public async ListShares(request: ApiRequest)
     {
         const result = await this.sambaManager.QuerySettings();
         return result.shares;
     }
 
-    @ApiEndpoint({ route: SMB.Api.ListUsers.message })
+    @WebSocketAPIEndpoint({ route: SMB.Api.ListUsers.message })
     public async ListUsers(request: ApiRequest): Promise<SMB.Api.ListUsers.ResponseData>
     {
         const result = await this.sambaManager.QueryUsers(request.session);
         return result;
     }
 
-    @ApiEndpoint({ route: SMB.Api.SetShare.message })
+    @WebSocketAPIEndpoint({ route: SMB.Api.SetShare.message })
     public async SetShare(request: ApiRequest, data: SMB.Api.SetShare.RequestData)
     {
         if(data.oldShareName === undefined)

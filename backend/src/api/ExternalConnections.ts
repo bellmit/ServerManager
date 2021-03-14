@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -17,9 +17,9 @@
  * */
 import { Messages, ExternalConnectionSettings } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { ConnectionManager } from "../services/ConnectionManager";
-import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
+import { WebSocketAPIEndpoint, APICall, ApiRequest } from "../Api";
 import { ExternalConnectionManager } from "../services/ExternalConnectionManager";
 
 @Injectable
@@ -30,25 +30,25 @@ class ExternalConnectionsApi
         this.externalConnectionManager.connections.Subscribe( connections => this.connectionManager.Broadcast(Messages.EXTERNALCONNECTIONS_LIST, connections ));
     }
 
-    @ApiEndpoint({ route: Messages.EXTERNALCONNECTIONS_DELETE })
-    public DeleteConnection(call: ApiCall, connectionName: string)
+    @WebSocketAPIEndpoint({ route: Messages.EXTERNALCONNECTIONS_DELETE })
+    public DeleteConnection(call: APICall, connectionName: string)
     {
         this.externalConnectionManager.Delete(connectionName);
     }
 
-    @ApiEndpoint({ route: Messages.EXTERNALCONNECTIONS_ISENCRYPTED })
+    @WebSocketAPIEndpoint({ route: Messages.EXTERNALCONNECTIONS_ISENCRYPTED })
     public IsConnectionEncrypted(request: ApiRequest, connectionName: string)
     {
         this.connectionManager.Respond(request, this.externalConnectionManager.IsEncrypted(connectionName));
     }
 
-    @ApiEndpoint({ route: Messages.EXTERNALCONNECTIONS_LIST })
-    public async ListConnections(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Messages.EXTERNALCONNECTIONS_LIST })
+    public async ListConnections(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.externalConnectionManager.connections.Get());
     }
 
-    @ApiEndpoint({ route: Messages.EXTERNALCONNECTIONS_SET })
+    @WebSocketAPIEndpoint({ route: Messages.EXTERNALCONNECTIONS_SET })
     public SetConnection(request: ApiRequest, data: ExternalConnectionSettings)
     {
         const result = this.externalConnectionManager.SetConnection(data.originalName, data.config, data.encrypt);

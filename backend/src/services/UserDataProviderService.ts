@@ -18,7 +18,7 @@
 import { Observer, MulticastObservable, Dictionary } from "acts-util-core";
 import { User, Group } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { FileSystemWatcher } from "./FileSystemWatcher";
 
 @Injectable

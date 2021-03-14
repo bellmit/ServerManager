@@ -21,7 +21,7 @@ import { Dictionary } from "acts-util-core";
 
 import { User } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { POSIXAuthority } from "./POSIXAuthority";
 import { UserDataProviderService } from "./UserDataProviderService";
 

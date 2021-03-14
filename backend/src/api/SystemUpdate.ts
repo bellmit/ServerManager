@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { CommandExecutor } from "../services/CommandExecutor";
 import { SystemUpdate } from "srvmgr-api";
 import { PermissionsManager } from "../services/PermissionsManager";
@@ -28,7 +28,7 @@ class SystemUpdateApi
     {
     }
 
-    @ApiEndpoint({ route: SystemUpdate.Api.CheckForUpdates.message })
+    @WebSocketAPIEndpoint({ route: SystemUpdate.Api.CheckForUpdates.message })
     public async CheckForUpdates(call: ApiRequest)
     {
         await this.commandExecutor.ExecuteCommand(["apt-get", "update"], this.permissionsManager.Sudo(call.session.uid));

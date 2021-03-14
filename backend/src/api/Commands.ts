@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,8 +18,8 @@
 
 import { Commands } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, APICall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { ProcessTracker, ProcessInfo } from "../services/ProcessTracker";
 import { Dictionary } from "acts-util-core";
@@ -35,19 +35,19 @@ class CommandsApi
         this.subscribedConnectionIds = {};
     }
 
-    @ApiEndpoint({ route: Commands.Api.InputData.message })
-    public async ReceiveInputData(call: ApiCall, data: Commands.Api.InputData.BackendExpectData)
+    @WebSocketAPIEndpoint({ route: Commands.Api.InputData.message })
+    public async ReceiveInputData(call: APICall, data: Commands.Api.InputData.BackendExpectData)
     {
         this.processTracker.WriteInput(data.pid, data.data);
     }
 
-    @ApiEndpoint({ route: Commands.Api.ListCommands.message })
-    public async ListCommands(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Commands.Api.ListCommands.message })
+    public async ListCommands(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.commands);
     }
 
-    @ApiEndpoint({ route: Commands.Api.SubscribeCommand.message })
+    @WebSocketAPIEndpoint({ route: Commands.Api.SubscribeCommand.message })
     public async SubscribeCommand(request: ApiRequest, pid: Commands.Api.SubscribeCommand.RequestData): Promise<Commands.Api.SubscribeCommand.ResultData>
     {
         if(!(pid in this.subscribedConnectionIds))
@@ -59,8 +59,8 @@ class CommandsApi
         return { pid: processInfo.processId, stdout: processInfo.stdOutBuffered, stderr: processInfo.stdErrBuffered, exitCode: processInfo.exitCode };
     }
 
-    @ApiEndpoint({ route: Commands.Api.UnsubscribeCommand.message })
-    public async UnsubscribeCommand(call: ApiCall, pid: Commands.Api.UnsubscribeCommand.BackendExpectData)
+    @WebSocketAPIEndpoint({ route: Commands.Api.UnsubscribeCommand.message })
+    public async UnsubscribeCommand(call: APICall, pid: Commands.Api.UnsubscribeCommand.BackendExpectData)
     {            
         const subscriptions = this.subscribedConnectionIds[pid]!;
         subscriptions.Remove(subscriptions.indexOf(call.senderConnectionId));

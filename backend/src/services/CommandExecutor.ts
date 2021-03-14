@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { spawn, ChildProcessWithoutNullStreams } from 'child_process';
-import { Injectable } from '../Injector';
+import { Injectable } from "acts-util-node";
 import { PermissionsManager } from './PermissionsManager';
 import { POSIXAuthority } from './POSIXAuthority';
 import { ProcessTracker } from './ProcessTracker';

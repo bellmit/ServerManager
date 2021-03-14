@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { Messages, NotificationSettings } from "srvmgr-api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { NotificationsManager } from "../services/NotificationsManager";
@@ -29,13 +29,13 @@ class NotificationsApi
     {
     }
 
-    @ApiEndpoint({ route: Messages.NOTIFICATIONS_QUERY })
+    @WebSocketAPIEndpoint({ route: Messages.NOTIFICATIONS_QUERY })
     public async QueryNotificationSettings(request: ApiRequest)
     {
         this.connectionManager.Respond(request, this.notificationsManager.QuerySettings());
     }
 
-    @ApiEndpoint({ route: Messages.NOTIFICATIONS_SET })
+    @WebSocketAPIEndpoint({ route: Messages.NOTIFICATIONS_SET })
     public async SetSettings(request: ApiRequest, settings: NotificationSettings)
     {
         this.notificationsManager.SetSettings(settings);

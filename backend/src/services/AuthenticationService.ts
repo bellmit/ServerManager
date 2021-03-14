@@ -17,7 +17,7 @@
  * */
 import { Dictionary, MulticastObservable, Observer } from "acts-util-core";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "./CommandExecutor";
 import { FileSystemWatcher } from "./FileSystemWatcher";
 import { POSIXAuthority } from "./POSIXAuthority";

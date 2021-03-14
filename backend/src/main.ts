@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,96 +15,36 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import * as bodyParser from "body-parser";
-import cors from "cors";
-import express from "express";
 import fs from "fs";
 import * as https from "https";
 import * as websocket from "websocket";
 import * as os from "os";
 
+import { API, Factory, GlobalInjector, HTTPEndPointProperties, HTTPRequest } from "acts-util-node";
+
 import { ConnectionManager } from "./services/ConnectionManager";
-import { ApiEndpointMetadata } from "./Api";
 import { BackupManager } from "./services/BackupManager";
-import { HttpEndpointMetadata } from "./Http";
 import { SessionManager } from "./services/SessionManager";
-import { GlobalInjector } from "./Injector";
 import { ConfigManager } from "./services/ConfigManager";
+import { WebSocketAPIEndPointAttributes } from "./Api";
+import { HTTPResult } from "acts-util-node/dist/http/HTTPRequestHandler";
 
 const port = 8081;
 
-//functions
-async function LoadGeneralApiCalls()
-{
-    const path = __dirname + "/api/";
-        
-    const apiCalls = [];
-    const paths = fs.readdirSync(path);
-
-    for (let i = 0; i < paths.length; i++)
-    {
-        const fileName = paths[i];
-
-        if(fileName.endsWith(".js"))
-        {
-            const filePath = path + fileName;
-            const apiClass: any = (await import(filePath)).default;
-
-            apiCalls.push( apiClass );
-        }
-    }
-        
-    return apiCalls;
-}
-
-async function LoadPluginApiCalls()
+//Functions
+async function LoadPluginApiCalls(apiLoader: API.Loader<any, any, WebSocketAPIEndPointAttributes>)
 {
     const path = __dirname + "/modules/";
-    const apiCalls = [];
-    const paths = fs.readdirSync(path);
+    const children = await fs.promises.readdir(path);
 
-    for (let i = 0; i < paths.length; i++)
+    for (const child of children)
     {
-        const fileName = paths[i] + "/_api.js";
+        const fileName = child + "/_api.js";
         const filePath = path + fileName;
 
         if(fs.existsSync(filePath))
         {
-            const apiClass: any = (await import(filePath)).default;
-
-            apiCalls.push( apiClass );
-        }
-    }
-        
-    return apiCalls;
-}
-
-async function LoadApiCalls()
-{
-    return (await LoadGeneralApiCalls()).concat(await LoadPluginApiCalls());
-}
-
-async function SetupApiRoutes()
-{
-    console.log("Setting up api routes...");
-
-    const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
-
-    const apiDefs = await LoadApiCalls();
-    for (let index = 0; index < apiDefs.length; index++)
-    {
-        const apiClass = apiDefs[index];
-
-        const instance = GlobalInjector.Resolve<any>(apiClass);
-        if(instance.__routesSetup === undefined)
-            continue;
-            
-        for (let index = 0; index < instance.__routesSetup.length; index++)
-        {
-            const routeSetup: ApiEndpointMetadata = instance.__routesSetup[index];
-            const route = routeSetup.attributes.route;
-
-            connectionManager.RegisterEndpoint(route, instance[routeSetup.methodName].bind(instance));
+            await apiLoader.LoadFile(filePath);
         }
     }
 }
@@ -134,62 +74,54 @@ async function SetupServer()
     const configManager = GlobalInjector.Resolve(ConfigManager);
     const backendSettings = configManager.Get<any>("backend");
 
-    console.log("Setting up http server...");
+    console.log("Setting up server...");
+
+    const requestHandler = Factory.CreateHTTPRequestHandler({
+        trustedOrigins: backendSettings.trustedOrigins
+    });
     
-    const app = express();
-    //const httpServer = app.listen(port);
     const httpsServer = https.createServer({
         key: fs.readFileSync(backendSettings.keyPath),
         cert: fs.readFileSync(backendSettings.certPath)
-    }, app);
+    }, requestHandler.requestListener);
 
-    httpsServer.listen(port);
+    //TODO!!!! bottom
+    //app.use(bodyParser.urlencoded({ extended: false }));
 
-    const corsOptions = {
-        origin: backendSettings.trustedOrigins,
-    };
+    const apiLoader = new API.Loader<any, HTTPResult, HTTPEndPointProperties | WebSocketAPIEndPointAttributes>();
+    await apiLoader.LoadDirectory(__dirname + "/api/");
+    await LoadPluginApiCalls(apiLoader);
 
-    app.use(cors(corsOptions));
-    app.use(bodyParser.json());
-    app.use(bodyParser.urlencoded({ extended: false }));
+    const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
 
-    const apiDefs = await LoadApiCalls();
-    for (let index = 0; index < apiDefs.length; index++)
+    const apiSetups = apiLoader.GetEndPointSetups();
+    for (const apiSetup of apiSetups)
     {
-        const apiClass = apiDefs[index];
-
-        const instance = GlobalInjector.Resolve<any>(apiClass);
-        if(instance.__httpRoutesSetup === undefined)
-            continue;
-        for (let index = 0; index < instance.__httpRoutesSetup.length; index++)
+        if("method" in apiSetup.properties)
         {
-            const routeSetup: HttpEndpointMetadata = instance.__httpRoutesSetup[index];
-
-            (app as any)[routeSetup.attributes.method](routeSetup.attributes.route, (req: express.Request, res: express.Response) =>
+            requestHandler.RegisterRoute(apiSetup.properties, async (req: HTTPRequest<any>) =>
             {
-                if(req.route.path === "/auth")
-                {
-                    instance[routeSetup.methodName](req, res);
-                }
+                if(req.routePath === "/auth")
+                    return apiSetup.method(req);
                 else
                 {
                     if( (req.headers.authorization !== undefined) && req.headers.authorization.startsWith("Bearer "))
                     {
                         const result = sessionManager.Authenticate(req.headers.authorization.substring(7), req.ip);
                         if( (result !== undefined) && (result !== null) )
-                        {
-                            instance[routeSetup.methodName](req, res);
-                            return;
-                        }
+                            return apiSetup.method(req);
                     }
 
-                    res.sendStatus(401).end();
+                    return {
+                        statusCode: 401
+                    };
                 }
             });
         }
+        else
+            connectionManager.RegisterEndpoint(apiSetup.properties.route, apiSetup.method);
     }
 
-    const connectionManager = GlobalInjector.Resolve<ConnectionManager>(ConnectionManager);
     const sessionManager = GlobalInjector.Resolve<SessionManager>(SessionManager);
     const webSocketServer = new websocket.server({ httpServer: httpsServer });
     webSocketServer.on("request", (request) =>
@@ -213,6 +145,8 @@ async function SetupServer()
         
         request.reject(401);
     });
+
+    httpsServer.listen(port);
 }
 
 function SetupBackup()
@@ -225,7 +159,6 @@ function SetupBackup()
 
 async function Init()
 {
-    await SetupApiRoutes();
     await ValidateConfig();
     await SetupServer();
 

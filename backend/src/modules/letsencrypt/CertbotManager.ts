@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { NotificationsManager } from "../../services/NotificationsManager";
 import { PermissionsManager } from "../../services/PermissionsManager";

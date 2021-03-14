@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Messages, User, Group, OperationStatus } from "srvmgr-api";
-
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, APICall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { UserDataProviderService } from "../services/UserDataProviderService";
 import { UsersManager } from "../services/UsersManager";
@@ -37,28 +36,28 @@ class UsersApi
         this.usersService.users.Subscribe({ next: this.OnUsersChanged.bind(this) });
     }
 
-    @ApiEndpoint({ route: Messages.USERS_ADD })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_ADD })
     public async AddUser(request: ApiRequest, data: any)
     {
         const result = await this.usersManager.CreateUser(data.userName, data.createHomeDir, request.session);
         this.connectionManager.Respond(request, result === undefined ? true : false);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_GROUPS_ADD })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_GROUPS_ADD })
     public async AddUserToGroup(request: ApiRequest, data: any)
     {
         const result = await this.groupsManager.AddUserToGroup(data.userName, data.groupName, request.session);
         this.connectionManager.Respond(request, result === undefined ? true : false);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_CHANGE_PASSWORD })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_CHANGE_PASSWORD })
     public async ChangePassword(request: ApiRequest, data: any)
     {
         const result = await this.authService.ChangePassword(data.userName, data.oldPassword, data.newPassword, request.session);
         this.connectionManager.Respond(request, result);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_DELETE })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_DELETE })
     public async DeleteUser(request: ApiRequest, userName: string)
     {
         let response: OperationStatus = { success: true };
@@ -73,13 +72,13 @@ class UsersApi
         this.connectionManager.Respond(request, response);
     }
 
-    @ApiEndpoint({ route: Messages.USERGROUPS_LIST })
-    public async ListGroups(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Messages.USERGROUPS_LIST })
+    public async ListGroups(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.groups);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_GROUPS_LIST })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_GROUPS_LIST })
     public async ListUserGroups(request: ApiRequest, userName: string)
     {
         const user = this.users.find(user => user.name === userName);
@@ -87,13 +86,13 @@ class UsersApi
         this.connectionManager.Respond(request, groups || []);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_LIST })
-    public async ListUsers(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Messages.USERS_LIST })
+    public async ListUsers(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.users);
     }
 
-    @ApiEndpoint({ route: Messages.USERS_GROUPS_REMOVE })
+    @WebSocketAPIEndpoint({ route: Messages.USERS_GROUPS_REMOVE })
     public async RemoveUserFromGroup(request: ApiRequest, data: any)
     {
         const result = await this.groupsManager.RemoveUserFromGroup(data.userName, data.groupName, request.session);

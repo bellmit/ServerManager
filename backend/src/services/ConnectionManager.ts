@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2019-2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2019-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ import { Dictionary } from "acts-util-core";
 
 import { JsonRequestMessage, JsonResponseMessage } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { ApiRequest } from "../Api";
 import { SessionManager } from "./SessionManager";
 

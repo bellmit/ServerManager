@@ -16,9 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { Processes } from "srvmgr-api";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { ProcessesManager } from "../services/ProcessesManager";
 
 @Injectable
@@ -28,7 +28,7 @@ class API
     {
     }
 
-    @ApiEndpoint({ route: Processes.API.QueryProcessesList.message })
+    @WebSocketAPIEndpoint({ route: Processes.API.QueryProcessesList.message })
     public async QueryProcessesList(request: ApiRequest): Promise<Processes.API.QueryProcessesList.ResultData>
     {
         return this.processesManager.QueryProcessesSnapshot(request.session);

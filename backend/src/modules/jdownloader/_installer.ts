@@ -18,7 +18,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { ModuleInstaller } from "../../Model/ModuleInstaller";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";

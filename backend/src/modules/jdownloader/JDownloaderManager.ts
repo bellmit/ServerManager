@@ -17,7 +17,7 @@
  * */
 import * as os from "os";
 
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { JDownloader } from "srvmgr-api";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
 import { UsersManager } from "../../services/UsersManager";

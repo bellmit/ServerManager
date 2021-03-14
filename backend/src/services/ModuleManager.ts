@@ -17,7 +17,7 @@
  * */
 import { Module } from "srvmgr-api";
 
-import { Injectable, GlobalInjector } from "../Injector";
+import { GlobalInjector, Injectable } from "acts-util-node";
 import { DistroPackageManager } from "../Model/DistroPackageManager";
 import { DistroInfoService } from "./DistroInfoService";
 import { POSIXAuthority } from "./POSIXAuthority";
@@ -69,7 +69,7 @@ export class ModuleManager
         const distroPackageManager = await this.ResolveDistroPackageManager(session);
         const mod = await this.GetModuleInstaller(moduleName);
 
-        return await distroPackageManager.Uninstall(moduleName, session) && await mod.Uninstall(session);
+        return await mod.Uninstall(session) && await distroPackageManager.Uninstall(moduleName, session);
     }
 
     //Private members

@@ -18,17 +18,18 @@
 import * as fs from "fs";
 
 import { Apache } from "srvmgr-api";
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { VirtualHost } from "./VirtualHost";
 import { ConfigParser } from "./ConfigParser";
+import { FileSystemService } from "../../services/FileSystemService";
 
 @Injectable
 export class ApacheManager
 {
-    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
+    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager, private fsService: FileSystemService)
     {
     }
 
@@ -36,6 +37,11 @@ export class ApacheManager
     public CreateSite(name: string, vHost: VirtualHost)
     {
         this.SetSite(name, vHost);
+    }
+
+    public DeleteSite(name: string, session: POSIXAuthority)
+    {
+        return this.fsService.DeleteFile("/etc/apache2/sites-available/" + name + ".conf", session);
     }
 
     public async DisableModule(name: string, session: POSIXAuthority)

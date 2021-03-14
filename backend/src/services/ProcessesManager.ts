@@ -17,7 +17,7 @@
  * */
 import { Processes } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "./CommandExecutor";
 import { POSIXAuthority } from "./POSIXAuthority";
 

@@ -15,12 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import express from "express";
-
+import { HTTPEndPoint, HTTPRequest, HTTPResultData, Injectable } from "acts-util-node";
 import { Routes, AuthResult } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
-import { HttpEndpoint } from "../Http";
 import { SessionManager } from "../services/SessionManager";
 import { AuthenticationService } from "../services/AuthenticationService";
 
@@ -31,11 +28,11 @@ class AuthApi
     {
     }
 
-    @HttpEndpoint({ method: "post", route: Routes.AUTH })
-    public async Authenticate(request: express.Request, response: express.Response)
+    @HTTPEndPoint({ method: "POST", route: Routes.AUTH })
+    public async Authenticate(request: HTTPRequest<{ userName: string; password: string; }>): Promise<HTTPResultData<AuthResult>>
     {
-        const data = request.body;
-        const result:AuthResult = {
+        const data = request.data;
+        const result: AuthResult = {
             success: await this.authService.Authenticate(data.userName, data.password)
         };
 
@@ -46,8 +43,9 @@ class AuthApi
             result.token = sessionData.token;
         }
 
-        response.json(result);
-        response.end();
+        return {
+            data: result
+        };
     }
 }
 

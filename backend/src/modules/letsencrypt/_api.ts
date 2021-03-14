@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../../Injector";
-import { ApiEndpoint, ApiRequest } from "../../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../../Api";
 import { Messages, CertificatesApi } from "srvmgr-api";
 import { ConnectionManager } from "../../services/ConnectionManager";
 import { CertbotManager } from "./CertbotManager";
@@ -29,14 +29,14 @@ class LetsEncryptApi
     {
     }
 
-    @ApiEndpoint({ route: CertificatesApi.Add.message })
+    @WebSocketAPIEndpoint({ route: CertificatesApi.Add.message })
     public async CreateCertificate(request: ApiRequest, data: CertificatesApi.Add.RequestData)
     {
         await this.certbotManager.CreateCertificate(data.domainName, data.email, request.session);
         this.connectionManager.Respond(request, undefined);
     }
 
-    @ApiEndpoint({ route: CertificatesApi.List.message })
+    @WebSocketAPIEndpoint({ route: CertificatesApi.List.message })
     public async ListCertificates(request: ApiRequest)
     {
         const result = await this.certbotManager.ListCertificates(request.session);

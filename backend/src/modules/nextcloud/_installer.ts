@@ -17,7 +17,7 @@
  * */
 import * as fs from "fs";
 
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { ModuleInstaller } from "../../Model/ModuleInstaller";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
@@ -26,12 +26,13 @@ import { SystemServicesManager } from "../../services/SystemServicesManager";
 import { ApacheManager } from "../apache/ApacheManager";
 import { VirtualHost } from "../apache/VirtualHost";
 import { NotificationsManager } from "../../services/NotificationsManager";
+import { FileSystemService } from "../../services/FileSystemService";
 
 @Injectable
 class NextcloudInstaller implements ModuleInstaller
 {
     constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager, private apacheManager: ApacheManager,
-        private systemServicesManager: SystemServicesManager, private notificationsManager: NotificationsManager)
+        private systemServicesManager: SystemServicesManager, private notificationsManager: NotificationsManager, private fsService: FileSystemService)
     {
     }
 
@@ -58,8 +59,6 @@ class NextcloudInstaller implements ModuleInstaller
 
         await this.systemServicesManager.RestartService("apache2", sudo);
 
-        console.log("NEXTCLOUD INSTALL finished");
-
         return true;
     }
 
@@ -68,9 +67,16 @@ class NextcloudInstaller implements ModuleInstaller
         return fs.existsSync("/var/www/nextcloud");
     }
 
-    public Uninstall(session: POSIXAuthority): Promise<boolean>
+    public async Uninstall(session: POSIXAuthority): Promise<boolean>
     {
-        throw new Error("Method not implemented.");
+        const sudo = this.permissionsManager.Sudo(session.uid);
+        await this.apacheManager.DisableSite("nextcloud", sudo);
+        await this.systemServicesManager.RestartService("apache2", sudo);
+        await this.apacheManager.DeleteSite("nextcloud", sudo);
+
+        await this.fsService.RemoveDirectoryRecursive("/var/www/nextcloud", session);
+
+        return true;
     }
 }
 

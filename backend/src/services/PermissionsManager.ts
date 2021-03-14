@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { FileSystemWatcher } from "./FileSystemWatcher";
 import { Dictionary } from "acts-util-core";
 import { POSIXAuthority } from "./POSIXAuthority";

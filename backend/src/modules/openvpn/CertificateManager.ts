@@ -17,7 +17,7 @@
  * */
 import { promises as fs, existsSync, rmdirSync } from "fs";
 
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";

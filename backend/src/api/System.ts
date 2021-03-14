@@ -17,8 +17,8 @@
  * */
 import * as os from "os";
 import { SystemInfo } from "srvmgr-api";
-import { ApiEndpoint, ApiRequest } from "../Api";
-import { Injectable } from "../Injector";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
 
 @Injectable
 class API
@@ -27,7 +27,7 @@ class API
     {
     }
 
-    @ApiEndpoint({ route: SystemInfo.API.QueryHardwareSpecs.message })
+    @WebSocketAPIEndpoint({ route: SystemInfo.API.QueryHardwareSpecs.message })
     public async QueryHardwareSpecs(request: ApiRequest): Promise<SystemInfo.API.QueryHardwareSpecs.ResultData>
     {
         return {
@@ -35,7 +35,7 @@ class API
         };
     }
 
-    @ApiEndpoint({ route: SystemInfo.API.QueryResourceUsage.message })
+    @WebSocketAPIEndpoint({ route: SystemInfo.API.QueryResourceUsage.message })
     public async QueryResourceUsage(request: ApiRequest): Promise<SystemInfo.API.QueryResourceUsage.ResultData>
     {
         return {

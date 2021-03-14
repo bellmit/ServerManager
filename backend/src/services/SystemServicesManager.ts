@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "./CommandExecutor";
 import { PermissionsManager } from "./PermissionsManager";
 import { POSIXAuthority } from "./POSIXAuthority";
@@ -129,7 +129,10 @@ export class SystemServicesManager
 
         return lines.Values().Filter(line => !!line).Map(line => {
             const parts = line.trim().split(/[ \t]+/);
-            if(parts.length === 3)
+            if(
+                (parts.length === 2) //without vendor preset
+                || (parts.length === 3) //with vendor preset
+                )
             {
                 const name = parts[0];
                 return {

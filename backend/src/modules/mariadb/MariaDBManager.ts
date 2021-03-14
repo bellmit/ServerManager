@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../../Injector";
+import { Injectable } from "acts-util-node";
 import { MySQL } from "srvmgr-api";
 import { MariaDBConfigParser } from "./MariaDBConfigParser";
 import { ConfigModel } from "../../core/ConfigModel";

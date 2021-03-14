@@ -47,3 +47,7 @@ cd ServerManager/apache
 sudo ./deploy.sh
 cd ..
 cd ..
+
+#update inform message
+echo "ServerManager needs to be restarted for the update to take effect. Execute the following command to do so:"
+echo "systemctl restart servermanager.service"

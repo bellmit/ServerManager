@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { Messages, SystemServiceActionData } from "srvmgr-api";
 import { SystemServicesManager } from "../services/SystemServicesManager";
@@ -28,7 +28,7 @@ class SystemServicesApi
     {
     }
 
-    @ApiEndpoint({ route: Messages.SERVICES_ACTION })
+    @WebSocketAPIEndpoint({ route: Messages.SERVICES_ACTION })
     public async ExecuteAction(request: ApiRequest, data: SystemServiceActionData)
     {
         switch(data.action)
@@ -52,14 +52,14 @@ class SystemServicesApi
         this.connectionManager.Respond(request, true);
     }
 
-    @ApiEndpoint({ route: Messages.SERVICES_LIST })
+    @WebSocketAPIEndpoint({ route: Messages.SERVICES_LIST })
     public async ListServices(request: ApiRequest)
     {
         const result = await this.systemServicesManager.FetchServicesSnapshot(request.session);
         this.connectionManager.Respond(request, result);
     }
 
-    @ApiEndpoint({ route: Messages.SERVICES_STATUS })
+    @WebSocketAPIEndpoint({ route: Messages.SERVICES_STATUS })
     public async QueryServiceStatus(request: ApiRequest, serviceName: string)
     {
         return await this.systemServicesManager.QueryStatus(serviceName, request.session);

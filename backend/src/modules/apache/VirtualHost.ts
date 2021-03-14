@@ -80,6 +80,8 @@ export class VirtualHost
     //Class functions
     public static Default(addresses: string, serverAdmin: string)
     {
+        if(serverAdmin.trim().length === 0)
+            serverAdmin = "webmaster@localhost";
         return new VirtualHost(addresses, {
             serverAdmin,
             documentRoot: "/usr/local/apache/htdocs",

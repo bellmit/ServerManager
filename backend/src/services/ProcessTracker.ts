@@ -16,8 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Dictionary, Property, Subject } from "acts-util-core";
-
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { ChildProcessWithoutNullStreams } from "child_process";
 import { Commands } from "srvmgr-api";
 

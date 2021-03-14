@@ -17,7 +17,7 @@
  * */
 import { Dictionary, Subject } from "acts-util-core";
 import { Group } from "srvmgr-api";
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "./CommandExecutor";
 import { POSIXAuthority } from "./POSIXAuthority";
 import { UserDataProviderService } from "./UserDataProviderService";

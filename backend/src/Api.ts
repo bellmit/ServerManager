@@ -15,41 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { API } from "acts-util-node";
 import { POSIXAuthority } from "./services/POSIXAuthority";
 
-export interface ApiCall
+export interface APICall
 {
     calledRoute: string;
     senderConnectionId: string;
     session: POSIXAuthority;
 }
 
-export interface ApiRequest extends ApiCall
+export interface ApiRequest extends APICall
 {
     responseMsg: string;
 }
 
-interface ApiEndPointAttributes
+export interface WebSocketAPIEndPointAttributes
 {
     route: string;
 }
 
-export interface ApiEndpointMetadata
-{
-    methodName: string;
-    attributes: ApiEndPointAttributes;
-}
-
-export function ApiEndpoint(attributes: ApiEndPointAttributes)
+export function WebSocketAPIEndpoint(attributes: WebSocketAPIEndPointAttributes)
 {
     return function(targetClass: any, methodName: string, methodDescriptor: PropertyDescriptor)
     {
-        if(!("__routesSetup" in targetClass))
-            targetClass.__routesSetup = [];
-        const metadata: ApiEndpointMetadata = {
-            methodName: methodName,
-            attributes: attributes
-        };
-        targetClass.__routesSetup.push(metadata);
+        API.RegisterEndPoint(targetClass, methodName, attributes);
     };
 }

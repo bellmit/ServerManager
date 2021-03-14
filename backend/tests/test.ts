@@ -15,8 +15,8 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
+import { GlobalInjector } from "acts-util-node";
 import { ConfigModel } from "../src/core/ConfigModel";
-import { GlobalInjector } from "../src/Injector";
 import { SambaConfigParser } from "../src/modules/samba/SambaConfigParser";
 import { SambaManager } from "../src/modules/samba/SambaManager";
 import { ProcessesManager } from "../src/services/ProcessesManager";

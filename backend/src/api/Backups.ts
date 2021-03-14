@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -19,11 +19,11 @@ import express from "express";
 
 import { Messages, BackupSaveRequest, Routes } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
+import { HTTPEndPoint, HTTPRequest, Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, APICall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { BackupManager } from "../services/BackupManager";
-import { HttpEndpoint } from "../Http";
+import { HTTPResult } from "acts-util-node/dist/http/HTTPRequestHandler";
 
 @Injectable
 class BackupsApi
@@ -32,48 +32,51 @@ class BackupsApi
     {
     }
 
-    @ApiEndpoint({ route: Messages.BACKUPS_DELETE })
-    public DeleteBackup(call: ApiCall, backupName: string)
+    @WebSocketAPIEndpoint({ route: Messages.BACKUPS_DELETE })
+    public DeleteBackup(call: APICall, backupName: string)
     {
         this.backupManager.Delete(backupName);
     }
 
-    @HttpEndpoint({ method: "post", route: Routes.BACKUPS_DOWNLOAD })
-    public async DownloadFile(request: express.Request, response: express.Response)
+    @HTTPEndPoint({ method: "POST", route: Routes.BACKUPS_DOWNLOAD })
+    public async DownloadFile(request: HTTPRequest<{ backupName: string; fileName: string; }>): Promise<HTTPResult>
     {
-        const data = request.body;
+        const data = request.data;
         const stream = await this.backupManager.ReadBackupFile(data.backupName, data.fileName);
         if(stream === undefined)
         {
-            response.writeHead(404);
-            response.end();
+            return {
+                statusCode: 404
+            };
         }
-        else
-        {
-            response.writeHead(200, { "Content-disposition": "attachment; filename=" + data.fileName });
-            stream.pipe(response);
-        }
+
+        return {
+            headers: {
+                "Content-disposition": "attachment; filename=" + data.fileName
+            },
+            data: stream
+        };
     }
 
-    @ApiEndpoint({ route: Messages.BACKUPS_LIST_FILES })
+    @WebSocketAPIEndpoint({ route: Messages.BACKUPS_LIST_FILES })
     public async ListBackupFiles(request: ApiRequest, backupName: string)
     {
         this.connectionManager.Respond(request, await this.backupManager.ListBackupFileNames(backupName));
     }
 
-    @ApiEndpoint({ route: Messages.BACKUPS_LIST })
-    public async ListBackups(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Messages.BACKUPS_LIST })
+    public async ListBackups(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, this.backupManager.tasks);
     }
 
-    @ApiEndpoint({ route: Messages.BACKUPS_RUN })
-    public RunBackup(call: ApiCall, backupName: string)
+    @WebSocketAPIEndpoint({ route: Messages.BACKUPS_RUN })
+    public RunBackup(call: APICall, backupName: string)
     {
         this.backupManager.RunBackup(backupName, call.session);
     }
 
-    @ApiEndpoint({ route: Messages.BACKUPS_SET })
+    @WebSocketAPIEndpoint({ route: Messages.BACKUPS_SET })
     public SetBackup(request: ApiRequest, data: BackupSaveRequest)
     {
         data.backup.lastBackupTime = new Date(data.backup.lastBackupTime); //from Json we get string not date!!!

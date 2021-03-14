@@ -17,8 +17,8 @@
  * */
 import { Messages, Module } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiCall, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, APICall, ApiRequest } from "../Api";
 import { ConnectionManager } from "../services/ConnectionManager";
 import { ModuleManager } from "../services/ModuleManager";
 import { POSIXAuthority } from "../services/POSIXAuthority";
@@ -31,7 +31,7 @@ class ModulesApi
     }
 
     //Api Endpoints
-    @ApiEndpoint({ route: Module.API.Install.message })
+    @WebSocketAPIEndpoint({ route: Module.API.Install.message })
     public async Install(request: ApiRequest, moduleName: string)
     {
         const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);
@@ -43,13 +43,13 @@ class ModulesApi
         this.connectionManager.Respond(request, true);
     }
 
-    @ApiEndpoint({ route: Module.API.List.message })
-    public async ListAllModules(call: ApiCall)
+    @WebSocketAPIEndpoint({ route: Module.API.List.message })
+    public async ListAllModules(call: APICall)
     {
         this.connectionManager.Send(call.senderConnectionId, call.calledRoute, await this.moduleManager.FetchModules(call.session));
     }
 
-    @ApiEndpoint({ route: Module.API.Uninstall.message })
+    @WebSocketAPIEndpoint({ route: Module.API.Uninstall.message })
     public async Uninstall(request: ApiRequest, moduleName: string)
     {
         const moduleNameMapped = this.moduleManager.MapModuleName(moduleName);

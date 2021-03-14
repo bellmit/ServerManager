@@ -52,7 +52,7 @@ export class ListServicesComponent extends Component
     private async LoadServices()
     {
         const data = await this.systemServicesService.ListSystemServices();
-        this.data = data.OrderBy(s => s.name, true);
+        this.data = data.OrderBy(s => s.name);
     }
 
     private RenderServiceRow(systemService: SystemService)

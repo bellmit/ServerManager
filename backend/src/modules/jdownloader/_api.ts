@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../../Injector";
-import { ApiEndpoint, ApiRequest } from "../../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../../Api";
 import { JDownloaderManager } from "./JDownloaderManager";
 import { JDownloader } from "srvmgr-api";
 
@@ -28,13 +28,13 @@ class JDownloaderApi
     {
     }
 
-    @ApiEndpoint({ route: JDownloader.Api.QuerySettings.message })
+    @WebSocketAPIEndpoint({ route: JDownloader.Api.QuerySettings.message })
     public async QuerySettings(request: ApiRequest): Promise<JDownloader.Api.QuerySettings.ResultData>
     {
         return this.jdownloaderManager.QuerySettings(request.session);
     }
 
-    @ApiEndpoint({ route: JDownloader.Api.SetSettings.message })
+    @WebSocketAPIEndpoint({ route: JDownloader.Api.SetSettings.message })
     public async SetSettings(request: ApiRequest, data: JDownloader.Api.SetSettings.RequestData)
     {
         return this.jdownloaderManager.SetSettings(data, request.session);

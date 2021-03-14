@@ -18,8 +18,8 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { Injectable } from "../Injector";
-import { ApiEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { FileSystemApi } from "srvmgr-api";
 import { UsersManager } from "../services/UsersManager";
 
@@ -30,7 +30,7 @@ class Api
     {
     }
 
-    @ApiEndpoint({ route: FileSystemApi.ListDirectoryContents.message })
+    @WebSocketAPIEndpoint({ route: FileSystemApi.ListDirectoryContents.message })
     public async ListDirectoryContents(request: ApiRequest, data: FileSystemApi.ListDirectoryContents.RequestData): Promise<FileSystemApi.ListDirectoryContents.ResultData>
     {
         let dirPath: string;
@@ -62,13 +62,13 @@ class Api
         };
     }
 
-    @ApiEndpoint({ route: FileSystemApi.QueryFileContent.message })
+    @WebSocketAPIEndpoint({ route: FileSystemApi.QueryFileContent.message })
     public async QueryFileContent(request: ApiRequest, data: FileSystemApi.QueryFileContent.RequestData): Promise<FileSystemApi.QueryFileContent.ResultData>
     {
         return fs.promises.readFile(data, "utf-8");
     }
 
-    @ApiEndpoint({ route: FileSystemApi.SetFileContent.message })
+    @WebSocketAPIEndpoint({ route: FileSystemApi.SetFileContent.message })
     public async SetFileContent(request: ApiRequest, data: FileSystemApi.SetFileContent.RequestData)
     {
         return fs.promises.writeFile(data.path, data.content, "utf-8");

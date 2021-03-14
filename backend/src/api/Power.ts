@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { PowerApi } from "srvmgr-api";
-import { ApiEndpoint, ApiRequest } from "../Api";
-import { Injectable } from "../Injector";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
+import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "../services/CommandExecutor";
 import { PermissionsManager } from "../services/PermissionsManager";
 import { POSIXAuthority } from "../services/POSIXAuthority";
@@ -29,13 +29,13 @@ class Api
     {
     }
 
-    @ApiEndpoint({ route: PowerApi.Reboot.message })
+    @WebSocketAPIEndpoint({ route: PowerApi.Reboot.message })
     public async Reboot(request: ApiRequest)
     {
         this.IssueShutdown(["-r"], request.session);
     }
 
-    @ApiEndpoint({ route: PowerApi.Shutdown.message })
+    @WebSocketAPIEndpoint({ route: PowerApi.Shutdown.message })
     public async Shutdown(request: ApiRequest)
     {
         this.IssueShutdown([], request.session);

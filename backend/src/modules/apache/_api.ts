@@ -17,8 +17,8 @@
  * */
 import "acts-util-core";
 
-import { Injectable } from "../../Injector";
-import { ApiEndpoint, ApiRequest } from "../../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../../Api";
 import { Apache } from "srvmgr-api";
 import { ConnectionManager } from "../../services/ConnectionManager";
 import { ApacheManager } from "./ApacheManager";
@@ -31,7 +31,7 @@ class ApacheApi
     {
     }
 
-    @ApiEndpoint({ route: Apache.Api.EnableDisableModule.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.EnableDisableModule.message })
     public async ChangeModuleEnabledStatus(request: ApiRequest, data: Apache.Api.EnableDisableModule.RequestData)
     {
         if(data.enabled)
@@ -41,7 +41,7 @@ class ApacheApi
         this.connectionManager.Respond(request, undefined);
     }
 
-    @ApiEndpoint({ route: Apache.Api.EnableDisableSite.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.EnableDisableSite.message })
     public async ChangeSiteEnabledStatus(request: ApiRequest, data: Apache.Api.EnableDisableSite.RequestData)
     {
         if(data.enabled)
@@ -51,21 +51,21 @@ class ApacheApi
         this.connectionManager.Respond(request, undefined);
     }
 
-    @ApiEndpoint({ route: Apache.Api.ListModules.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.ListModules.message })
     public async ListModules(request: ApiRequest)
     {
         const result = await this.apacheManager.QueryModules(request.session);
         this.connectionManager.Respond(request, result);
     }
 
-    @ApiEndpoint({ route: Apache.Api.ListSites.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.ListSites.message })
     public async ListSites(request: ApiRequest)
     {
         const result = await this.apacheManager.QuerySites(request.session);
         this.connectionManager.Respond(request, result);
     }
 
-    @ApiEndpoint({ route: Apache.Api.QuerySite.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.QuerySite.message })
     public async QuerySite(request: ApiRequest, data: Apache.Api.QuerySite.RequestData): Promise<Apache.Api.QuerySite.ResultData>
     {
         const vHost = await this.apacheManager.QuerySite(data, request.session);
@@ -78,7 +78,7 @@ class ApacheApi
         return res;
     }
 
-    @ApiEndpoint({ route: Apache.Api.SetSite.message })
+    @WebSocketAPIEndpoint({ route: Apache.Api.SetSite.message })
     public async SetSite(request: ApiRequest, data: Apache.Api.SetSite.RequestData): Promise<Apache.Api.SetSite.ResultData>
     {
         const vHost = new VirtualHost(data.addresses, data, data.directories);

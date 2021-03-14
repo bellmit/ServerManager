@@ -18,7 +18,7 @@
 import * as fs from "fs";
 import * as mod_path from "path";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { PermissionsManager } from "./PermissionsManager";
 import { POSIXAuthority } from "./POSIXAuthority";
 

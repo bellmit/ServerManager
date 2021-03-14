@@ -17,9 +17,10 @@
  * */
 import { Module } from "srvmgr-api";
 
+import { Injectable } from "acts-util-node";
+
 import { DistroPackageManager } from "../../Model/DistroPackageManager";
 import { CommandExecutor } from "../../services/CommandExecutor";
-import { Injectable } from "../../Injector";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
 

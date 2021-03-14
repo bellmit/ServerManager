@@ -16,8 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable } from "../../Injector";
-import { ApiEndpoint, ApiRequest } from "../../Api";
+import { Injectable } from "acts-util-node";
+import { WebSocketAPIEndpoint, ApiRequest } from "../../Api";
 import { MySQL } from "srvmgr-api";
 import { MariaDBManager } from "./MariaDBManager";
 
@@ -28,13 +28,13 @@ class MySQLApi
     {
     }
 
-    @ApiEndpoint({ route: MySQL.Api.QueryMysqldSettings.message })
+    @WebSocketAPIEndpoint({ route: MySQL.Api.QueryMysqldSettings.message })
     public async QueryMysqldSettings(request: ApiRequest): Promise<MySQL.Api.QueryMysqldSettings.ResultData>
     {
         return this.mariaDBManager.QueryMysqldSettings();
     }
 
-    @ApiEndpoint({ route: MySQL.Api.SaveMysqldSettings.message })
+    @WebSocketAPIEndpoint({ route: MySQL.Api.SaveMysqldSettings.message })
     public async SaveMysqldSettings(request: ApiRequest, data: MySQL.Api.SaveMysqldSettings.RequestData)
     {
         await this.mariaDBManager.SetMysqldSettings(data);

@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,7 +21,7 @@ import { Dictionary, Property } from "acts-util-core";
 import { FileSystem, OSFileSystem, VirtualRootFileSystem, EncryptedFileSystem, WebDAVFileSystem } from "acts-util-node";
 import { ExternalConnectionConfig, ExternalConnectionType } from "srvmgr-api";
 
-import { Injectable } from "../Injector";
+import { Injectable } from "acts-util-node";
 import { ConfigManager } from "./ConfigManager";
 
 interface ExternalConnectionEncryptionConfig
