@@ -96,6 +96,11 @@ export class SystemServicesManager
         return result.stdout;
     }
 
+    public async Reload(session: POSIXAuthority)
+    {
+        await this.commandExecutor.ExecuteCommand(["sudo", "systemctl", "daemon-reload"], session);
+    }
+
     public RestartService(serviceName: string, session: POSIXAuthority)
     {
         return this.ExecuteServiceAction(serviceName, "restart", session);

@@ -141,7 +141,7 @@ export abstract class ConfigParser
 
     private async ParseLine(line: string)
     {
-        if(line.length === 0)
+        if(line.trim().length === 0)
             this.AddEntry({ type: "Text", textValue: line });
         else if(this.IsCommentLine(line))
             this.AddEntry({ type: "Text", textValue: line });

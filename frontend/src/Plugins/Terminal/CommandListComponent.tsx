@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, Injectable, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement } from "acfrontend";
 import { TerminalComponent } from "./TerminalComponent";
 import { TerminalService } from "./TerminalService";
 import { Commands } from "srvmgr-api";
@@ -35,11 +35,12 @@ export class CommandListComponent extends Component
 
     protected Render(): RenderValue
     {
+        const commandsInDisplayOrder = this.commands.Clone().reverse();
         return <div class="row">
             <div class="column">
                 Recent commands:
                 <ul>
-                    {...this.commands.reverse().map(this.RenderCommand.bind(this))}
+                    {...commandsInDisplayOrder.map(this.RenderCommand.bind(this))}
                 </ul>
             </div>
             <div class="column expanding">

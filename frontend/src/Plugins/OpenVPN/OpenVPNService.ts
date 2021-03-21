@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -48,6 +48,16 @@ export class OpenVPNService
         return this.websocketService.SendRequest(OpenVPNApi.DeleteCADir.message, caDirName);
     }
 
+    public DeleteConfig(configName: OpenVPNApi.DeleteConfig.RequestData)
+    {
+        return this.websocketService.SendRequest(OpenVPNApi.DeleteConfig.message, configName);
+    }
+
+    public DownloadClientConfig(data: OpenVPNApi.DownloadClientConfig.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.DownloadClientConfig.ResultData>(OpenVPNApi.DownloadClientConfig.message, data);
+    }
+
     public ListCADirs()
     {
         return this.websocketService.SendRequest<OpenVPNApi.ListCADirs.ResultData>(OpenVPNApi.ListCADirs.message);
@@ -56,5 +66,25 @@ export class OpenVPNService
     public ListClients(caDirName: OpenVPNApi.ListClients.RequestData)
     {
         return this.websocketService.SendRequest<OpenVPNApi.ListClients.ResultData>(OpenVPNApi.ListClients.message, caDirName);
+    }
+
+    public ListConfigs()
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.ListConfigs.ResultData>(OpenVPNApi.ListConfigs.message);
+    }
+
+    public QueryCADirOfConfig(data: OpenVPNApi.QueryCADirOfConfig.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.QueryCADirOfConfig.ResultData>(OpenVPNApi.QueryCADirOfConfig.message, data);
+    }
+
+    public QueryConfig(data: OpenVPNApi.QueryConfig.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.QueryConfig.ResultData>(OpenVPNApi.QueryConfig.message, data);
+    }
+
+    public QueryNewConfigTemplate(data: OpenVPNApi.QueryNewConfigTemplate.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.QueryNewConfigTemplate.ResultData>(OpenVPNApi.QueryNewConfigTemplate.message, data);
     }
 }

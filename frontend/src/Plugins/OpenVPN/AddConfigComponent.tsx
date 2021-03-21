@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, Injectable, JSX_CreateElement, ProgressSpinner, Router } from "acfrontend";
+import { Component, Injectable, JSX_CreateElement, ProgressSpinner, Router, Select } from "acfrontend";
 import { OpenVPNApi } from "srvmgr-api";
 import { ObjectEditorComponent } from "../../ObjectEditorComponent";
 import { ObjectValidator } from "../../ObjectValidator";
@@ -29,29 +29,27 @@ export class AddConfigComponent extends Component
     {
         super();
 
-        this.data = {
-            authenticationAlgorithm: "SHA256",
-            cipher: "AES-256-CBC",
-            name: "",
-            port: 1194,
-            protocol: "tcp",
-            verbosity: 3,
-            virtualServerAddress: "",
-            virtualServerSubnetMask: "",
-            certKeyFiles: {
-                caCertPath: "/etc/easy-rsa/",
-                certPath: "/etc/easy-rsa/",
-                dhPath: "/etc/easy-rsa/",
-                keyPath: "/etc/easy-rsa/",
-            }
-        };
-        this.saving = false;
+        this.data = null;
+        this.cadirs = null;
+        this.loading = false;
+        this.selectedCaDir = null;
     }
     
     protected Render(): RenderValue
     {
-        if(this.saving)
+        if(this.loading || (this.cadirs === null))
             return <ProgressSpinner />;
+
+        if(this.data === null)
+        {
+            return <fragment>
+                Select CA directory:
+                <Select onChanged={newValue => this.selectedCaDir = newValue[0]}>
+                    {this.cadirs.map(dir => <option selected={this.selectedCaDir === dir}>{dir}</option>)}
+                </Select>
+                <button type="button" disabled={this.selectedCaDir === null} onclick={this.OnCADirConfirmed.bind(this)}>OK</button>
+            </fragment>;
+        }
 
         return <fragment>
             <ObjectEditorComponent object={this.data} onObjectUpdated={this.Update.bind(this)} />
@@ -60,16 +58,32 @@ export class AddConfigComponent extends Component
     }
 
     //Private members
-    private data: OpenVPNApi.AddConfig.RequestData;
-    private saving: boolean;
+    private data: OpenVPNApi.AddConfig.RequestData | null;
+    private cadirs: string[] | null;
+    private selectedCaDir: string | null;
+    private loading: boolean;
 
     //Event handlers
+    private async OnCADirConfirmed()
+    {
+        this.loading = true;
+
+        this.data = await this.openVPNService.QueryNewConfigTemplate({ caDirName: this.selectedCaDir! });
+
+        this.loading = false;
+    }
+
     private async OnCreate()
     {
-        this.saving = true;
-        await this.openVPNService.AddConfig(this.data);
-        this.saving = false;
+        this.loading = true;
+        await this.openVPNService.AddConfig(this.data!);
+        this.loading = false;
         
         this.router.RouteTo("/openvpn/");
+    }
+
+    public async OnInitiated()
+    {
+        this.cadirs = await this.openVPNService.ListCADirs();
     }
 }

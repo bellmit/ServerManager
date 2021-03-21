@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -21,8 +21,8 @@ import { BackupTask, Messages, BackupSaveRequest, Routes } from "srvmgr-api";
 
 import { WebSocketService, BACKEND_HOST } from "../../Services/WebSocketService";
 import { ApiListener, ApiService } from "../../API/Api";
-import { HttpService } from "acfrontend";
 import { AuthenticationService } from "../../Services/AuthenticationService";
+import { HTTPService } from "acfrontend";
 
 const MSG_BACKUPS = "/Backups/";
 const MSG_BACKUPS_LIST = MSG_BACKUPS + "List";
@@ -56,7 +56,7 @@ export class BackupService
 
     public DownloadFile(backupName: string, fileName: string): Promise<Blob>
     {
-        const http = new HttpService;
+        const http = new HTTPService;
         return http.Request({
             data: JSON.stringify({
                 backupName: backupName,

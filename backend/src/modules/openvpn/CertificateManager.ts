@@ -16,17 +16,20 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { promises as fs, existsSync, rmdirSync } from "fs";
+import path from "path";
 
 import { Injectable } from "acts-util-node";
 import { CommandExecutor, CommandOptions } from "../../services/CommandExecutor";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
 import { OpenVPNApi } from "srvmgr-api";
+import { FileSystemService } from "../../services/FileSystemService";
+import { CertKeyFiles } from "srvmgr-api/dist/Model/OpenVPN";
 
 @Injectable
 export class CertificateManager
 {
-    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
+    constructor(private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager, private fileSystemService: FileSystemService)
     {
     }
 
@@ -59,6 +62,8 @@ export class CertificateManager
             workingDirectory: cadir,
         };
 
+        await this.fileSystemService.WriteTextFile(path.join(cadir, "__domainName"), data.domainName, session);
+
         await this.commandExecutor.ExecuteCommand(["./easyrsa init-pki"], commandOptions);
         await this.commandExecutor.ExecuteCommand(["./easyrsa", "--batch", "--keysize=" + data.keySize, "--req-cn=" + data.name, "build-ca", "nopass"], commandOptions);
         await this.commandExecutor.ExecuteCommand(["./easyrsa", "--batch", "--keysize=" + data.keySize, "build-server-full", data.domainName, "nopass"], commandOptions);
@@ -70,6 +75,16 @@ export class CertificateManager
     {
         const cadir = "/etc/easy-rsa/" + caDirName;
         rmdirSync(cadir, { recursive: true });
+    }
+
+    public GetClientCertPaths(caDirName: string, client: string): CertKeyFiles
+    {
+        const cadir = "/etc/easy-rsa/" + caDirName + "/pki";
+        return {
+            caCertPath: path.join(cadir, "ca.crt"),
+            certPath: path.join(cadir, "issued", client + ".crt"),
+            keyPath: path.join(cadir, "private", client + ".key"),
+        };
     }
 
     public async ListCaDirs()
@@ -90,10 +105,20 @@ export class CertificateManager
         return cadirs;
     }
 
-    public async ListClients(caDirName: string)
+    public async ListClients(caDirName: string, session: POSIXAuthority)
     {
-        const children = await fs.readdir("/etc/easy-rsa/" + caDirName + "/pki/issued/", "utf-8");
-        return children.map(child => child.substring(0, child.lastIndexOf(".")));
+        const cadir = "/etc/easy-rsa/" + caDirName;
+
+        const domainName = await this.QueryDomainName(caDirName, session);
+
+        const children = await this.fileSystemService.ListDirectoryContents(path.join(cadir, "pki/issued"), session);
+        return children.Values().Map(child => child.substring(0, child.lastIndexOf("."))).Filter(child => child !== domainName);
+    }
+
+    public QueryDomainName(caDirName: string, session: POSIXAuthority)
+    {
+        const cadir = "/etc/easy-rsa/" + caDirName;
+        return this.fileSystemService.ReadTextFile(path.join(cadir, "__domainName"), session);
     }
 
     //Private methods

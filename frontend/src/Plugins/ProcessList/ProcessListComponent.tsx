@@ -49,7 +49,7 @@ export class ProcessListComponent extends Component
                     <th>Memory usage</th>
                     <th>Command line</th>
                 </tr>
-                {this.data.OrderByDescending(x => x.cpuUsage).map(this.RenderRow.bind(this))}
+                {this.data.Values().OrderByDescending(x => x.cpuUsage).Map(this.RenderRow.bind(this)).ToArray()}
             </table>
         </fragment>;
     }

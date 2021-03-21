@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,16 +16,15 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Injectable, Component, Router, JSX_CreateElement, ProgressSpinner } from "acfrontend";
+import { FileDownloadService } from "../../Services/FileDownloadService";
 
-import { Routes } from "srvmgr-api";
 
 import { BackupService, DirectoryEntry } from "./BackupService";
-import { BACKEND_HOST } from "../../Services/WebSocketService";
 
 @Injectable
 export class BackupListComponent extends Component
 {
-    constructor(router: Router, private backupService: BackupService)
+    constructor(router: Router, private backupService: BackupService, private fileDownloadService: FileDownloadService)
     {
         super();
 
@@ -71,15 +70,7 @@ export class BackupListComponent extends Component
     {
         const blob = await this.backupService.DownloadFile(this.backupName, fileName);
 
-        const objectUrl = window.URL.createObjectURL(blob);
-
-        const anchor = document.createElement("a");
-        anchor.href = objectUrl;
-        anchor.download = fileName;
-        document.body.appendChild(anchor);
-        anchor.click();
-
-        window.URL.revokeObjectURL(objectUrl);
+        this.fileDownloadService.DownloadBlobAsFile(blob, fileName);
     }
 
     public async OnInitiated()

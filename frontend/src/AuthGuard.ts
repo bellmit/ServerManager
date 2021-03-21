@@ -41,7 +41,7 @@ export class AuthGuard implements RouteGuard
             authority: url.authority,
             path: url.path,
             protocol: url.protocol,
-            queryParams: { returnUrl: routerState.ToUrl().ToString() }
+            queryParams: { returnUrl: routerState.ToUrl().PathAndQueryToString() }
         }));
     }
 }

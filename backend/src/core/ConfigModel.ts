@@ -58,9 +58,7 @@ export class ConfigModel
     //Public methods
     public AsDictionary()
     {
-        return this.sections.Entries().ToDictionary(kv => kv.key,
-            kv => kv.value!.Values().ToDictionary(kvEntry => kvEntry!.key, kvEntry => kvEntry!.value)
-        );
+        return this.sections.OwnKeys().ToDictionary(key => key, key => this.SectionAsDictionary(key.toString()));
     }
 
     public DeleteSection(sectionName: string)
@@ -85,6 +83,14 @@ export class ConfigModel
 
         delete this.sections[sectionName];
         delete this.sectionInsertPositions[sectionName];
+    }
+
+    public SectionAsDictionary(sectionName: string)
+    {
+        const section = this.sections[sectionName];
+        if(section === undefined)
+            return {};
+        return section.Values().ToDictionary(kvEntry => kvEntry!.key, kvEntry => kvEntry!.value);
     }
 
     public SetProperties(sectionName: string, props: Dictionary<PropertyType>)
@@ -124,6 +130,11 @@ export class ConfigModel
         }
         else
             entry.value = value;
+    }
+
+    public WithoutSectionAsDictionary()
+    {
+        return this.SectionAsDictionary("");
     }
 
     //Private members

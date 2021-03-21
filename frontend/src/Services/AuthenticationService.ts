@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 import { Property, Injector } from "acts-util-core";
-import { Injectable, HttpService, Router } from "acfrontend";
+import { HTTPService, Injectable, Router } from "acfrontend";
 
 import { Routes, AuthResult } from "srvmgr-api";
 
@@ -57,7 +57,7 @@ export class AuthenticationService
 
     public async Login(userName: string, password: string)
     {
-        const httpService = new HttpService();
+        const httpService = new HTTPService();
         const result = await httpService.DataRequest<AuthResult>("https://" + BACKEND_HOST + Routes.AUTH, "POST", {userName: userName, password: password});
         if(result.success)
         {
