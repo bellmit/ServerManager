@@ -18,6 +18,7 @@
 import { Injectable, Component, JSX_CreateElement, ProgressSpinner } from "acfrontend";
 
 import { Module } from "srvmgr-api";
+import { ModuleDependeny } from "srvmgr-api/dist/Model/Module";
 
 import { ModuleService } from "../../Services/ModuleService";
 
@@ -57,7 +58,7 @@ export class MainComponent extends Component
                     this.modules.map( (module: Module.Module) => <tr>
                         <td>{module.name}</td>
                         <td>
-                            <button type="button" onclick={this.OnInstallModule.bind(this, module)} disabled={module.installed}>Install</button>
+                            <button type="button" onclick={this.OnInstallModule.bind(this, module)} disabled={module.installed || !this.IsInstalled(module.dependencies)}>Install</button>
                             <button type="button" onclick={this.OnUninstallModule.bind(this, module)} disabled={!module.installed}>Uninstall</button>
                         </td>
                     </tr>)
@@ -69,6 +70,28 @@ export class MainComponent extends Component
     //Private members
     private modules: Module.Module[];
     private installingModule: string | null;
+
+    //Private methods
+    private AreInstalled(dependencies: Module.ModuleDependeny[], requirement: "all" | "any"): boolean
+    {
+        const mapped = dependencies.Values().Map(this.IsInstalled.bind(this));
+        if(requirement === "all")
+            return mapped.All();
+        return mapped.Filter(x => x === true).Any();
+    }
+
+    private IsInstalled(moduleDependeny: ModuleDependeny): boolean
+    {
+        if(typeof(moduleDependeny) === "string")
+        {
+            const mod = this.modules.find(m => m.name === moduleDependeny);
+            if(mod === undefined)
+                return false;
+            return mod.installed;
+        }
+
+        return this.AreInstalled(moduleDependeny.children, moduleDependeny.requirement);
+    }
 
     //Event handlers
     public OnInitiated()

@@ -78,18 +78,20 @@ export class ConnectionManager
     public Send(connectionId: string, msg: string, data: any)
     {
         if(!(connectionId in this.connections))
-            throw new Error("UNKNOWN CONNECTION ID");
+            return false;
 
         const token = this.connectionTokens[connectionId];
         if(token === undefined)
-            return;
+            return false;
 
         const session = this.sessionManager.FindSession(token);
         if( (session === undefined) || (session === null) )
-            return;
+            return false;
 
         const message: JsonResponseMessage = { msg: msg, data: data, expiryDateTime: session.expiryDateTime.toUTCString() };
         this.connections[connectionId]!.sendUTF(JSON.stringify(message));
+
+        return true;
     }
 
     //Private members

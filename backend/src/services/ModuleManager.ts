@@ -42,7 +42,8 @@ export class ModuleManager
             
             modules.push({
                 name: moduleName,
-                installed: await this.IsModuleInstalled(moduleName, session)
+                installed: await this.IsModuleInstalled(moduleName, session),
+                dependencies: this.GetModuleDependencies(moduleName)
             });
         }
 
@@ -76,6 +77,22 @@ export class ModuleManager
     private distroPackageManager: DistroPackageManager | null;
 
     //Private methods
+    private GetModuleDependencies(moduleName: Module.ModuleName): Module.ModuleDependeny
+    {
+        switch(moduleName)
+        {
+            case "nextcloud":
+                return {
+                    children: ["mariadb"],
+                    requirement: "all"
+                };
+        }
+        return {
+            children: [],
+            requirement: "all",
+        };
+    }
+
     private GetModuleInstaller(moduleName: Module.ModuleName)
     {
         return new Promise<ModuleInstaller>( resolve => {

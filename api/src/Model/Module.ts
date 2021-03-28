@@ -21,10 +21,13 @@ import { SUBMSG_LIST } from "../Messages";
 export type ModuleName = "apache" | "jdownloader" | "letsencrypt" | "mariadb" | "nextcloud" | "openvpn" | "phpmyadmin" | "samba";
 export const moduleNames: Array<ModuleName> = [ "apache", "jdownloader", "letsencrypt", "mariadb", "nextcloud", "openvpn", "phpmyadmin", "samba" ];
 
+export type ModuleDependeny = ModuleName | { children: ModuleDependeny[]; requirement: "all" | "any" };
+
 export interface Module
 {
     name: ModuleName;
     installed: boolean;
+    dependencies: ModuleDependeny;
 }
 
 const MSG_MODULES = "/Modules/";

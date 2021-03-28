@@ -27,5 +27,9 @@
     "webdav": "^3.3.0",
     "websocket": "^1.0.30"
   },
+  "engines":
+  {
+    "node" : ">=0.12"
+  },
   "gypfile": true
 }

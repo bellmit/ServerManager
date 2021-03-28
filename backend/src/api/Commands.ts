@@ -61,14 +61,20 @@ class CommandsApi
 
     @WebSocketAPIEndpoint({ route: Commands.Api.UnsubscribeCommand.message })
     public async UnsubscribeCommand(call: APICall, pid: Commands.Api.UnsubscribeCommand.BackendExpectData)
-    {            
-        const subscriptions = this.subscribedConnectionIds[pid]!;
-        subscriptions.Remove(subscriptions.indexOf(call.senderConnectionId));
+    {
+        this.RemoveCommandSubscription(pid, call.senderConnectionId);
     }
 
     //Private members
     private commands: Commands.CommandOverviewData[];
     private subscribedConnectionIds: Dictionary<string[]>;
+
+    //Private methods
+    private RemoveCommandSubscription(pid: number, connectionId: string)
+    {
+        const subscriptions = this.subscribedConnectionIds[pid]!;
+        subscriptions.Remove(subscriptions.indexOf(connectionId));
+    }
 
     //Event handlers
     private OnCommandsChanged(newCommands: Commands.CommandOverviewData[])
@@ -82,11 +88,17 @@ class CommandsApi
         const connectionIds = this.subscribedConnectionIds[processInfo.processId];
         if(connectionIds !== undefined)
         {
+            const connectionIdsToRemove = [];
+
             const dataToSend: Commands.Api.CommandData.BackendSendData = { pid: processInfo.processId, stderr: processInfo.stdErrBuffered, stdout: processInfo.stdOutBuffered, exitCode: processInfo.exitCode };
             for (const connectionId of connectionIds)
             {
-                this.connectionManager.Send(connectionId, Commands.Api.CommandData.message, dataToSend);
+                if(!this.connectionManager.Send(connectionId, Commands.Api.CommandData.message, dataToSend))
+                    connectionIdsToRemove.push(connectionId);
             }
+
+            for (const connectionId of connectionIdsToRemove)
+                this.RemoveCommandSubscription(processInfo.processId, connectionId);
         }
     }
 }
