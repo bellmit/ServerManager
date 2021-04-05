@@ -18,7 +18,7 @@
 import * as fs from "fs";
 import * as path from "path";
 
-import { ConfigEntry } from "./ConfigParser";
+import { ConfigEntry, KeyValueEntry } from "./ConfigParser";
 
 export class ConfigWriter
 {
@@ -47,6 +47,25 @@ export class ConfigWriter
         await fs.promises.writeFile(filePath, text, "utf-8");
     }
 
+    //Protected methods
+    protected KeyValueEntryToString(entry: KeyValueEntry)
+    {
+        if(entry.value === null)
+            return entry.key;
+
+        let value = entry.value;
+        
+        if(value === false)
+            value = this.falseMapping;
+        else if(value === true)
+            value = this.trueMapping;
+
+        if(typeof value === "number")
+            value = value.toString();
+
+        return entry.key + " = " + value;
+    }
+
     //Private methods
     private EntriesToString(entries: ConfigEntry[])
     {
@@ -58,26 +77,15 @@ export class ConfigWriter
         switch(entry.type)
         {
             case "BeginSection":
+                if(entry.textValue === "")
+                    return "";
                 return "[" + entry.textValue + "]";
 
             case "IncludeDir":
                 return this.formatIncludeDir(entry.path);
 
             case "KeyValue":
-                if(entry.value === null)
-                    return entry.key;
-
-                let value = entry.value;
-                
-                if(value === false)
-                    value = this.falseMapping;
-                else if(value === true)
-                    value = this.trueMapping;
-
-                if(typeof value === "number")
-                    value = value.toString();
-
-                return entry.key + " = " + value;
+                return this.KeyValueEntryToString(entry);
 
             case "Text":
                 return entry.textValue;

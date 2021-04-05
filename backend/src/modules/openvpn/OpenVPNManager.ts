@@ -27,6 +27,7 @@ import { FileSystemService } from "../../services/FileSystemService";
 import { CertKeyFiles, OpenVPNServerConfig } from "srvmgr-api/dist/Model/OpenVPN";
 import { ConfigParser, KeyValueEntry } from "../../core/ConfigParser";
 import { ConfigModel } from "../../core/ConfigModel";
+import { ConfigWriter } from "../../core/ConfigWriter";
 
 @Injectable
 export class OpenVPNManager
@@ -181,6 +182,63 @@ ${taData}
 
     public async ReadServerConfig(configName: string, session: POSIXAuthority): Promise<OpenVPNServerConfig>
     {
+        const parsed = await this.ParseConfig(configName);
+        const mdl = new ConfigModel(parsed);
+
+        const data = mdl.WithoutSectionAsDictionary() as any;
+        const server = data.server.split(" ");
+
+        return {
+            authenticationAlgorithm: data.auth,
+            certKeyFiles: {
+                caCertPath: data.ca,
+                certPath: data.cert,
+                dhPath: data.dh,
+                keyPath: data.key,
+            },
+            cipher: data.cipher,
+            name: configName,
+            port: data.port,
+            protocol: data.proto,
+            verbosity: data.verb,
+            virtualServerAddress: server[0],
+            virtualServerSubnetMask: server[1],
+        };
+    }
+
+    public async UpdateConfig(configName: string, config: OpenVPNServerConfig)
+    {
+        const parsed = await this.ParseConfig(configName);
+        const mdl = new ConfigModel(parsed);
+        mdl.SetProperties("", {
+            auth: config.authenticationAlgorithm,
+            cipher: config.cipher,
+            port: config.port,
+            proto: config.protocol,
+            verb: config.verbosity,
+            server: config.virtualServerAddress + " " + config.virtualServerSubnetMask,
+
+            ca: config.certKeyFiles.caCertPath,
+            cert: config.certKeyFiles.certPath,
+            dh: config.certKeyFiles.dhPath,
+            key: config.certKeyFiles.keyPath
+        });
+
+        class OpenVPNConfigWriter extends ConfigWriter
+        {
+            protected KeyValueEntryToString(entry: KeyValueEntry)
+            {
+                return entry.key + " " + entry.value;
+            }
+        }
+
+        const writer = new OpenVPNConfigWriter(x => x, "", "");
+        await writer.Write("/etc/openvpn/" + configName + ".conf", parsed);
+    }
+
+    //Private methods
+    private ParseConfig(configName: string)
+    {
         class OpenVPNConfigParser extends ConfigParser
         {
             constructor()
@@ -224,27 +282,6 @@ ${taData}
         }
 
         const cfgParser = new OpenVPNConfigParser();
-        const parsed = await cfgParser.Parse("/etc/openvpn/" + configName + ".conf");
-        const mdl = new ConfigModel(parsed);
-
-        const data = mdl.WithoutSectionAsDictionary() as any;
-        const server = data.server.split(" ");
-
-        return {
-            authenticationAlgorithm: data.auth,
-            certKeyFiles: {
-                caCertPath: data.ca,
-                certPath: data.cert,
-                dhPath: data.dh,
-                keyPath: data.key,
-            },
-            cipher: data.cipher,
-            name: configName,
-            port: data.port,
-            protocol: data.proto,
-            verbosity: data.verb,
-            virtualServerAddress: server[0],
-            virtualServerSubnetMask: server[1],
-        };
+        return cfgParser.Parse("/etc/openvpn/" + configName + ".conf");
     }
 }

@@ -25,6 +25,7 @@ import { routes as filemanagerRoutes } from "./Plugins/Filemanager/routing";
 import { routes as jdownloaderRoutes } from "./Plugins/JDownloader/routing";
 import { routes as modulesRoutes } from "./Plugins/Modules/routing";
 import { routes as mysqlRoutes } from "./Plugins/MySQL/routing";
+import { routes as networkRoutes } from "./Plugins/Network/routing";
 import { routes as notificationsRoutes } from "./Plugins/Notifications/routing";
 import { routes as openvpnRoutes } from "./Plugins/OpenVPN/routing";
 import { routes as processListRoutes } from "./Plugins/ProcessList/routing";
@@ -53,6 +54,7 @@ const protectedRoutes : Routes = [
     { path: "jdownloader", children: jdownloaderRoutes },
     { path: "modules", children: modulesRoutes },
     { path: "mysql", component: MySQLSettingsComponent, children: mysqlRoutes },
+    { path: "network", children: networkRoutes },
     { path: "notifications", children: notificationsRoutes },
     { path: "openvpn", children: openvpnRoutes },
     { path: "processes", children: processListRoutes },

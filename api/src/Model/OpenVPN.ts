@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { SUBMSG_ADD, SUBMSG_DELETE, SUBMSG_LIST, SUBMSG_QUERY } from "../Messages";
+import { SUBMSG_ADD, SUBMSG_DELETE, SUBMSG_LIST, SUBMSG_QUERY, SUBMSG_SET } from "../Messages";
 
 const MSG_OPENVPN = "/OpenVPN/";
 const MSG_OPENVPN_CADIRS = MSG_OPENVPN + "CADirs/";
@@ -173,5 +173,20 @@ export namespace OpenVPNApi
         }
 
         export type ResultData = OpenVPNServerConfig;
+    }
+
+    export namespace UpdateConfig
+    {
+        export const message = MSG_OPENVPN_CONFIGS + SUBMSG_SET;
+
+        export interface RequestData
+        {
+            name: string;
+            config: OpenVPNServerConfig;
+        }
+
+        export interface ResultData
+        {
+        }
     }
 }

@@ -87,4 +87,9 @@ export class OpenVPNService
     {
         return this.websocketService.SendRequest<OpenVPNApi.QueryNewConfigTemplate.ResultData>(OpenVPNApi.QueryNewConfigTemplate.message, data);
     }
+
+    public UpdateConfig(data: OpenVPNApi.UpdateConfig.RequestData)
+    {
+        return this.websocketService.SendRequest<OpenVPNApi.UpdateConfig.ResultData>(OpenVPNApi.UpdateConfig.message, data);
+    }
 }

@@ -57,6 +57,7 @@ export class ListConfigsComponent extends Component
         return <tr>
             <td>{configName}</td>
             <td>
+                <RouterButton route={"/openvpn/configs/" + configName}><MatIcon>edit</MatIcon></RouterButton>
                 <button type="button" onclick={this.OnDownloadClientConfig.bind(this, configName)}><MatIcon>download</MatIcon></button>
                 <button type="button" class="danger" onclick={this.OnDeleteConfig.bind(this, configName)}><MatIcon>delete_forever</MatIcon></button>
             </td>

@@ -19,6 +19,7 @@ import * as Apache from "./Model/Apache";
 import * as Commands from "./Model/Commands";
 import * as JDownloader from "./Model/JDownloader";
 import * as MySQL from "./Model/MySQL";
+import * as Network from "./Model/Network";
 import * as Processes from "./Model/Processes";
 import * as SMB from "./Model/SMB";
 import * as SystemInfo from "./Model/SystemInfo";
@@ -64,6 +65,7 @@ export {
     Messages,
     Module,
     MySQL,
+    Network,
     NotificationSettings,
     OpenVPNApi,
     OperationStatus,

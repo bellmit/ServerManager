@@ -128,6 +128,13 @@ class LetsEncryptApi
             }
         };
     }
+
+    @WebSocketAPIEndpoint({ route: OpenVPNApi.UpdateConfig.message })
+    public async UpdateConfig(request: ApiRequest, data: OpenVPNApi.UpdateConfig.RequestData): Promise<OpenVPNApi.UpdateConfig.ResultData>
+    {
+        await this.openVPNManager.UpdateConfig(data.name, data.config);
+        return {};
+    }
 }
 
 export default LetsEncryptApi;

@@ -25,6 +25,7 @@ import * as JDownloader from "./Plugins/JDownloader/plugin";
 import * as Modules from "./Plugins/Modules/plugin";
 import * as MySQL from "./Plugins/MySQL/plugin";
 import * as Notifications from "./Plugins/Notifications/plugin";
+import * as Network from "./Plugins/Network/plugin";
 import * as OpenVPN from "./Plugins/OpenVPN/plugin";
 import * as ProcessList from "./Plugins/ProcessList/plugin";
 import * as Services from "./Plugins/Services/plugin";
@@ -45,6 +46,7 @@ export const plugins: PluginDefinition[] = [
     Modules.plugin,
     MySQL.plugin,
     MySQL.statusPlugin,
+    Network.plugin,
     Notifications.plugin,
     OpenVPN.plugin,
     ProcessList.plugin,
