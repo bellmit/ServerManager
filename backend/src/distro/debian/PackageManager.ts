@@ -109,6 +109,8 @@ class DebianPackageManager implements DistroPackageManager
                 return ["phpmyadmin"];
             case "samba":
                 return ["samba"];
+            case "unattended-upgrades":
+                return ["unattended-upgrades"];
         }
     }
 
