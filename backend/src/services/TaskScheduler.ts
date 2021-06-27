@@ -17,6 +17,7 @@
  * */
 
 import { Injectable } from "acts-util-node";
+import { Tasks } from "srvmgr-api";
 
 interface Task
 {
@@ -37,6 +38,34 @@ export class TaskScheduler
     }
 
     //Public methods
+    public OneShot(fireTime: Date, task: () => Promise<void>)
+    {
+        const taskNumber = this.taskCounter++;
+
+        const nextScheduleTime = this.ComputeNextScheduleTime(fireTime, 0);
+        this.tasks.set(taskNumber, {
+            repetetive: false,
+            nextScheduleTime,
+            interval: 0,
+            task,
+            timerId: this.StartClock(taskNumber, nextScheduleTime)
+        });
+
+        return taskNumber;
+    }
+
+    public QueryScheduledTasks(): Tasks.TaskInfo[]
+    {
+        return this.tasks.Values().Map(t => {
+            const info: Tasks.TaskInfo = {
+                description: t.task.toString(),
+                nextScheduleTime: t.nextScheduleTime.toISOString(),
+                type: "ServerManager"
+            };
+            return info;
+        }).ToArray();
+    }
+
     public Repeat(interval: number, task: () => Promise<void>)
     {
         return this.RepeatWithStartTime(new Date(), interval, task);

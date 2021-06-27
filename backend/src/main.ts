@@ -23,11 +23,11 @@ import * as os from "os";
 import { API, Factory, GlobalInjector, HTTPEndPointProperties, HTTPRequest } from "acts-util-node";
 
 import { ConnectionManager } from "./services/ConnectionManager";
-import { BackupManager } from "./services/BackupManager";
 import { SessionManager } from "./services/SessionManager";
 import { ConfigManager } from "./services/ConfigManager";
 import { WebSocketAPIEndPointAttributes } from "./Api";
 import { HTTPResult } from "acts-util-node/dist/http/HTTPRequestHandler";
+import { ScheduleAutoTasks } from "./autotasks";
 
 const port = 8081;
 
@@ -149,20 +149,12 @@ async function SetupServer()
     httpsServer.listen(port);
 }
 
-function SetupBackup()
-{
-    console.log("Scheduling backup tasks...");
-
-    const bkpManager = GlobalInjector.Resolve<BackupManager>(BackupManager);
-    bkpManager.Schedule();
-}
-
 async function Init()
 {
     await ValidateConfig();
     await SetupServer();
 
-    setTimeout(SetupBackup, 1000);
+    setTimeout(ScheduleAutoTasks, 1000);
 
     console.log("Initialization finished.");
 }

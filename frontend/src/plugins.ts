@@ -27,14 +27,14 @@ import * as MySQL from "./Plugins/MySQL/plugin";
 import * as Notifications from "./Plugins/Notifications/plugin";
 import * as Network from "./Plugins/Network/plugin";
 import * as OpenVPN from "./Plugins/OpenVPN/plugin";
-import * as ProcessList from "./Plugins/ProcessList/plugin";
+import * as SystemActivityMonitor from "./Plugins/SystemActivityMonitor/plugin";
 import * as Services from "./Plugins/Services/plugin";
 import * as Settings from "./Plugins/Settings/plugin";
 import * as SMB from "./Plugins/SMB/plugin";
-import * as SystemResourcesMonitor from "./Plugins/SystemResourcesMonitor/plugin";
 import * as SystemUpdate from "./Plugins/SystemUpdate/plugin";
 import * as Terminal from "./Plugins/Terminal/plugin";
 import * as Users from "./Plugins/Users/plugin";
+import * as VMManagement from "./Plugins/VMManagement/plugin";
 
 export const plugins: PluginDefinition[] = [
     Apache.plugin,
@@ -49,12 +49,12 @@ export const plugins: PluginDefinition[] = [
     Network.plugin,
     Notifications.plugin,
     OpenVPN.plugin,
-    ProcessList.plugin,
+    SystemActivityMonitor.plugin,
     Services.plugin,
     Settings.plugin,
     SMB.plugin,
-    SystemResourcesMonitor.plugin,
     SystemUpdate.plugin,
     Terminal.plugin,
     Users.plugin,
+    VMManagement.plugin,
 ];

@@ -24,6 +24,8 @@ import * as Processes from "./Model/Processes";
 import * as SMB from "./Model/SMB";
 import * as SystemInfo from "./Model/SystemInfo";
 import * as SystemUpdate from "./Model/SystemUpdate";
+import * as Tasks from "./Model/Tasks";
+import * as VMs from "./Model/VMs";
 
 import { Messages, JsonRequestMessage, JsonResponseMessage } from "./Messages";
 import { User, Group } from "./Model/User";
@@ -79,4 +81,6 @@ export {
     SystemServiceAction,
     SystemServiceActionData,
     SystemUpdate,
+    Tasks,
+    VMs
 };

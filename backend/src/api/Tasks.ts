@@ -15,13 +15,30 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { PluginDefinition } from "../../Model/PluginDefinition";
-import { MatIcon, JSX_CreateElement } from "acfrontend";
 
-export const plugin: PluginDefinition = {
-    title: "System resources Monitor",
-    baseRoute: "/resourcesmonitor",
+import { Injectable } from "acts-util-node";
+import { Tasks } from "srvmgr-api";
+import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
+import { TaskScheduler } from "../services/TaskScheduler";
 
-    icon: <MatIcon>insights</MatIcon>,
-    providedIn: "root",
-};
+@Injectable
+class API
+{
+    constructor(private taskScheduler: TaskScheduler)
+    {
+    }
+
+    @WebSocketAPIEndpoint({ route: Tasks.API.QueryScheduledTasks.message })
+    public async QueryScheduledTasks(request: ApiRequest): Promise<Tasks.API.QueryScheduledTasks.ResultData>
+    {
+        /*
+        TODO: include also:
+        cron
+        anacron
+        systemctl list-timers --all
+        */
+        return this.taskScheduler.QueryScheduledTasks();
+    }
+}
+
+export default API;

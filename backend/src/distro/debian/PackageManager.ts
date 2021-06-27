@@ -111,6 +111,8 @@ class DebianPackageManager implements DistroPackageManager
                 return ["samba"];
             case "unattended-upgrades":
                 return ["unattended-upgrades"];
+            case "virtualization":
+                return ["libvirt-daemon-system", "qemu-kvm"];
         }
     }
 

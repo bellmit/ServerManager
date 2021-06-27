@@ -15,20 +15,9 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Processes } from "srvmgr-api";
-import { ApiService } from "../../API/Api";
-import { WebSocketService } from "../../Services/WebSocketService";
+import { Routes } from "acfrontend";
+import { SystemActivityMonitorComponent } from "./SystemActivityMonitorComponent";
 
-@ApiService
-export class ProcessesService
-{
-    constructor(private webSocketService: WebSocketService)
-    {
-    }
-
-    //Public methods
-    public QueryProcessesList()
-    {
-        return this.webSocketService.SendRequest<Processes.API.QueryProcessesList.ResultData>(Processes.API.QueryProcessesList.message);
-    }
-}
+export const routes : Routes = [
+    { path: "", component: SystemActivityMonitorComponent},
+];

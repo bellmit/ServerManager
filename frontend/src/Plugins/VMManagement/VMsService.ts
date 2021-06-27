@@ -15,9 +15,20 @@
  * You should have received a copy of the GNU Affero General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
-import { Routes } from "acfrontend";
-import { ResourcesLoadComponent } from "./ResourcesLoadComponent";
+import { ApiService } from "../../API/Api";
+import { WebSocketService } from "../../Services/WebSocketService";
+import { VMs } from "srvmgr-api";
 
-export const routes : Routes = [
-    { path: "", component: ResourcesLoadComponent},
-];
+@ApiService
+export class VMsService
+{
+    constructor(private webSocketService: WebSocketService)
+    {
+    }
+
+    //Public methods
+    public QueryVMs()
+    {
+        return this.webSocketService.SendRequest<VMs.API.QueryVMs.ResultData>(VMs.API.QueryVMs.message);
+    }
+}

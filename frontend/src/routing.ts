@@ -28,19 +28,19 @@ import { routes as mysqlRoutes } from "./Plugins/MySQL/routing";
 import { routes as networkRoutes } from "./Plugins/Network/routing";
 import { routes as notificationsRoutes } from "./Plugins/Notifications/routing";
 import { routes as openvpnRoutes } from "./Plugins/OpenVPN/routing";
-import { routes as processListRoutes } from "./Plugins/ProcessList/routing";
+import { routes as systemActivityRoutes } from "./Plugins/SystemActivityMonitor/routing";
 import { routes as servicesRoutes } from "./Plugins/Services/routing";
 import { routes as settingsRoutes } from "./Plugins/Settings/routing";
 import { routes as smbRoutes } from "./Plugins/SMB/routing";
-import { routes as systemResourcesMonitorRoutes } from "./Plugins/SystemResourcesMonitor/routing";
 import { routes as systemUpdateRoutes } from "./Plugins/SystemUpdate/routing";
 import { routes as terminalRoutes } from "./Plugins/Terminal/routing";
 import { routes as usersRoutes } from "./Plugins/Users/routing";
+import { routes as vmManagementRoutes } from "./Plugins/VMManagement/routing";
+
 import { PageNotFoundComponent } from "./PageNotFoundComponent";
 import { ServerStatusComponent } from "./ServerStatusComponent";
 import { AuthGuard } from "./AuthGuard";
 import { LoginComponent } from "./LoginComponent";
-
 import { ApacheComponent } from "./Plugins/Apache/ApacheComponent";
 import { SMBComponent } from "./Plugins/SMB/SMBComponent";
 import { MySQLSettingsComponent } from "./Plugins/MySQL/MySQLSettingsComponent";
@@ -57,14 +57,14 @@ const protectedRoutes : Routes = [
     { path: "network", children: networkRoutes },
     { path: "notifications", children: notificationsRoutes },
     { path: "openvpn", children: openvpnRoutes },
-    { path: "processes", children: processListRoutes },
     { path: "services", children: servicesRoutes },
     { path: "settings", children: settingsRoutes },
     { path: "smb", component: SMBComponent, children: smbRoutes },
-    { path: "resourcesmonitor", children: systemResourcesMonitorRoutes },
+    { path: "systemactivity", children: systemActivityRoutes },
     { path: "systemupdate", children: systemUpdateRoutes },
     { path: "terminal", children: terminalRoutes },
     { path: "users", children: usersRoutes },
+    { path: "vms", children: vmManagementRoutes },
     { path: "", component: ServerStatusComponent },
 ];
 

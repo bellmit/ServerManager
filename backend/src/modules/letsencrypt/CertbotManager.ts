@@ -18,15 +18,22 @@
 
 import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "../../services/CommandExecutor";
-import { NotificationsManager } from "../../services/NotificationsManager";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
-import { CertificatesApi } from "srvmgr-api";
+import { TaskScheduler } from "../../services/TaskScheduler";
+
+interface Certificate
+{
+    name: string;
+    expiryDate: Date;
+    certificatePath: string;
+    privateKeyPath: string;
+}
 
 @Injectable
 export class CertbotManager
 {
-    constructor(private commandExecutor: CommandExecutor, private notificationsManager: NotificationsManager, private permissionsManager: PermissionsManager)
+    constructor(private commandExecutor: CommandExecutor, private taskScheduler: TaskScheduler, private permissionsManager: PermissionsManager)
     {
     }
 
@@ -41,7 +48,7 @@ export class CertbotManager
     {
         const result = await this.commandExecutor.ExecuteCommand(["certbot", "certificates"], this.permissionsManager.Sudo(session.uid));
 
-        const certs: CertificatesApi.List.Certificate[] = [];
+        const certs: Certificate[] = [];
 
         const lines = result.stdout.split("\n");
         for (let index = 0; index < lines.length; index++)
@@ -57,12 +64,45 @@ export class CertbotManager
                 const certPath = lines[index+3].trim().substring("Certificate Path:".length).trim();
                 const keyPath = lines[index+4].trim().substring("Private Key Path:".length).trim();
 
-                certs.push({ name: parts[1].trim(), expiryDate: expiryDate.toISOString(), certificatePath: certPath, privateKeyPath: keyPath });
+                certs.push({ name: parts[1].trim(), expiryDate, certificatePath: certPath, privateKeyPath: keyPath });
 
                 index += 4;
             }
         }
 
         return certs;
+    }
+
+    public async Schedule()
+    {
+        const certs = await this.ListCertificates(this.permissionsManager.root);
+        for (const cert of certs)
+        {
+            this.ScheduleUpdate(cert.name);
+        }
+    }
+
+    //Private methods
+    private ComputeUpdateTime(expiryDate: Date)
+    {
+        return new Date(expiryDate.setMonth(expiryDate.getMonth() - 1));
+    }
+
+    private async RenewCertificate(certName: string, session: POSIXAuthority)
+    {
+        const commands = ["certbot", "renew", "--cert-name", certName];
+        await this.commandExecutor.ExecuteCommand(commands, this.permissionsManager.Sudo(session.uid));
+    }
+
+    private async ScheduleUpdate(certName: string)
+    {
+        const session = this.permissionsManager.root;
+        const certs = await this.ListCertificates(session);
+        const cert = certs.Values().Filter(x => x.name === certName).First();
+        
+        this.taskScheduler.OneShot(this.ComputeUpdateTime(cert.expiryDate), async () => {
+            await this.RenewCertificate(certName, session);
+            this.ScheduleUpdate(certName);
+        });
     }
 }

@@ -19,8 +19,8 @@ import { PluginDefinition } from "../../Model/PluginDefinition";
 import { MatIcon, JSX_CreateElement } from "acfrontend";
 
 export const plugin: PluginDefinition = {
-    title: "Process monitor",
-    baseRoute: "/processes",
+    title: "System activity monitor",
+    baseRoute: "/systemactivity",
 
     icon: <MatIcon>microwave</MatIcon>,
     providedIn: "root",
