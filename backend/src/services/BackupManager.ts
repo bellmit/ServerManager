@@ -128,7 +128,7 @@ export class BackupManager
         {
             if(task.enabled && !this.taskTimers.has(task))
             {
-                const timerId = this.taskScheduler.RepeatWithStartTime(task.lastBackupTime, task.interval, () => this.IssueBackupJob(task, this.permissionsManager.root) );
+                const timerId = this.taskScheduler.RepeatWithStartTime(task.lastBackupTime, task.interval, () => this.IssueBackupJob(task, this.permissionsManager.root), "backup job" );
                 this.taskTimers.set(task, timerId);
             }
         }

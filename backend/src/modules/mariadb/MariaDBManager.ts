@@ -20,10 +20,17 @@ import { MySQL } from "srvmgr-api";
 import { MariaDBConfigParser } from "./MariaDBConfigParser";
 import { ConfigModel } from "../../core/ConfigModel";
 import { ConfigWriter } from "../../core/ConfigWriter";
+import { TaskScheduler } from "../../services/TaskScheduler";
+import { CommandExecutor } from "../../services/CommandExecutor";
+import { PermissionsManager } from "../../services/PermissionsManager";
 
 @Injectable
 export class MariaDBManager
 {
+    constructor(private taskScheduler: TaskScheduler, private commandExecutor: CommandExecutor, private permissionsManager: PermissionsManager)
+    {
+    }
+    
     //Public methods
     public async QueryMysqldSettings(): Promise<MySQL.MysqldSettings>
     {
@@ -40,6 +47,14 @@ export class MariaDBManager
         return configModel.AsDictionary();
     }
 
+    public ScheduleCheck()
+    {
+        this.taskScheduler.RepeatWithPattern({
+            type: "daily",
+            atHour: 3
+        }, this.CheckDb.bind(this), "mysqlcheck");
+    }
+
     public async SetMysqldSettings(settings: MySQL.MysqldSettings)
     {
         const cfg = await this.ParseConfig();
@@ -52,6 +67,27 @@ export class MariaDBManager
     }
 
     //Private methods
+    private async CheckDb()
+    {
+        const sudo = this.permissionsManager.root;
+        const result = await this.commandExecutor.ExecuteCommand(["mysqlcheck", "--all-databases", "-u", "root"], sudo);
+
+        const lines = result.stdout.split("\n");
+        const entries = lines.filter(line => line.trim().length > 0).map(line => {
+            const parts = line.split(/[ \t]+/);
+            if(parts.length != 2)
+                throw new Error(parts.toString());
+            return parts;
+        });
+
+        const errorneous = entries.filter(parts => parts[1] !== "OK");
+        if(errorneous.length > 0)
+        {
+            console.log(errorneous);
+            throw new Error("DATABASE PROBLEM!");
+        }
+    }
+
     private async ParseConfig()
     {
         const parser = new MariaDBConfigParser();

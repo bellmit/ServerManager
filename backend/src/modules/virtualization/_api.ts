@@ -28,8 +28,15 @@ class _API_
     {
     }
 
+    @WebSocketAPIEndpoint({ route: VMs.API.ExecuteAction.message })
+    public async ExecuteAction(request: ApiRequest, data: VMs.API.ExecuteAction.RequestData): Promise<VMs.API.ExecuteAction.ResultData>
+    {
+        await this.libvirtManager.ExecuteAction(data.vmName, data.action, request.session);
+        return {};
+    }
+
     @WebSocketAPIEndpoint({ route: VMs.API.QueryVMs.message })
-    public async AddUser(request: ApiRequest): Promise<VMs.API.QueryVMs.ResultData>
+    public async QueryVMs(request: ApiRequest): Promise<VMs.API.QueryVMs.ResultData>
     {
         return this.libvirtManager.ListVMs(request.session);
     }

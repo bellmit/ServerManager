@@ -28,6 +28,21 @@ export interface VMInfo
 
 export namespace API
 {
+    export namespace ExecuteAction
+    {
+        export const message = messageBase + "action";
+
+        export interface RequestData
+        {
+            vmName: string;
+            action: "start" | "shutdown";
+        }
+
+        export interface ResultData
+        {
+        }
+    }
+
     export namespace QueryVMs
     {
         export const message = messageBase + SUBMSG_LIST;

@@ -27,6 +27,11 @@ export class VMsService
     }
 
     //Public methods
+    public ExecuteAction(data: VMs.API.ExecuteAction.RequestData)
+    {
+        return this.webSocketService.SendRequest<VMs.API.ExecuteAction.ResultData>(VMs.API.ExecuteAction.message, data);
+    }
+
     public QueryVMs()
     {
         return this.webSocketService.SendRequest<VMs.API.QueryVMs.ResultData>(VMs.API.QueryVMs.message);

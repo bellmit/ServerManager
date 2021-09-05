@@ -29,6 +29,11 @@ export class libvirtManager
     }
 
     //Public methods
+    public async ExecuteAction(vmName: string, action: "start" | "shutdown", session: POSIXAuthority)
+    {
+        await this.commandExecutor.ExecuteCommand(["sudo", "virsh", action, vmName], session);
+    }
+
     public async ListVMs(session: POSIXAuthority)
     {
         const commands = ["sudo", "virsh", "list", "--all"];

@@ -51,9 +51,9 @@ export class ListVMsComponent extends Component
         switch(vm.state)
         {
             case "running":
-                return <MatIcon>power_settings_new</MatIcon>
+                return <a onclick={this.OnVMAction.bind(this, vm.name, "shutdown")}><MatIcon>power_settings_new</MatIcon></a>;
             case "shut off":
-                return <MatIcon>play_arrow</MatIcon>;
+                return <a onclick={this.OnVMAction.bind(this, vm.name, "start")}><MatIcon>play_arrow</MatIcon></a>;
         }
 
         alert(vm.state);
@@ -73,6 +73,18 @@ export class ListVMsComponent extends Component
     //Event handlers
     public async OnInitiated()
     {
+        this.vms = await this.vmsService.QueryVMs();
+    }
+
+    private async OnVMAction(vmName: string, action: "start" | "shutdown")
+    {
+        this.vms = null;
+
+        await this.vmsService.ExecuteAction({
+            vmName,
+            action
+        });
+
         this.vms = await this.vmsService.QueryVMs();
     }
 }

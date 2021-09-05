@@ -20,7 +20,9 @@ import { Injectable } from "acts-util-node";
 import { CommandExecutor } from "../../services/CommandExecutor";
 import { PermissionsManager } from "../../services/PermissionsManager";
 import { POSIXAuthority } from "../../services/POSIXAuthority";
+import { SystemServicesManager } from "../../services/SystemServicesManager";
 import { TaskScheduler } from "../../services/TaskScheduler";
+import { ApacheManager } from "../apache/ApacheManager";
 
 interface Certificate
 {
@@ -33,7 +35,8 @@ interface Certificate
 @Injectable
 export class CertbotManager
 {
-    constructor(private commandExecutor: CommandExecutor, private taskScheduler: TaskScheduler, private permissionsManager: PermissionsManager)
+    constructor(private commandExecutor: CommandExecutor, private taskScheduler: TaskScheduler, private permissionsManager: PermissionsManager,
+        private apacheManager: ApacheManager, private systemServicesManager: SystemServicesManager)
     {
     }
 
@@ -90,8 +93,34 @@ export class CertbotManager
 
     private async RenewCertificate(certName: string, session: POSIXAuthority)
     {
-        const commands = ["certbot", "renew", "--cert-name", certName];
-        await this.commandExecutor.ExecuteCommand(commands, this.permissionsManager.Sudo(session.uid));
+        const sites = await this.apacheManager.QuerySites(session);
+        const enabledSiteNames = sites.Values().Filter(x => x.enabled).Map(x => x.name).ToArray();
+
+        await enabledSiteNames.Values().Map(name => this.apacheManager.DisableSite(name, session)).PromiseAll();
+        await this.apacheManager.EnableSite("000-default", session);
+
+        await this.systemServicesManager.RestartService("apache2", session);
+
+        try
+        {
+            const commands = ["certbot", "renew", "--cert-name", certName, "--no-random-sleep-on-renew"];
+            await this.commandExecutor.ExecuteCommand(commands, this.permissionsManager.Sudo(session.uid));
+        }
+        catch(error)
+        {
+            await this.ResetApacheState(enabledSiteNames, session);
+            throw error;
+        }
+
+        await this.ResetApacheState(enabledSiteNames, session);
+    }
+
+    private async ResetApacheState(enabledSiteNames: string[], session: POSIXAuthority)
+    {
+        await this.apacheManager.DisableSite("000-default", session);
+        await enabledSiteNames.Values().Map(name => this.apacheManager.EnableSite(name, session)).PromiseAll();
+
+        await this.systemServicesManager.RestartService("apache2", session);
     }
 
     private async ScheduleUpdate(certName: string)
@@ -103,6 +132,6 @@ export class CertbotManager
         this.taskScheduler.OneShot(this.ComputeUpdateTime(cert.expiryDate), async () => {
             await this.RenewCertificate(certName, session);
             this.ScheduleUpdate(certName);
-        });
+        }, "certbot renewal");
     }
 }

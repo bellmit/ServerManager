@@ -26,6 +26,13 @@ interface Task
     interval: number;
     task: () => Promise<void>;
     timerId: NodeJS.Timeout;
+    description: string;
+}
+
+interface DailyPattern
+{
+    type: "daily";
+    atHour: number;
 }
 
 @Injectable
@@ -38,7 +45,7 @@ export class TaskScheduler
     }
 
     //Public methods
-    public OneShot(fireTime: Date, task: () => Promise<void>)
+    public OneShot(fireTime: Date, task: () => Promise<void>, description: string)
     {
         const taskNumber = this.taskCounter++;
 
@@ -48,7 +55,8 @@ export class TaskScheduler
             nextScheduleTime,
             interval: 0,
             task,
-            timerId: this.StartClock(taskNumber, nextScheduleTime)
+            timerId: this.StartClock(taskNumber, nextScheduleTime),
+            description
         });
 
         return taskNumber;
@@ -58,7 +66,7 @@ export class TaskScheduler
     {
         return this.tasks.Values().Map(t => {
             const info: Tasks.TaskInfo = {
-                description: t.task.toString(),
+                description: t.description,
                 nextScheduleTime: t.nextScheduleTime.toISOString(),
                 type: "ServerManager"
             };
@@ -66,22 +74,32 @@ export class TaskScheduler
         }).ToArray();
     }
 
-    public Repeat(interval: number, task: () => Promise<void>)
+    public Repeat(interval: number, task: () => Promise<void>, description: string)
     {
-        return this.RepeatWithStartTime(new Date(), interval, task);
+        return this.RepeatWithStartTime(new Date(), interval, task, description);
     }
 
-    public RepeatWithStartTime(startTime: Date, interval: number, task: () => Promise<void>)
+    public RepeatWithPattern(pattern: DailyPattern, task: () => Promise<void>, description: string)
+    {
+        const now = new Date();
+        const day = now.getUTCDate() + (now.getUTCHours() < pattern.atHour ? 0 : 1);
+        const nextScheduleTime = new Date(now.getUTCFullYear(), now.getUTCMonth(), day, pattern.atHour, 0, 0, 0);
+
+        this.RepeatWithStartTime(nextScheduleTime, 24 * 60 * 60 * 1000, task, description);
+    }
+
+    public RepeatWithStartTime(startTime: Date, interval: number, task: () => Promise<void>, description: string)
     {
         const taskNumber = this.taskCounter++;
 
-        const nextScheduleTime = this.ComputeNextScheduleTime(startTime, interval);
+        const nextScheduleTime = this.ComputeNextScheduleTime(startTime, 0);
         this.tasks.set(taskNumber, {
             repetetive: true,
             nextScheduleTime: nextScheduleTime,
             interval: interval,
             task: task,
-            timerId: this.StartClock(taskNumber, nextScheduleTime)
+            timerId: this.StartClock(taskNumber, nextScheduleTime),
+            description
         });
 
         return taskNumber;

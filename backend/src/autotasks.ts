@@ -17,6 +17,7 @@
  * */
 import { GlobalInjector } from "acts-util-node";
 import { CertbotManager } from "./modules/letsencrypt/CertbotManager";
+import { MariaDBManager } from "./modules/mariadb/MariaDBManager";
 import { BackupManager } from "./services/BackupManager";
 
 export function ScheduleAutoTasks()
@@ -28,4 +29,7 @@ export function ScheduleAutoTasks()
 
     const certsManager = GlobalInjector.Resolve(CertbotManager);
     certsManager.Schedule();
+
+    const mysqlManager = GlobalInjector.Resolve(MariaDBManager);
+    mysqlManager.ScheduleCheck();
 }
