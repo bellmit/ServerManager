@@ -20,6 +20,43 @@ import { WebSocketAPIEndpoint, ApiRequest } from "../Api";
 import { CommandExecutor } from "../services/CommandExecutor";
 import { SystemUpdate } from "srvmgr-api";
 import { PermissionsManager } from "../services/PermissionsManager";
+import { POSIXAuthority } from "../services/POSIXAuthority";
+import { ConfigParser, KeyValueEntry } from "../core/ConfigParser";
+import { ConfigWriter } from "../core/ConfigWriter";
+import { ConfigModel } from "../core/ConfigModel";
+
+class AutoUpgradeFileParser extends ConfigParser
+{
+    protected FileNameMatchesIncludeDir(fileName: string): boolean
+    {
+        return false;
+    }
+
+    protected ParseIncludeDir(line: string): string | undefined
+    {
+        return undefined;
+    }
+
+    protected ParseKeyValue(line: string): KeyValueEntry
+    {
+        const parts = line.TrimRight(";").split(" ");
+        return {
+            type: "KeyValue",
+            key: parts[0],
+            value: parts[1].TrimLeft('"').TrimRight('"')
+        };
+    }
+}
+
+class AutoUpgradeFileWriter extends ConfigWriter
+{
+    protected KeyValueEntryToString(entry: KeyValueEntry)
+    {
+        return entry.key + " " + entry.value + ";";
+    }
+}
+
+const autoUpgradeFilePath = "/etc/apt/apt.conf.d/20auto-upgrades";
 
 @Injectable
 class SystemUpdateApi
@@ -35,6 +72,50 @@ class SystemUpdateApi
 
         const res = await this.commandExecutor.ExecuteCommand(["apt", "list", "--upgradeable"], call.session);
         return res.stdout;
+    }
+
+    @WebSocketAPIEndpoint({ route: SystemUpdate.Api.QueryUnattendedUpgradeConfig.message })
+    public async QueryUnattendedUpgradeConfig(request: ApiRequest, data: SystemUpdate.Api.QueryUnattendedUpgradeConfig.RequestData): Promise<SystemUpdate.Api.QueryUnattendedUpgradeConfig.ResultData>
+    {
+        const cfgEntries = await this.ReadConfig(request.session);
+        const cfgModel = new ConfigModel(cfgEntries);
+
+        return {
+            config: {
+                unattendedUpgrades: parseInt(cfgModel.WithoutSectionAsDictionary()["APT::Periodic::Unattended-Upgrade"] as string) === 1,
+                updatePackageLists: parseInt(cfgModel.WithoutSectionAsDictionary()["APT::Periodic::Update-Package-Lists"] as string) === 1,
+            }
+        };
+    }
+
+    @WebSocketAPIEndpoint({ route: SystemUpdate.Api.SetUnattendedUpgradeConfig.message })
+    public async SetUnattendedUpgradeConfig(request: ApiRequest, data: SystemUpdate.Api.SetUnattendedUpgradeConfig.RequestData): Promise<SystemUpdate.Api.SetUnattendedUpgradeConfig.ResultData>
+    {
+        const cfgEntries = await this.ReadConfig(request.session);
+        const cfgModel = new ConfigModel(cfgEntries);
+
+        cfgModel.SetProperty("", "APT::Periodic::Unattended-Upgrade", this.BoolToNumberString(data.config.unattendedUpgrades));
+        cfgModel.SetProperty("", "APT::Periodic::Update-Package-Lists", this.BoolToNumberString(data.config.updatePackageLists));
+
+        const configWriter = new AutoUpgradeFileWriter(() => "", "", "");
+        await configWriter.Write(autoUpgradeFilePath, cfgEntries);
+
+        return {};
+    }
+
+    //Private methods
+    private BoolToNumberString(b: boolean)
+    {
+        const n = b ? 1 : 0;
+
+        return '"' + n + '"';
+    }
+
+    private async ReadConfig(session: POSIXAuthority)
+    {
+        const parser = new AutoUpgradeFileParser([], {});
+
+        return await parser.Parse(autoUpgradeFilePath);
     }
 }
 

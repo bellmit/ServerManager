@@ -31,4 +31,14 @@ export class UpdateService
     {
         return this.webSocketService.SendRequest<string>(SystemUpdate.Api.CheckForUpdates.message);
     }
+
+    public QueryUnattendedUpgradeConfig(data: SystemUpdate.Api.QueryUnattendedUpgradeConfig.RequestData)
+    {
+        return this.webSocketService.SendRequest<SystemUpdate.Api.QueryUnattendedUpgradeConfig.ResultData>(SystemUpdate.Api.QueryUnattendedUpgradeConfig.message, data);
+    }
+
+    public SetUnattendedUpgradeConfig(data: SystemUpdate.Api.SetUnattendedUpgradeConfig.RequestData)
+    {
+        return this.webSocketService.SendRequest<SystemUpdate.Api.SetUnattendedUpgradeConfig.ResultData>(SystemUpdate.Api.SetUnattendedUpgradeConfig.message, data);
+    }
 }

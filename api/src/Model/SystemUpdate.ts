@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -18,10 +18,44 @@
 
 const MSG_SYSTEMUPDATE = "/SystemUpdate/";
 
+export interface UnattendedUpgradeConfig
+{
+    updatePackageLists: boolean;
+    unattendedUpgrades: boolean;
+}
+
 export namespace Api
 {
     export namespace CheckForUpdates
     {
         export const message = MSG_SYSTEMUPDATE + "Check";
+    }
+
+    export namespace QueryUnattendedUpgradeConfig
+    {
+        export const message = MSG_SYSTEMUPDATE + "QueryUnattendedUpgradeCfg";
+
+        export interface RequestData
+        {
+        }
+
+        export interface ResultData
+        {
+            config: UnattendedUpgradeConfig;
+        }
+    }
+
+    export namespace SetUnattendedUpgradeConfig
+    {
+        export const message = MSG_SYSTEMUPDATE + "SetUnattendedUpgradeCfg";
+
+        export interface RequestData
+        {
+            config: UnattendedUpgradeConfig;
+        }
+
+        export interface ResultData
+        {
+        }
     }
 }

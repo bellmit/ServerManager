@@ -82,7 +82,7 @@ class UsersApi
     public async ListUserGroups(request: ApiRequest, userName: string)
     {
         const user = this.users.find(user => user.name === userName);
-        const groups = user === undefined ? [] : this.usersManager.GetGroupsOf(user.name);
+        const groups = user === undefined ? [] : await this.usersManager.GetGroupsOf(user.name);
         this.connectionManager.Respond(request, groups || []);
     }
 
