@@ -123,6 +123,10 @@ export class TaskScheduler
         let diff = scheduleTime.valueOf() - Date.now();
         if(diff < 0)
             diff = 0;
+
+        if(diff > 2147483647)
+            diff = 2147483647;
+
         return diff;
     }
 
@@ -145,6 +149,12 @@ export class TaskScheduler
         let task = this.tasks.get(taskId);
         if(task === undefined)
             return;
+        if(task.nextScheduleTime.valueOf() < Date.now())
+        {
+            //clock came to early, reschedule
+            task.timerId = this.StartClock(taskId, task.nextScheduleTime);
+            return;
+        }
 
         await task.task();
 
