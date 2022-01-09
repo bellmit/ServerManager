@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -28,6 +28,11 @@ export class FileSystemService
     }
 
     //Public methods
+    public ChangeMode(data: FileSystemApi.ChangeMode.RequestData)
+    {
+        return this.websocketService.SendRequest<FileSystemApi.ChangeMode.ResultData>(FileSystemApi.ChangeMode.message, data);
+    }
+
     public ListDirectoryContents(dirPath: FileSystemApi.ListDirectoryContents.RequestData)
     {
         return this.websocketService.SendRequest<FileSystemApi.ListDirectoryContents.ResultData>(FileSystemApi.ListDirectoryContents.message, dirPath);

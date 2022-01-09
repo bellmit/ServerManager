@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,21 +16,23 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon, Anchor } from "acfrontend";
+import { Component, JSX_CreateElement, ProgressSpinner, Injectable, MatIcon, Anchor, SelectableTable, MenuManager, Menu, MenuItem, PopupManager } from "acfrontend";
 import { FileSystemService } from "./FileSystemService";
 import { FileSystemApi, Group, User } from "srvmgr-api";
 import { UsersService } from "../Users/UsersService";
 import { Dictionary } from "acts-util-core";
+import { ChModDialogComponent } from "./ChModDialogComponent";
 
 @Injectable
 export class DirectoryViewComponent extends Component
 {
-    constructor(private fileSystemService: FileSystemService, private usersService: UsersService)
+    constructor(private fileSystemService: FileSystemService, private usersService: UsersService, private menuManager: MenuManager, private popupManager: PopupManager)
     {
         super();
 
         this.dirPath = "~";
         this.entries = null;
+        this.selectedEntryNames = [];
         this.groups = null;
         this.users = null;
     }
@@ -40,25 +42,20 @@ export class DirectoryViewComponent extends Component
         if( (this.entries === null) || (this.groups === null) || (this.users === null) )
             return <ProgressSpinner />;
 
+        const columns = ["", "Name", "Size", "Owner", "Group", "Others"];
+
         return <fragment>
             <h2>{this.dirPath}</h2>
-            <table>
-                <tr>
-                    <th> </th>
-                    <th>Name</th>
-                    <th>Size</th>
-                    <th>Owner</th>
-                    <th>Group</th>
-                    <th>Others</th>
-                </tr>
+            <SelectableTable columns={columns} multiSelections={true} rowKeys={this.entries.map( x => x.name )} selectedRowKeys={this.selectedEntryNames} selectionChanged={newValue => this.selectedEntryNames = newValue}>
                 {this.entries.map(this.RenderEntry.bind(this))}
-            </table>
+            </SelectableTable>
         </fragment>;
     }
 
     //Private methods
     private dirPath: string;
     private entries: FileSystemApi.ListDirectoryContents.FileSystemNode[] | null;
+    private selectedEntryNames: string[];
     private groups: Dictionary<Group> | null;
     private users: Dictionary<User> | null;
 
@@ -83,9 +80,14 @@ export class DirectoryViewComponent extends Component
         }
     }
 
+    private QuerySelectedEntries()
+    {
+        return this.entries!.filter(x => this.selectedEntryNames.Contains(x.name));
+    }
+
     private RenderEntry(entry: FileSystemApi.ListDirectoryContents.FileSystemNode)
     {
-        return <tr>
+        return <tr oncontextmenu={this.OnContextMenu.bind(this)}>
             <td><MatIcon>{entry.type === "directory" ? "folder" : "note"}</MatIcon></td>
             <td>{this.RenderTitle(entry)}</td>
             <td>{entry.size.FormatBinaryPrefixed("B")}</td>
@@ -147,6 +149,42 @@ export class DirectoryViewComponent extends Component
     }
 
     //Event handlers
+    private OnChangeMode()
+    {
+        const selected = this.QuerySelectedEntries();
+        let mode = selected[0].mode;
+        let hasDir = selected.Values().Filter(x => x.type == "directory").Any();
+        let recursive = false;
+
+        const dialog = <ChModDialogComponent mode={mode} onModeChanged={newMode => mode = newMode} onRecursiveChanged={newValue => recursive = newValue} allowRecursive={hasDir} />;
+        const dialogRef = this.popupManager.OpenDialog(dialog, { title: "Change mode" });
+        dialogRef.onAccept.Subscribe(async () => {
+
+            this.entries = null;
+
+            for (const file of selected)
+            {
+                const fullPath = this.dirPath + "/" + file.name;
+                await this.fileSystemService.ChangeMode({ mode, path: fullPath, recursive });
+            }
+
+            this.QueryEntries(this.dirPath);
+        });
+    }
+
+    private OnContextMenu(event: MouseEvent)
+    {
+        event.preventDefault();
+
+        if(!this.selectedEntryNames.IsEmpty())
+        {
+            const menu = <Menu>
+                <MenuItem><a onclick={this.OnChangeMode.bind(this)}>Change mode</a></MenuItem>
+            </Menu>;
+            this.menuManager.OpenMenu(menu, event);
+        }
+    }
+
     private OnDirChanged(path: string)
     {
         this.entries = null;

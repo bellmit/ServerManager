@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -20,11 +20,13 @@ import { ListSitesComponent } from "./ListSitesComponent";
 import { PortsComponent } from "./PortsComponent";
 import { ListModulesComponent } from "./ListModulesComponent";
 import { EditSiteComponent } from "./EditSiteComponent";
+import { AddSiteComponent } from "./AddSiteComponent";
 
 export const routes : Routes = [
     { path: "modules", component: ListModulesComponent },
     { path: "ports", component: PortsComponent },
     { path: "sites", component: ListSitesComponent },
+    { path: "site/add", component: AddSiteComponent },
     { path: "site/:siteName", component: EditSiteComponent },
     { path: "", redirect: "modules" }
 ];

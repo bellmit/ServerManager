@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2021-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,7 @@ export const plugin: PluginDefinition = {
     title: "Virtual machine management",
     baseRoute: "/vms",
 
+    dependentModules: ["virtualization"],
     icon: <MatIcon>dvr</MatIcon>,
     providedIn: "root",
 };

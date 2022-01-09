@@ -37,6 +37,12 @@ export class FileSystemService
     }
 
     //Public methods
+    public async ChangeMode(path: string, mode: number, session: POSIXAuthority)
+    {
+        await this.RequireAccess(path, FileAccess.Write, session);
+        await fs.promises.chmod(path, mode);
+    }
+    
     public async ChangeOwner(path: string, newOwner: POSIXAuthority, session: POSIXAuthority)
     {
         await this.RequireAccess(path, FileAccess.Write, session);
@@ -60,6 +66,12 @@ export class FileSystemService
         if(!access)
             return [];
         return fs.promises.readdir(dirPath, "utf-8");
+    }
+
+    public async QueryFileInfo(filePath: string, session: POSIXAuthority)
+    {
+        await this.CheckAccess(filePath, FileAccess.Read, session);
+        return fs.promises.lstat(filePath);
     }
 
     public async ReadTextFile(path: string, session: POSIXAuthority)

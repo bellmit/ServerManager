@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020-2021 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -22,6 +22,22 @@ const MSG_FILESYSTEM = "/FileSystem/";
 
 export namespace FileSystemApi
 {
+    export namespace ChangeMode
+    {
+        export const message = MSG_FILESYSTEM + "chmod";
+        
+        export interface RequestData
+        {
+            path: string;
+            mode: number;
+            recursive: boolean;
+        }
+
+        export interface ResultData
+        {
+        }
+    }
+
     export namespace ListDirectoryContents
     {
         export const message = MSG_FILESYSTEM + SUBMSG_LIST;

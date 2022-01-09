@@ -1,6 +1,6 @@
 /**
  * ServerManager
- * Copyright (C) 2020 Amir Czwink (amir130@hotmail.de)
+ * Copyright (C) 2020-2022 Amir Czwink (amir130@hotmail.de)
  * 
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU Affero General Public License as published by
@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * */
 
-import { Injectable, Component, ProgressSpinner, JSX_CreateElement, Switch, Anchor, MatIcon } from "acfrontend";
+import { Injectable, Component, ProgressSpinner, JSX_CreateElement, Switch, Anchor, MatIcon, RouterButton } from "acfrontend";
 import { ApacheService } from "./ApacheService";
 import { Apache } from "srvmgr-api";
 
@@ -35,20 +35,30 @@ export class ListSitesComponent extends Component
         if(this.data === null)
             return <ProgressSpinner />;
 
-        return <table>
-            <tr>
-                <th>Name</th>
-                <th>Enabled</th>
-                <th>Actions</th>
-            </tr>
-            {...this.data.map(this.RenderSiteRow.bind(this))}
-        </table>;
+        return <fragment>
+            {this.RenderSites()}
+            <div class="row">
+                <RouterButton route="/apache/site/add"><MatIcon>add</MatIcon></RouterButton>
+            </div>
+        </fragment>;
     }
 
     //Private members
     private data: Apache.EntityOverviewInfo[] | null;
 
     //Private methods
+    private RenderSites()
+    {
+        return <table>
+            <tr>
+                <th>Name</th>
+                <th>Enabled</th>
+                <th>Actions</th>
+            </tr>
+            {...this.data!.map(this.RenderSiteRow.bind(this))}
+        </table>;
+    }
+
     private RenderSiteRow(site: Apache.EntityOverviewInfo)
     {
         return <tr>
